@@ -29,15 +29,21 @@ export const handleCatalogRequest = async (ctx: Context, query: string, googleKe
 
     ctx.response.headers.set("Cache-Control", "max-age=3600");
     ctx.response.body = responsePayload;
-  } catch (error: any) {
-    console.error(
-      `[${new Date().toISOString()}] Error processing catalog request:`,
-      error
-    );
+  } catch (error: unknown) { 
+    console.error(`[${new Date().toISOString()}] Error:`, error);
+
+    let errorMessage = "An unknown error occurred.";
+
+    if (error instanceof Error) { 
+      errorMessage = error.message;
+    } else if (typeof error === 'object' && error !== null && 'message' in error) {
+      errorMessage = String(error.message); 
+    }
+
     ctx.response.status = 500;
     ctx.response.body = {
       error: "Failed to generate recommendations",
-      details: error.message,
+      details: errorMessage,
     };
   }
 };
