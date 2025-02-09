@@ -1,0 +1,6 @@
+.env
+.github/
+.devcontainer/
+cloudflared/
+Dockerfile
+docker-compose.yml
