@@ -59,9 +59,6 @@ Search Query: ${searchQuery}`;
     if (!Array.isArray(recommendations)) {
       throw new Error("Response is not an array");
     }
-    if (recommendations.length !== 20) {
-      throw new Error("Response does not contain exactly 20 movie names");
-    }
   } catch (jsonError: any) {
     throw new Error("Failed to parse recommendations JSON: " + jsonError.message);
   }
