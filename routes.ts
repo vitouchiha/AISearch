@@ -53,7 +53,7 @@ router.get("/manifest.json", (ctx) => {
   console.log(`[${new Date().toISOString()}] Serving manifest`);
   ctx.response.headers.set("Cache-Control", "max-age=86400");
   ctx.response.body = manifest;
-});
+}); 
 
 router.get("/configure", async (ctx) => {
   ctx.response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
