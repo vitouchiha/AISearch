@@ -18,6 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set lower-case repository name
+        id: set_repo
+        run: echo "repo=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
@@ -32,22 +36,23 @@ jobs:
 
       - name: Build Docker image (SHA tag)
         uses: docker/build-push-action@v4
-        id: build-image 
+        id: build-image
         with:
           context: .
           file: ./Dockerfile
-          push: false
-          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          push: false 
+          tags: ghcr.io/${{ steps.set_repo.outputs.repo }}:${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Set image tags
-        id: set-tags
+        id: set_tags
         run: |
-          echo "image_tags=ghcr.io/${{ github.repository }}:${{ github.sha }},ghcr.io/${{ github.repository }}:latest" >> $GITHUB_OUTPUT
-          if [[ startsWith("${{ github.ref }}", "refs/tags/") ]]; then
-            echo "image_tags=${{ steps.set-tags.outputs.image_tags }},ghcr.io/${{ github.repository }}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          tags="ghcr.io/${{ steps.set_repo.outputs.repo }}:${{ github.sha }},ghcr.io/${{ steps.set_repo.outputs.repo }}:latest"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            tags="$tags,ghcr.io/${{ steps.set_repo.outputs.repo }}:${{ github.ref_name }}"
           fi
+          echo "image_tags=${tags}" >> $GITHUB_OUTPUT
 
       - name: Push Docker image
         uses: docker/build-push-action@v4
@@ -55,14 +60,14 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.set-tags.outputs.image_tags }}
+          tags: ${{ steps.set_tags.outputs.image_tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Send webhook to trigger deployment
         run: |
-            curl -X POST \
-              -H 'Content-Type: application/json' \
-              -H "x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}" \
-              -d '{"image_tag": "ghcr.io/${{ github.repository }}:latest"}' \
-              ${{ secrets.VPS_WEBHOOK_URL }}
+          curl -X POST \
+            -H 'Content-Type: application/json' \
+            -H "x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}" \
+            -d '{"image_tag": "ghcr.io/${{ steps.set_repo.outputs.repo }}:latest"}' \
+            ${{ secrets.VPS_WEBHOOK_URL }}
