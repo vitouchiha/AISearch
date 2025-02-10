@@ -32,11 +32,11 @@ jobs:
 
       - name: Build Docker image (SHA tag)
         uses: docker/build-push-action@v4
-        id: build-image  # Add an ID to the build step
+        id: build-image 
         with:
           context: .
           file: ./Dockerfile
-          push: false # Don't push yet
+          push: false
           tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
@@ -64,7 +64,7 @@ jobs:
         with:
           url: ${{ secrets.VPS_WEBHOOK_URL }}
           method: POST
-          headers:
+          headers: |
             Content-Type: application/json
             x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}
           body: |
