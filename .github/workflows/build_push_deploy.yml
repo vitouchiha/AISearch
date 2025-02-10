@@ -69,5 +69,5 @@ jobs:
             x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}
           body: |
             {
-              "image_tag": "ghcr.io/${{ github.repository }}:latest" # Or use the SHA tag if you prefer
+              "image_tag": "ghcr.io/${{ github.repository }}:latest"
             }
