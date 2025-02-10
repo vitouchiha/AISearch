@@ -69,5 +69,6 @@ jobs:
           curl -X POST \
             -H 'Content-Type: application/json' \
             -H "x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}" \
+            -H "User-Agent: GitHub-Actions" \
             -d '{"image_tag": "ghcr.io/${{ steps.set_repo.outputs.repo }}:latest"}' \
             ${{ secrets.VPS_WEBHOOK_URL }}
