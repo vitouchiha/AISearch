@@ -32,6 +32,7 @@ jobs:
 
       - name: Build Docker image (SHA tag)
         uses: docker/build-push-action@v4
+        id: build-image  # Add an ID to the build step
         with:
           context: .
           file: ./Dockerfile
@@ -40,15 +41,21 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
-      - name: Build and Push Docker image (latest and tag if applicable)
+      - name: Set image tags
+        id: set-tags
+        run: |
+          echo "image_tags=ghcr.io/${{ github.repository }}:${{ github.sha }},ghcr.io/${{ github.repository }}:latest" >> $GITHUB_OUTPUT
+          if [[ startsWith("${{ github.ref }}", "refs/tags/") ]]; then
+            echo "image_tags=${{ steps.set-tags.outputs.image_tags }},ghcr.io/${{ github.repository }}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && format('ghcr.io/${{ github.repository }}:{0}', github.ref_name) || '' }} # Tag with the release tag
+          tags: ${{ steps.set-tags.outputs.image_tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
