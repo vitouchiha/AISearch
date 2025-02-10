@@ -93,10 +93,8 @@ router.post("/git-webhook", async (ctx) => {
 
     const results = await Promise.all([dockerPull, dockerComposePull, dockerComposeUp]);
     results.forEach(result => {
-        if (!result.success) {
-            console.error("Docker command failed:", new TextDecoder().decode(result.stderr));
-        }
-    })
+        if (!result.success) console.error("Docker command failed:", new TextDecoder().decode(result.stderr));
+    });
 
 
     console.log(`Deployment triggered for ${imageTag}`);

@@ -1,7 +1,7 @@
 services:
   ai-stremio-search:
-    build: .
-    container_name: ai-stremio-search:latest
+    image: ghcr.io/mkcfdc/aisearch:latest
+    container_name: ai-stremio-search
     ports:
       - "${PORT}:${PORT}"
     env_file:
