@@ -24,7 +24,7 @@ const router = new Router();
 router.get("/:googleKey/catalog/movie/ai-movies/:searchParam", async (ctx: CatalogContext) => {
   let googleKey = ctx.params.googleKey!;
   const rawParam = ctx.params.searchParam!;
-  const identifier = ctx.request.ip;
+  const identifier = ctx.request.headers.get("cf-connecting-ip") || ctx.request.ip;
 
   const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
 
@@ -53,7 +53,7 @@ router.get("/catalog/movie/ai-movies/:searchParam", async (ctx: SearchParamConte
   const googleKey = GEMINI_API_KEY;
   const rawParam = ctx.params.searchParam!;
   const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
-  const identifier = ctx.request.ip;
+  const identifier = ctx.request.headers.get("cf-connecting-ip") || ctx.request.ip;
 
   const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
 
@@ -73,7 +73,7 @@ router.get("/catalog/movie/ai-movies/:searchParam", async (ctx: SearchParamConte
 
 router.get("/:googleKey/manifest.json", async (ctx: ManifestContext) => {
   const _googleKey = ctx.params.googleKey!;
-  const identifier = ctx.request.ip;
+  const identifier = ctx.request.headers.get("cf-connecting-ip") || ctx.request.ip;
 
   const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
 
@@ -97,7 +97,7 @@ router.get("/:googleKey/manifest.json", async (ctx: ManifestContext) => {
 router.get("/manifest.json", async (ctx) => {
   console.log(`[${new Date().toISOString()}] Serving manifest`);
 
-  const identifier = ctx.request.ip;
+  const identifier = ctx.request.headers.get("cf-connecting-ip") || ctx.request.ip;
 
   const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
 
@@ -117,7 +117,7 @@ router.get("/manifest.json", async (ctx) => {
 router.get("/configure", async (ctx) => {
   ctx.response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
 
-  const identifier = ctx.request.ip;
+  const identifier = ctx.request.headers.get("cf-connecting-ip") || ctx.request.ip;
 
   const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
 
