@@ -1,13 +1,13 @@
 services:
-  app:
+  ai-stremio-search:
     build: .
-    container_name: deno-app
+    container_name: ai-stremio-search:latest
     ports:
-      - "8000:8000"
+      - "${PORT}:${PORT}"
     env_file:
       - .env
     restart: always
-    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read=.", "--quiet", "main.ts"]
+    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read=.", "--quiet", "--allow-run=docker,docker-compose", "main.ts"]
     networks:
       - secure_net
 
