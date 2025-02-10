@@ -60,14 +60,9 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Send webhook to trigger deployment
-        uses: actions/http-client@v2
-        with:
-          url: ${{ secrets.VPS_WEBHOOK_URL }}
-          method: POST
-          headers: |
-            Content-Type: application/json
-            x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}
-          body: |
-            {
-              "image_tag": "ghcr.io/${{ github.repository }}:latest"
-            }
+        run: |
+            curl -X POST \
+              -H 'Content-Type: application/json' \
+              -H "x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}" \
+              -d '{"image_tag": "ghcr.io/${{ github.repository }}:latest"}' \
+              ${{ secrets.VPS_WEBHOOK_URL }}
