@@ -1,5 +1,5 @@
 import { TMDBDetails } from "../config/types.ts";
-import { TMDB_API_KEY } from "../config/env.ts";
+import { TMDB_API_KEY, DEV_MODE } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 
 
@@ -60,7 +60,9 @@ export async function getTmdbDetailsByName(movieName: string): Promise<TMDBDetai
 
     return result;
   } catch (error) {
+    if(DEV_MODE){
     console.error(`[${new Date().toISOString()}] Error fetching TMDB details for movie: ${movieName}`, error);
+    }
     return { id: "", poster: null, showName: null, year: null };
   }
 }

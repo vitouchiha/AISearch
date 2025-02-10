@@ -11,6 +11,7 @@ if (!WEBHOOK_SECRET) {
   Deno.exit(1);
 }
 
+const DEV_MODE = Deno.env.get("DEV_MODE");
 const geminiKey = Deno.env.get("GEMINI_API_KEY");
 const tmdbKey = Deno.env.get("TMDB_API_KEY");
 const upstashRedisUrl = Deno.env.get("UPSTASH_REDIS_REST_URL");
@@ -55,4 +56,5 @@ export {
   AI_MODEL,
   WEBHOOK_SECRET,
   PORT,
+  DEV_MODE,
 };
