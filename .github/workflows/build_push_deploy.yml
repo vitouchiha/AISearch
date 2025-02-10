@@ -63,12 +63,3 @@ jobs:
           tags: ${{ steps.set_tags.outputs.image_tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
-
-      - name: Send webhook to trigger deployment
-        run: |
-          curl -X POST \
-            -H 'Content-Type: application/json' \
-            -H "x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}" \
-            -H "User-Agent: GitHub-Actions" \
-            -d '{"image_tag": "ghcr.io/${{ steps.set_repo.outputs.repo }}:latest"}' \
-            ${{ secrets.VPS_WEBHOOK_URL }}

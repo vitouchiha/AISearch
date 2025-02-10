@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     restart: always
-    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read=.", "--quiet", "--allow-run=docker,docker-compose", "main.ts"]
+    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read=.", "--quiet", "main.ts"]
     networks:
       - secure_net
 

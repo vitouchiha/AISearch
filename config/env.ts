@@ -5,12 +5,6 @@ if (Deno.env.get("DEV_MODE") === "true") {
   console.log("Development mode: .env file loaded.");
 }
 
-const WEBHOOK_SECRET = Deno.env.get("WEBHOOK_SECRET");
-if (!WEBHOOK_SECRET) {
-  console.error("WEBHOOK_SECRET environment variable is required.");
-  Deno.exit(1);
-}
-
 const DEV_MODE = Deno.env.get("DEV_MODE");
 const geminiKey = Deno.env.get("GEMINI_API_KEY");
 const tmdbKey = Deno.env.get("TMDB_API_KEY");
@@ -54,7 +48,6 @@ export {
   UPSTASH_VECTOR_TOKEN,
   UPSTASH_VECTOR_URL,
   AI_MODEL,
-  WEBHOOK_SECRET,
   PORT,
   DEV_MODE,
 };
