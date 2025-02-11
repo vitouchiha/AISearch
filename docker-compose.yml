@@ -1,25 +1,25 @@
 services:
   ai-stremio-search:
-    image: ghcr.io/mkcfdc/aisearch:latest
+    image: aisearch:latest
     container_name: ai-stremio-search
     ports:
       - "${PORT}:${PORT}"
     env_file:
       - .env
-    restart: always
-    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read=.", "--quiet", "main.ts"]
+    #restart: always
+    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read", "main.ts"]
     networks:
       - secure_net
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflare-tunnel
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARED_TOKEN}
-    depends_on:
-      - ai-stremio-search
-    restart: always
-    networks:
-      - secure_net
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: cloudflare-tunnel
+  #   command: tunnel --no-autoupdate run --token ${CLOUDFLARED_TOKEN}
+  #   depends_on:
+  #     - ai-stremio-search
+  #   restart: always
+  #   networks:
+  #     - secure_net
 
 networks:
   secure_net:
