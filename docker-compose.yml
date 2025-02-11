@@ -15,6 +15,8 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflare-tunnel
     command: tunnel --no-autoupdate run --token ${CLOUDFLARED_TOKEN}
+    depends_on:
+      - ai-stremio-search
     restart: always
     networks:
       - secure_net
