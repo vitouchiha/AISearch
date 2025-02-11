@@ -1,4 +1,5 @@
 FROM denoland/deno:alpine-2.1.9
+RUN apk update && apk upgrade --no-cache
 
 WORKDIR /app
 
