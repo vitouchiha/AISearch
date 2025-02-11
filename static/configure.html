@@ -108,6 +108,16 @@
         }
       }
 
+      function isValidGeminiApiKey(key) {
+        if (!key) return false;
+        if (typeof key !== 'string') return false;
+  
+        const keyFormat = /^AIza[a-zA-Z0-9_-]{35,39}$/;
+        if (!keyFormat.test(key)) return false;
+  
+        return true;
+      }
+
       googleKeyInput.addEventListener("input", () => {
         if (!defaultKeyCheckbox.checked) updateButtonState();
       });
@@ -129,6 +139,10 @@
         let googleKey = googleKeyInput.value.trim();
         if (!googleKey) {
           alert("Please enter your Google AI key.");
+          return;
+        }
+        if (googleKey !== "default" && !isValidGeminiApiKey(googleKey)) {
+          alert("Your API key doesn't pass the check. Please verify your key and try again.");
           return;
         }
         const urlWithConfig = `${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;

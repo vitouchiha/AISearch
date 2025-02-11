@@ -1,6 +1,8 @@
 import { Application, oakCors, Context } from "./config/deps.ts";
-import { PORT } from "./config/env.ts"
+import { PORT } from "./config/env.ts";
+import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 import router from "./routes.ts";
+import { responseLog } from "./middleware/ResponseLog.ts";
 
 const app = new Application();
 
@@ -11,14 +13,10 @@ app.use(async (ctx: Context, next) => {
   await next();
 });
 
-app.use(async (ctx: Context, next) => {
-  const start = performance.now();
-  await next();
-  const ms = performance.now() - start;
-  console.log(`[${new Date().toISOString()}] ${ctx.request.method} ${ctx.request.url} - ${ms.toFixed(2)}ms`);
-});
-
 app.use(oakCors());
+app.use(responseLog);
+app.use(rateLimitMiddleware);
+
 app.use(router.routes());
 app.use(router.allowedMethods());
 
