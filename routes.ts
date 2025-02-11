@@ -21,11 +21,11 @@ router.get("/:googleKey/catalog/movie/ai-movies/:searchParam", async (ctx: Catal
   let googleKey = ctx.params.googleKey!;
   const rawParam = ctx.params.searchParam!;
 
-  if (!rawParam.startsWith('search=') || !rawParam.endsWith('.json')) ctx.throw(400, 'Invalid parameter format');
+  if (!rawParam.startsWith('search=') || !rawParam.endsWith('.json')) return;
   if (!isValidGeminiApiKey(googleKey)) googleKey = GEMINI_API_KEY;
   
   const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
-  if (badWordsFilter(searchQuery)) ctx.throw(403, "Sex related content is not allowed");
+  if (badWordsFilter(searchQuery)) return; // don't need this filling up the vector.
 
   console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
   await handleCatalogRequest(ctx, searchQuery, googleKey);
@@ -41,7 +41,7 @@ router.get("/:googleKey/manifest.json", (ctx: ManifestContext) => {
   ctx.response.body = manifestWithoutBehavior;
 });
 
-router.get("/manifest.json", (ctx) => {
+router.get("/manifest.json", (ctx: ManifestContext) => {
   console.log(`[${new Date().toISOString()}] Serving manifest`);
 
   ctx.response.headers.set("Cache-Control", "max-age=86400");
