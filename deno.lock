@@ -3,7 +3,8 @@
   "specifiers": {
     "jsr:@std/dotenv@*": "0.225.3",
     "npm:@types/node@*": "22.5.4",
-    "npm:@upstash/ratelimit@latest": "2.0.5_@upstash+redis@1.34.4"
+    "npm:@upstash/ratelimit@latest": "2.0.5_@upstash+redis@1.34.4",
+    "npm:bad-words@*": "4.0.0"
   },
   "jsr": {
     "@std/dotenv@0.225.3": {
@@ -35,6 +36,15 @@
       "dependencies": [
         "crypto-js"
       ]
+    },
+    "bad-words@4.0.0": {
+      "integrity": "sha512-fLjG/I0N3I7xhurqGnGitSRD10UeEE63a7hyXtutQDpxo4+Eal+i7veWeZxZJPNtsl6X1mUIoWPwt8gQ7NMQUw==",
+      "dependencies": [
+        "badwords-list"
+      ]
+    },
+    "badwords-list@2.0.1-4": {
+      "integrity": "sha512-FxfZUp7B9yCnesNtFQS9v6PvZdxTYa14Q60JR6vhjdQdWI4naTjJIyx22JzoER8ooeT8SAAKoHLjKfCV7XgYUQ=="
     },
     "crypto-js@4.2.0": {
       "integrity": "sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q=="

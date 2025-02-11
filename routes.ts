@@ -2,16 +2,12 @@ import { Router, type RouterContext } from "./config/deps.ts";
 import { GEMINI_API_KEY } from "./config/env.ts";
 import { manifest } from "./config/manifest.ts";
 import { handleCatalogRequest } from "./handlers/handleCatalogRequest.ts";
+import { badWordsFilter } from "./utils/badWordsFilter.ts";
 import { isValidGeminiApiKey } from "./utils/isValidGeminiApiKey.ts";
 
 type CatalogContext = RouterContext<
   "/:googleKey/catalog/movie/ai-movies/:searchParam",
   { googleKey: string; searchParam: string }
->;
-
-type SearchParamContext = RouterContext<
-  "/catalog/movie/ai-movies/:searchParam", 
-  { searchParam: string }
 >;
 
 type ManifestContext = RouterContext<
@@ -25,27 +21,17 @@ router.get("/:googleKey/catalog/movie/ai-movies/:searchParam", async (ctx: Catal
   let googleKey = ctx.params.googleKey!;
   const rawParam = ctx.params.searchParam!;
 
-  if (!rawParam.startsWith('search=') || !rawParam.endsWith('.json')) {
-    ctx.throw(400, 'Invalid parameter format');
-  }
-
+  if (!rawParam.startsWith('search=') || !rawParam.endsWith('.json')) ctx.throw(400, 'Invalid parameter format');
   if (!isValidGeminiApiKey(googleKey)) googleKey = GEMINI_API_KEY;
   
   const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
-  console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
-  await handleCatalogRequest(ctx, searchQuery, googleKey);
-});
-
-router.get("/catalog/movie/ai-movies/:searchParam", async (ctx: SearchParamContext) => {
-  const googleKey = GEMINI_API_KEY;
-  const rawParam = ctx.params.searchParam!;
-  const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
+  if (badWordsFilter(searchQuery)) ctx.throw(403, "Sex related content is not allowed");
 
   console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
   await handleCatalogRequest(ctx, searchQuery, googleKey);
 });
 
-router.get("/:googleKey/manifest.json", async (ctx: ManifestContext) => {
+router.get("/:googleKey/manifest.json", (ctx: ManifestContext) => {
   const _googleKey = ctx.params.googleKey!;
 
   console.log(`[${new Date().toISOString()}] Serving manifest`);
@@ -55,7 +41,7 @@ router.get("/:googleKey/manifest.json", async (ctx: ManifestContext) => {
   ctx.response.body = manifestWithoutBehavior;
 });
 
-router.get("/manifest.json", async (ctx) => {
+router.get("/manifest.json", (ctx) => {
   console.log(`[${new Date().toISOString()}] Serving manifest`);
 
   ctx.response.headers.set("Cache-Control", "max-age=86400");

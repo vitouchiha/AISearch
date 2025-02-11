@@ -14,3 +14,5 @@ export { SemanticCache } from "https://esm.sh/@upstash/semantic-cache";
 export { Index } from "https://esm.sh/@upstash/vector";
 export { generateText } from "https://esm.sh/ai";
 export { createGoogleGenerativeAI } from "https://esm.sh/@ai-sdk/google";
+
+export { Filter } from "npm:bad-words";
