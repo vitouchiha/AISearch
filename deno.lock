@@ -40,6 +40,9 @@
     "https://esm.sh/zod@^3.24.1?target=denonext": "https://esm.sh/zod@3.24.1?target=denonext"
   },
   "remote": {
+    "https://cdn.skypack.dev/-/@upstash/core-analytics@v0.0.10-ZmX21TeWkis2FpTZYW09/dist=es2019,mode=imports/optimized/@upstash/core-analytics.js": "09b00006da191a6bb025bf2c7f91c2f58b43d269630e1ea238657ec845fa56fe",
+    "https://cdn.skypack.dev/-/@upstash/ratelimit@v2.0.5-aVmL6TfVoCQjImPJXh35/dist=es2019,mode=imports/optimized/@upstash/ratelimit.js": "4a7e6135ac56221f596f5024eb0df66027d66deecd8d970f00b58fe53d1e86ce",
+    "https://cdn.skypack.dev/@upstash/ratelimit@latest": "ff97853514bbe36395adcb37c0c419e8b6799d340540afaf00ac36a454a5ad6e",
     "https://deno.land/std@0.152.0/_util/assert.ts": "e94f2eb37cebd7f199952e242c77654e43333c1ac4c5c700e929ea3aa5489f74",
     "https://deno.land/std@0.152.0/_util/os.ts": "3b4c6e27febd119d36a416d7a97bd3b0251b77c88942c8f16ee5953ea13e2e49",
     "https://deno.land/std@0.152.0/async/deferred.ts": "bc18e28108252c9f67dfca2bbc4587c3cbf3aeb6e155f8c864ca8ecff992b98a",
