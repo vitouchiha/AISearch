@@ -1,9 +1,10 @@
 import { Router, type RouterContext } from "./config/deps.ts";
 import { GEMINI_API_KEY } from "./config/env.ts";
 import { manifest } from "./config/manifest.ts";
-import { handleCatalogRequest } from "./handlers/handleCatalogRequest.ts";
 import { badWordsFilter } from "./utils/badWordsFilter.ts";
 import { isValidGeminiApiKey } from "./utils/isValidGeminiApiKey.ts";
+import { handleTrendingRequest } from "./handlers/handleTrendingMoviesRequest.ts";
+import { handleCatalogRequest } from "./handlers/handleCatalogRequest.ts";
 
 type CatalogContext = RouterContext<
   "/:googleKey/catalog/movie/ai-movies/:searchParam",
@@ -25,10 +26,33 @@ router.get("/:googleKey/catalog/movie/ai-movies/:searchParam", async (ctx: Catal
   if (!isValidGeminiApiKey(googleKey)) googleKey = GEMINI_API_KEY;
   
   const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
-  if (badWordsFilter(searchQuery)) return; // don't need this filling up the vector.
+  if (badWordsFilter(searchQuery)) return;
 
   console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
   await handleCatalogRequest(ctx, searchQuery, googleKey);
+});
+
+router.get("/catalog/movie/ai-movies/:searchParam", async (ctx: CatalogContext) => {
+  const rawParam = ctx.params.searchParam!;
+
+  if (!rawParam.startsWith('search=') || !rawParam.endsWith('.json')) return;
+  const googleKey = GEMINI_API_KEY;
+  
+  const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
+  if (badWordsFilter(searchQuery)) return;
+
+  console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
+  await handleCatalogRequest(ctx, searchQuery, googleKey);
+});
+
+router.get("/catalog/movie/ai-movies.json", async (ctx) => {
+  const _googleKey = ctx.params.googleKey!;
+  await handleTrendingRequest(ctx);
+});
+
+router.get("/:googleKey/catalog/movie/ai-movies.json", async (ctx) => {
+  const _googleKey = ctx.params.googleKey!;
+  await handleTrendingRequest(ctx);
 });
 
 router.get("/:googleKey/manifest.json", (ctx: ManifestContext) => {

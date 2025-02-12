@@ -48,6 +48,15 @@
           <label for="defaultKey" class="text-sm text-gray-300">Use default key</label>
         </div>
 
+        <!-- URL Display Box -->
+        <div
+          id="url-display-box"
+          class="hidden bg-gray-700 rounded-lg p-4 text-gray-100 break-words"
+        >
+          <p class="text-sm mb-2">Copy and paste this URL to install via Stremio:</p>
+          <code id="url-display" class="block bg-gray-800 p-2 rounded text-xs"></code>
+        </div>
+
         <!-- Install Button -->
         <button
           id="install-button"
@@ -75,24 +84,27 @@
           xmlns="http://www.w3.org/2000/svg"
         >
           <title>GitHub</title>
-          <path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.205 11.387.6.111.82-.261.82-.577 
-          0-.285-.011-1.04-.017-2.04-3.338.724-4.042-1.612-4.042-1.612-.546-1.387-1.333-1.757-1.333-1.757-1.089-.745.083-.729.083-.729 
-          1.205.084 1.84 1.236 1.84 1.236 1.07 1.835 2.809 1.304 3.495.997.108-.776.42-1.305.763-1.605-2.665-.3-5.466-1.335-5.466-5.93 
-          0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.957-.266 1.98-.399 3-.405 1.02.006 2.043.139 3 
-          .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81 
-          1.11.81 2.235 0 1.61-.015 2.91-.015 3.31 0 .315.21.694.825.576C20.565 21.092 24 16.592 24 12c0-6.627-5.373-12-12-12"/>
+          <path
+            d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.205 11.387.6.111.82-.261.82-.577
+          0-.285-.011-1.04-.017-2.04-3.338.724-4.042-1.612-4.042-1.612-.546-1.387-1.333-1.757-1.333-1.757-1.089-.745.083-.729.083-.729
+          1.205.084 1.84 1.236 1.84 1.236 1.07 1.835 2.809 1.304 3.495.997.108-.776.42-1.305.763-1.605-2.665-.3-5.466-1.335-5.466-5.93
+          0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.957-.266 1.98-.399 3-.405 1.02.006 2.043.139 3
+          .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81
+          1.11.81 2.235 0 1.61-.015 2.91-.015 3.31 0 .315.21.694.825.576C20.565 21.092 24 16.592 24 12c0-6.627-5.373-12-12-12"
+          />
         </svg>
         View this project on GitHub
       </a>
     </footer>
 
     <script>
-      // Ewww vanilla javascript.. lame. Where's React when you want it am I right??
       const googleKeyInput = document.getElementById("googleKey");
       const defaultKeyCheckbox = document.getElementById("defaultKey");
       const installButton = document.getElementById("install-button");
       const apiKeySection = document.getElementById("api-key-section");
       const manifestBaseUrl = "ai-stremio-search.mpc.lol";
+      const urlDisplayBox = document.getElementById("url-display-box");
+      const urlDisplay = document.getElementById("url-display");
 
       function updateButtonState() {
         if (defaultKeyCheckbox.checked) {
@@ -100,15 +112,31 @@
         } else {
           installButton.disabled = googleKeyInput.value.trim() === "";
         }
+         updateUrlDisplay();
       }
+
+       function updateUrlDisplay() {
+            let googleKey = googleKeyInput.value.trim();
+
+            if (defaultKeyCheckbox.checked) googleKey = "default";
+
+            if (googleKey !== "" && isValidGeminiApiKey(googleKey) || googleKey === "default"){
+              const urlWithConfig = `${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;
+                urlDisplay.textContent = urlWithConfig;
+                urlDisplayBox.classList.remove("hidden");
+            } else {
+                urlDisplayBox.classList.add("hidden");
+                 urlDisplay.textContent = '';
+            }
+        }
 
       function isValidGeminiApiKey(key) {
         if (!key) return false;
-        if (typeof key !== 'string') return false;
-  
+        if (typeof key !== "string") return false;
+
         const keyFormat = /^AIza[a-zA-Z0-9_-]{35,39}$/;
         if (!keyFormat.test(key)) return false;
-  
+
         return true;
       }
 
@@ -117,7 +145,7 @@
       });
 
       defaultKeyCheckbox.addEventListener("change", () => {
-        if (defaultKeyCheckbox.checked) {
+          if (defaultKeyCheckbox.checked) {
           apiKeySection.classList.add("hidden");
           googleKeyInput.value = "default";
           googleKeyInput.disabled = true;
@@ -126,22 +154,22 @@
           googleKeyInput.value = "";
           googleKeyInput.disabled = false;
         }
-        updateButtonState();
+         updateButtonState();
       });
+
 
       installButton.addEventListener("click", () => {
         let googleKey = googleKeyInput.value.trim();
-        if (!googleKey) {
-          alert("Please enter your Google AI key.");
-          return;
-        }
-        if (googleKey !== "default" && !isValidGeminiApiKey(googleKey)) {
-          alert("Your API key doesn't pass the check. Please verify your key and try again.");
-          return;
-        }
-        const urlWithConfig = `${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;
-        window.location.href = `stremio://${urlWithConfig}`;
+
+        if (googleKey === "default" || (isValidGeminiApiKey(googleKey))) {
+          const urlWithConfig = `${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;
+            window.location.href = `stremio://${urlWithConfig}`;
+          } else{
+               alert("Please ensure your key passes the checks before attempting to install");
+          }
       });
+      updateButtonState();
+
     </script>
   </body>
 </html>

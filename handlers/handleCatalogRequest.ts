@@ -1,8 +1,12 @@
 import { semanticCache } from "../config/semanticCache.ts";
+import { redis } from "../config/redisCache.ts";
 import type { Context } from "../config/deps.ts";
 import { GEMINI_API_KEY } from "../config/env.ts";
 
 import { generateMovieRecommendations } from "../services/ai.ts";
+
+const MAX_CACHE_ENTRIES = 20;
+const TRENDING_MOVIES_LIST = "trendingmovies";
 
 export const handleCatalogRequest = async (ctx: Context, query: string, googleKey: string) => {
   try {
@@ -25,6 +29,15 @@ export const handleCatalogRequest = async (ctx: Context, query: string, googleKe
     }
 
     const responsePayload = await generateMovieRecommendations(searchQuery, effectiveKey);
+
+    if(responsePayload.metas[0]){
+      const firstResult = responsePayload.metas[0];    
+
+      await redis.lpush(TRENDING_MOVIES_LIST, JSON.stringify(firstResult));
+      await redis.ltrim(TRENDING_MOVIES_LIST, 0, MAX_CACHE_ENTRIES -1); 
+
+    }
+
     await semanticCache.set(searchQuery, JSON.stringify(responsePayload));
 
     ctx.response.headers.set("Cache-Control", "max-age=3600");
