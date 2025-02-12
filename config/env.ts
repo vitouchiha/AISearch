@@ -29,7 +29,7 @@ if (
   console.error(
     "Missing API keys or configuration: Ensure GEMINI_API_KEY, TMDB_API_KEY, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_TOKEN, and AI_MODEL are set in the environment. If in dev, use DEV_MODE"
   );
-  Deno.exit(1);
+  throw new Error("Missing envs");
 }
 
 const GEMINI_API_KEY: string = geminiKey;
