@@ -121,7 +121,7 @@
             if (defaultKeyCheckbox.checked) googleKey = "default";
 
             if (googleKey !== "" && isValidGeminiApiKey(googleKey) || googleKey === "default"){
-              const urlWithConfig = `${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;
+              const urlWithConfig = `https://${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;
                 urlDisplay.textContent = urlWithConfig;
                 urlDisplayBox.classList.remove("hidden");
             } else {
