@@ -1,4 +1,5 @@
 .env
+.git
 .gitignore
 .github/
 .devcontainer/
@@ -6,3 +7,4 @@ cloudflared/
 Dockerfile
 docker-compose.yml
 env.example
+README.md

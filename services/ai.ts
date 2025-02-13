@@ -56,9 +56,7 @@ Search Query: ${searchQuery}`;
   let recommendations: string[];
   try {
     recommendations = JSON.parse(cleanedResponse);
-    if (!Array.isArray(recommendations)) {
-      throw new Error("Response is not an array");
-    }
+    if (!Array.isArray(recommendations)) throw new Error("Response is not an array");
   } catch (jsonError: any) {
     throw new Error("Failed to parse recommendations JSON: " + jsonError.message);
   }
