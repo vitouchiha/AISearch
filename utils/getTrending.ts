@@ -1,6 +1,35 @@
 import { redis } from "../config/redisCache.ts";
 import { Meta } from "../config/types.ts";
 
+const TRENDING_SERIES_LIST = "trendingseries";
+
+interface TrendingSeriesResponse {
+  metas: Meta[];
+}
+
+export const getTrendingSeries = async (): Promise<TrendingSeriesResponse> => {
+  try {
+    const trendingSeriesJson = await redis.lrange(TRENDING_SERIES_LIST, 0, -1);
+
+    if (!trendingSeriesJson) return { metas: [] };
+
+    const trendingSeries: Meta[] = trendingSeriesJson.map((seriesJson) => {
+      try {
+        return seriesJson as Meta;
+      } catch (error) {
+        console.error("Error parsing trending series JSON:", seriesJson, error);
+        return null;
+      }
+    }).filter((series): series is Meta => series !== null);
+
+    return { metas: trendingSeries };
+  } catch (error) {
+    console.error("Error fetching trending series from Redis:", error);
+    return { metas: [] };
+  }
+};
+
+
 const TRENDING_MOVIES_LIST = "trendingmovies";
 
 interface TrendingMoviesResponse {

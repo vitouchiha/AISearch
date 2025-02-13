@@ -8,9 +8,9 @@ interface TmdbFetchResult {
   cacheSet: boolean;
 }
 
-export async function getTmdbDetailsByName(movieName: string): Promise<TmdbFetchResult> {
+export async function getTmdbDetailsByName(movieName: string, type: string): Promise<TmdbFetchResult> {
   const normalizedName = movieName.toLowerCase().trim();
-  const redisKey = `movie:name:${normalizedName}`;
+  const redisKey = `${type}:name:${normalizedName}`;
 
   try {
     const cached = await redis.get<TMDBDetails>(redisKey);
@@ -28,7 +28,8 @@ export async function getTmdbDetailsByName(movieName: string): Promise<TmdbFetch
 
   DEV_MODE && console.log(`[${new Date().toISOString()}] Fetching TMDB details for movie: ${movieName}`);
   try {
-    const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(movieName)}`;
+    const tmdbType = type === "series" ? "tv" : type;
+    const searchUrl = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(movieName)}`;
     const searchResponse = await fetch(searchUrl);
     if (!searchResponse.ok) throw new Error(`TMDB search API responded with status ${searchResponse.status}`);
 
@@ -37,7 +38,7 @@ export async function getTmdbDetailsByName(movieName: string): Promise<TmdbFetch
     if (!firstResult) throw new Error(`No results found for movie name: ${movieName}`);
 
     const tmdbId = firstResult.id;
-    const detailsUrl = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&append_to_response=external_ids`;
+    const detailsUrl = `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_API_KEY}&append_to_response=external_ids`;
     const detailsResponse = await fetch(detailsUrl);
     if (!detailsResponse.ok) throw new Error(`TMDB details API responded with status ${detailsResponse.status}`);
 
@@ -45,23 +46,26 @@ export async function getTmdbDetailsByName(movieName: string): Promise<TmdbFetch
     const imdbId = detailsData.external_ids?.imdb_id;
 
     let result: TMDBDetails;
-    if (!imdbId) result = { id: "", poster: null, showName: null, year: null };
-    else result = {
-      id: imdbId,
-      poster: detailsData.poster_path
-        ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
-        : null,
-      showName: detailsData.title,
-      year: detailsData.release_date
-        ? detailsData.release_date.split("-")[0]
-        : null,
-    };
+    if (!imdbId) {
+      result = { id: "", poster: null, showName: null, year: null };
+    } else {
+      const titleField = type === "series" ? detailsData.name : detailsData.title;
+      const dateField = type === "series" ? detailsData.first_air_date : detailsData.release_date;
+      result = {
+        id: imdbId,
+        poster: detailsData.poster_path
+          ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
+          : null,
+        showName: titleField,
+        year: dateField ? dateField.split("-")[0] : null,
+      };
+    }
 
     let cacheSet = false;
     if (result.poster) {
       try {
         await redis.set(redisKey, JSON.stringify(result));
-        await redis.set(`movie:${imdbId}`, JSON.stringify(result));
+        await redis.set(`${type}:${imdbId}`, JSON.stringify(result));
         DEV_MODE && console.log(`[${new Date().toISOString()}] Cached details for movie: ${movieName}`);
         cacheSet = true;
       } catch (cacheSetError) {

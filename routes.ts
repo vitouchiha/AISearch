@@ -8,19 +8,21 @@ import { handleCatalogRequest } from "./handlers/handleCatalogRequest.ts";
 
 import { googleKeyMiddleware } from "./middleware/googleKeyMiddleware.ts";
 import { searchParamMiddleware } from "./middleware/searchParamMiddleware.ts";
+import { setMovieType, setSeriesType } from "./middleware/setTypeMiddleware.ts";
 
 import type { ConfigureContext, CatalogContext, TrendingContext, ManifestContext,
               MovieCatalogParams, TrendingParams, ManifestParams } from "./config/types.ts";  
 
 const handleSearch = async (ctx: CatalogContext) => {
-  const { searchQuery, googleKey } = ctx.state;
-  if (!searchQuery || !googleKey) {
+  const { searchQuery, googleKey, type } = ctx.state;
+  if (!searchQuery || !googleKey || !type) {
     ctx.response.status = 500;
     ctx.response.body = { error: "Internal server error: missing required state." };
     return;
   }
-  DEV_MODE && console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
-  await handleCatalogRequest(ctx, searchQuery, googleKey);
+
+  DEV_MODE && console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery} and type: ${type}`);
+  await handleCatalogRequest(ctx, searchQuery, type, googleKey);
 };
 
 const handleTrending = async (ctx: TrendingContext) => {
@@ -43,17 +45,40 @@ const router = new Router();
 
 router.use(googleKeyMiddleware);
 
-router.get<MovieCatalogParams>("/:googleKey?/catalog/movie/ai-movies/:searchParam",
+// Movies search endpoint
+router.get<MovieCatalogParams>(
+  "/:googleKey?/catalog/movie/ai-movies/:searchParam",
+  setMovieType,
   searchParamMiddleware,
   handleSearch,
 );
 
-router.get<TrendingParams>("/:googleKey?/catalog/movie/ai-movies.json", handleTrending);
+// Series search endpoint
+router.get<MovieCatalogParams>(
+  "/:googleKey?/catalog/series/ai-tv/:searchParam",
+  setSeriesType,
+  searchParamMiddleware,
+  handleSearch,
+);
+
+// Trending Movies endpoint
+router.get<TrendingParams>(
+  "/:googleKey?/catalog/movie/ai-movies.json",
+  setMovieType, 
+  handleTrending
+);
+
+// Trending Series endpoint
+router.get<TrendingParams>(
+  "/:googleKey?/catalog/series/ai-tv.json",
+  setSeriesType, 
+  handleTrending
+);
+
 router.get<ManifestParams>("/:googleKey?/manifest.json", handleManifest);
 
 router.get("/configure", async (ctx: ConfigureContext) => {
   ctx.response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
-
   await ctx.send({
     root: `${Deno.cwd()}/static`,
     path: "configure.html",

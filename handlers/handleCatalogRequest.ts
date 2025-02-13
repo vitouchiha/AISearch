@@ -9,22 +9,21 @@ import { buildMeta } from "../utils/buildMeta.ts";
 import type { Recommendation, Meta } from "../config/types.ts";
 
 const MAX_CACHE_ENTRIES = 20;
-const TRENDING_MOVIES_LIST = "trendingmovies";
 
-export const handleCatalogRequest = async (ctx: Context, query: string, googleKey: string) => {
+export const handleCatalogRequest = async (ctx: Context, query: string, type: string, googleKey: string) => {
   try {
     const searchQuery = query || (ctx.request.url.searchParams.get("search") ?? "");
     if (!searchQuery) throw new Error("No search query provided");
 
-    const cachedResult = await semanticCache.get(searchQuery);
+    const cachedResult = await semanticCache.get(`${type}:${searchQuery}`);
     if (cachedResult) {
-      console.log(`[${new Date().toISOString()}] Cache hit for query: ${searchQuery}`);
+      console.log(`[${new Date().toISOString()}] Cache hit for query: (${type}) ${searchQuery}`);
       ctx.response.headers.set("Cache-Control", "max-age=3600");
       ctx.response.body = JSON.parse(cachedResult);
       return;
     }
 
-    const movieNames = await getMovieRecommendations(searchQuery, googleKey);
+    const movieNames = await getMovieRecommendations(searchQuery, type, googleKey);
 
     let fromCacheCount = 0, fromTmdbCount = 0, cacheSetCount = 0;
 
@@ -32,28 +31,29 @@ export const handleCatalogRequest = async (ctx: Context, query: string, googleKe
       movieNames.map(async (movieName, index) => {
         DEV_MODE && console.log(`[${new Date().toISOString()}] Processing recommendation ${index + 1} for movie: ${movieName}`);
 
-        const { data: tmdbData, fromCache, cacheSet } = await getTmdbDetailsByName(movieName);
+        const { data: tmdbData, fromCache, cacheSet } = await getTmdbDetailsByName(movieName, type);
 
         if (fromCache) fromCacheCount++;
         else fromTmdbCount++;
         if (cacheSet) cacheSetCount++;
 
-        return buildMeta({ imdb_id: tmdbData.id } as Recommendation, tmdbData);
+        return buildMeta({ imdb_id: tmdbData.id } as Recommendation, tmdbData, type);
       }),
     );
 
     const metas = metasWithPossibleNull.filter((meta): meta is Meta => meta !== null);
+    const trendingKey = type === "movie" ? "trendingmovies" : "trendingseries";
     if (metas[0]) {
-      await redis.lpush(TRENDING_MOVIES_LIST, JSON.stringify(metas[0]));
-      await redis.ltrim(TRENDING_MOVIES_LIST, 0, MAX_CACHE_ENTRIES - 1);
+      await redis.lpush(trendingKey, JSON.stringify(metas[0]));
+      await redis.ltrim(trendingKey, 0, MAX_CACHE_ENTRIES - 1);
     }
 
     const responsePayload = { metas };
-    await semanticCache.set(searchQuery, JSON.stringify(responsePayload));
+    await semanticCache.set(`${type}:${searchQuery}`, JSON.stringify(responsePayload));
 
-    console.log(`${fromCacheCount} movies returned from cache.`);
-    console.log(`${fromTmdbCount} movies fetched from TMDB.`);
-    console.log(`${cacheSetCount} movies added to cache.`);
+    console.log(`${fromCacheCount} ${type} returned from cache.`);
+    console.log(`${fromTmdbCount} ${type} fetched from TMDB.`);
+    console.log(`${cacheSetCount} ${type} added to cache.`);
 
     ctx.response.headers.set("Cache-Control", "max-age=3600");
     ctx.response.body = responsePayload;
