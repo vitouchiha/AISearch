@@ -5,7 +5,7 @@ export function buildMeta(movie: Recommendation, tmdbData: TMDBDetails): Meta | 
     return {
       id: movie.imdb_id,
       type: "movie",
-      title: tmdbData.showName || movie.title,
+      name: tmdbData.showName || movie.title,
       poster: tmdbData.poster, 
       posterShape: "poster",
     };

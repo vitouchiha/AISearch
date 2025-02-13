@@ -16,7 +16,7 @@ export interface TMDBDetails {
   
   export interface Meta {
     id: string;
-    title: string;
+    name: string;
     type: string;
     poster: string | null;
     posterShape: string;
