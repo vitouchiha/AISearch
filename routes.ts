@@ -34,13 +34,7 @@ const handleTrending = async (ctx: TrendingContext) => {
 const handleManifest = (ctx: ManifestContext) => {
   console.log(`[${new Date().toISOString()}] Serving manifest`);
   ctx.response.headers.set("Cache-Control", "max-age=86400");
-  const { googleKey } = ctx.state;
-  if (googleKey) {
-    const { behaviorHints, ...manifestWithoutBehavior } = manifest;
-    ctx.response.body = manifestWithoutBehavior;
-  } else {
-    ctx.response.body = manifest;
-  }
+  ctx.response.body = manifest;
 };
 
 const router = new Router();
