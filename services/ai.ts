@@ -14,10 +14,10 @@ Each element in the array must be a movie name (string).
 Do not include any additional text, formatting, or explanation. Do not repeat any names.
 Search Query: ${searchQuery}`;
 
-  if(DEV_MODE) console.log(`[${new Date().toISOString()}] Sending prompt: ${prompt}`);
+  DEV_MODE && console.log(`[${new Date().toISOString()}] Sending prompt: ${prompt}`);
 
   const { text: rawResponse } = await generateText({ model: movieRecommender, prompt });
-  if(DEV_MODE) console.log(`[${new Date().toISOString()}] Raw response: ${rawResponse}`);
+  DEV_MODE && console.log(`[${new Date().toISOString()}] Raw response: ${rawResponse}`);
 
   // Clean up the response
   let cleanedResponse = rawResponse.trim();
@@ -34,7 +34,9 @@ Search Query: ${searchQuery}`;
     recommendations = JSON.parse(cleanedResponse);
     if (!Array.isArray(recommendations)) throw new Error("Response is not an array");
   } catch (jsonError: unknown) {
-    throw new Error("Failed to parse recommendations JSON: " + jsonError.message);
+    throw jsonError instanceof Error
+      ? new Error("Failed to parse recommendations JSON: " + jsonError.message)
+      : new Error("Failed to parse recommendations JSON (unknown error).");
   }
 
   console.log(`[${new Date().toISOString()}] Parsed ${recommendations.length} movie names`);

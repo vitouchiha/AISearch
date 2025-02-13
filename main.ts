@@ -27,6 +27,6 @@ app.use((ctx: Context) => {
 
 app.addEventListener("error", (evt) => console.error(`[${new Date().toISOString()}] Unhandled error:`, evt.error));
 
-if(DEV_MODE) console.log(`[${new Date().toISOString()}] Stremio AI Addon running on port ${PORT}`);
+DEV_MODE && console.log(`[${new Date().toISOString()}] Stremio AI Addon running on port ${PORT}`);
 
 await app.listen({ hostname: "0.0.0.0", port: PORT });

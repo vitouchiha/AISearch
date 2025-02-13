@@ -13,7 +13,7 @@ export async function getTmdbDetailsByName(movieName: string): Promise<TMDBDetai
       return cached;
     }
   } catch (cacheError) {
-    console.error(`[${new Date().toISOString()}] Redis cache error for movie: ${movieName}`, cacheError);
+    cacheError instanceof Error && console.error(`[${new Date().toISOString()}] Redis cache error for movie: ${movieName}`, cacheError.message);
   }
 
   console.log(`[${new Date().toISOString()}] Fetching TMDB details for movie: ${movieName}`);
@@ -53,15 +53,13 @@ export async function getTmdbDetailsByName(movieName: string): Promise<TMDBDetai
         await redis.set(`movie:${imdbId}`, JSON.stringify(result));
         console.log(`[${new Date().toISOString()}] Cached details for movie: ${movieName}`);
       } catch (cacheSetError) {
-        console.error(`[${new Date().toISOString()}] Error setting cache for movie: ${movieName}`, cacheSetError);
+        cacheSetError instanceof Error && console.error(`[${new Date().toISOString()}] Error setting cache for movie: ${movieName}`, cacheSetError.message);
       }
     }
 
     return result;
   } catch (error) {
-    if(DEV_MODE){
-    console.error(`[${new Date().toISOString()}] Error fetching TMDB details for movie: ${movieName}`, error);
-    }
+    DEV_MODE && error instanceof Error && console.error(`[${new Date().toISOString()}] Error fetching TMDB details for movie: ${movieName}`, error.message);
     return { id: "", poster: null, showName: null, year: null };
   }
 }

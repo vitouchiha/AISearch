@@ -27,9 +27,8 @@ export const handleCatalogRequest = async (ctx: Context, query: string, googleKe
     const movieNames = await getMovieRecommendations(searchQuery, googleKey);
     const metasWithPossibleNull = await Promise.all(
       movieNames.map(async (movieName, index) => {
-        if(DEV_MODE) console.log(
-          `[${new Date().toISOString()}] Processing recommendation ${index + 1} for movie: ${movieName}`
-        );
+        DEV_MODE && console.log(`[${new Date().toISOString()}] Processing recommendation ${index + 1} for movie: ${movieName}`);
+        
         const tmdbData = await getTmdbDetailsByName(movieName);
         return buildMeta({ imdb_id: tmdbData.id } as Recommendation, tmdbData);
       })

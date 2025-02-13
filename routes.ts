@@ -19,7 +19,7 @@ const handleSearch = async (ctx: CatalogContext) => {
     ctx.response.body = { error: "Internal server error: missing required state." };
     return;
   }
-  if(DEV_MODE) console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
+  DEV_MODE && console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
   await handleCatalogRequest(ctx, searchQuery, googleKey);
 };
 
