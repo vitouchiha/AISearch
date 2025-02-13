@@ -2,7 +2,6 @@ import { TMDBDetails } from "../config/types.ts";
 import { TMDB_API_KEY, DEV_MODE } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 
-
 export async function getTmdbDetailsByName(movieName: string): Promise<TMDBDetails> {
   const normalizedName = movieName.toLowerCase().trim();
   const redisKey = `movie:name:${normalizedName}`;

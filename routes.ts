@@ -1,4 +1,6 @@
 import { Router } from "./config/deps.ts";
+import { DEV_MODE } from "./config/env.ts";
+
 import { manifest } from "./config/manifest.ts";
 
 import { handleTrendingRequest } from "./handlers/handleTrendingMoviesRequest.ts";
@@ -17,7 +19,7 @@ const handleSearch = async (ctx: CatalogContext) => {
     ctx.response.body = { error: "Internal server error: missing required state." };
     return;
   }
-  console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
+  if(DEV_MODE) console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
   await handleCatalogRequest(ctx, searchQuery, googleKey);
 };
 
