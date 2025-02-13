@@ -43,7 +43,7 @@ deno task dev
 To run the project locally, you need the following services and API keys:
 
 - **Upstash Redis**: Required for caching and fast data access.
-- **Vector Database**: For vector-based search and storage.
+- **Upstash Vector Database**: For vector-based search and storage.
 - **TMDB API Key**: Get yours from [TMDB](https://www.themoviedb.org/).
 - **AI Studio API Key**: Obtain your API key from AI Studio.
 
@@ -53,7 +53,7 @@ Ensure you fill in your `.env` file with the required keys.
 
 ## 🐳 Using Docker Compose
 
-To start all necessary services for local development, run:
+To start all necessary services for local deployment, run:
 
 ```shell
 docker-compose up -d
