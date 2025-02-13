@@ -26,9 +26,7 @@ export const handleCatalogRequest = async (ctx: Context, query: string, googleKe
 
     const movieNames = await getMovieRecommendations(searchQuery, googleKey);
 
-    let fromCacheCount = 0;
-    let fromTmdbCount = 0;
-    let cacheSetCount = 0;
+    let fromCacheCount = 0, fromTmdbCount = 0, cacheSetCount = 0;
 
     const metasWithPossibleNull = await Promise.all(
       movieNames.map(async (movieName, index) => {
