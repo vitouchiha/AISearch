@@ -37,7 +37,6 @@ const handleTrending = async (ctx: TrendingContext) => {
 
 const handleManifest = (ctx: ManifestContext) => {
   console.log(`[${new Date().toISOString()}] Serving manifest`);
-  ctx.response.headers.set("Cache-Control", "max-age=86400");
   ctx.response.body = manifest;
 };
 
