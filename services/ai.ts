@@ -19,7 +19,6 @@ Search Query: ${searchQuery}`;
   const { text: rawResponse } = await generateText({ model: movieRecommender, prompt });
   DEV_MODE && console.log(`[${new Date().toISOString()}] Raw response: ${rawResponse}`);
 
-  // Clean up the response
   let cleanedResponse = rawResponse.trim();
   if (cleanedResponse.startsWith("```json")) {
     cleanedResponse = cleanedResponse
@@ -28,7 +27,6 @@ Search Query: ${searchQuery}`;
       .trim();
   }
 
-  // Parse recommendations
   let recommendations: string[];
   try {
     recommendations = JSON.parse(cleanedResponse);

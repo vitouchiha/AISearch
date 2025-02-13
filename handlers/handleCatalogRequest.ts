@@ -25,13 +25,23 @@ export const handleCatalogRequest = async (ctx: Context, query: string, googleKe
     }
 
     const movieNames = await getMovieRecommendations(searchQuery, googleKey);
+
+    let fromCacheCount = 0;
+    let fromTmdbCount = 0;
+    let cacheSetCount = 0;
+
     const metasWithPossibleNull = await Promise.all(
       movieNames.map(async (movieName, index) => {
         DEV_MODE && console.log(`[${new Date().toISOString()}] Processing recommendation ${index + 1} for movie: ${movieName}`);
-        
-        const tmdbData = await getTmdbDetailsByName(movieName);
+
+        const { data: tmdbData, fromCache, cacheSet } = await getTmdbDetailsByName(movieName);
+
+        if (fromCache) fromCacheCount++;
+        else fromTmdbCount++;
+        if (cacheSet) cacheSetCount++;
+
         return buildMeta({ imdb_id: tmdbData.id } as Recommendation, tmdbData);
-      })
+      }),
     );
 
     const metas = metasWithPossibleNull.filter((meta): meta is Meta => meta !== null);
@@ -41,11 +51,15 @@ export const handleCatalogRequest = async (ctx: Context, query: string, googleKe
     }
 
     const responsePayload = { metas };
-
     await semanticCache.set(searchQuery, JSON.stringify(responsePayload));
+
+    console.log(`${fromCacheCount} movies returned from cache.`);
+    console.log(`${fromTmdbCount} movies fetched from TMDB.`);
+    console.log(`${cacheSetCount} movies added to cache.`);
 
     ctx.response.headers.set("Cache-Control", "max-age=3600");
     ctx.response.body = responsePayload;
+
   } catch (error: unknown) {
     console.error(`[${new Date().toISOString()}] Error:`, error);
     let errorMessage = "An unknown error occurred.";
