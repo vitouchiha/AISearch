@@ -1,89 +1,69 @@
-import { Router, type RouterContext } from "./config/deps.ts";
-import { GEMINI_API_KEY } from "./config/env.ts";
+import { Router } from "./config/deps.ts";
 import { manifest } from "./config/manifest.ts";
-import { badWordsFilter } from "./utils/badWordsFilter.ts";
-import { isValidGeminiApiKey } from "./utils/isValidGeminiApiKey.ts";
+
 import { handleTrendingRequest } from "./handlers/handleTrendingMoviesRequest.ts";
 import { handleCatalogRequest } from "./handlers/handleCatalogRequest.ts";
 
-type CatalogContext = RouterContext<
-  "/:googleKey/catalog/movie/ai-movies/:searchParam",
-  { googleKey: string; searchParam: string }
->;
+import { googleKeyMiddleware } from "./middleware/googleKeyMiddleware.ts";
+import { searchParamMiddleware } from "./middleware/searchParamMiddleware.ts";
 
-type ManifestContext = RouterContext<
-  "/:googleKey/manifest.json",
-  { googleKey: string }
->;
+import type { ConfigureContext, CatalogContext, TrendingContext, ManifestContext,
+              MovieCatalogParams, TrendingParams, ManifestParams } from "./config/types.ts";  
+
+const handleSearch = async (ctx: CatalogContext) => {
+  const { searchQuery, googleKey } = ctx.state;
+  if (!searchQuery || !googleKey) {
+    ctx.response.status = 500;
+    ctx.response.body = { error: "Internal server error: missing required state." };
+    return;
+  }
+  console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
+  await handleCatalogRequest(ctx, searchQuery, googleKey);
+};
+
+const handleTrending = async (ctx: TrendingContext) => {
+  const { googleKey } = ctx.state;
+  if (!googleKey) {
+    ctx.response.status = 500;
+    ctx.response.body = { error: "Internal server error: missing google key." };
+    return;
+  }
+  await handleTrendingRequest(ctx);
+};
+
+const handleManifest = (ctx: ManifestContext) => {
+  console.log(`[${new Date().toISOString()}] Serving manifest`);
+  ctx.response.headers.set("Cache-Control", "max-age=86400");
+  const { googleKey } = ctx.state;
+  if (googleKey) {
+    const { behaviorHints, ...manifestWithoutBehavior } = manifest;
+    ctx.response.body = manifestWithoutBehavior;
+  } else {
+    ctx.response.body = manifest;
+  }
+};
 
 const router = new Router();
 
-router.get("/:googleKey/catalog/movie/ai-movies/:searchParam", async (ctx: CatalogContext) => {
-  let googleKey = ctx.params.googleKey!;
-  const rawParam = ctx.params.searchParam!;
+router.use(googleKeyMiddleware);
 
-  if (!rawParam.startsWith('search=') || !rawParam.endsWith('.json')) return;
-  if (!isValidGeminiApiKey(googleKey)) googleKey = GEMINI_API_KEY;
-  
-  const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
-  if (badWordsFilter(searchQuery)) return;
+router.get<MovieCatalogParams>("/:googleKey?/catalog/movie/ai-movies/:searchParam",
+  searchParamMiddleware,
+  handleSearch,
+);
 
-  console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
-  await handleCatalogRequest(ctx, searchQuery, googleKey);
-});
+router.get<TrendingParams>("/:googleKey?/catalog/movie/ai-movies.json", handleTrending);
+router.get<ManifestParams>("/:googleKey?/manifest.json", handleManifest);
 
-router.get("/catalog/movie/ai-movies/:searchParam", async (ctx: CatalogContext) => {
-  const rawParam = ctx.params.searchParam!;
-
-  if (!rawParam.startsWith('search=') || !rawParam.endsWith('.json')) return;
-  const googleKey = GEMINI_API_KEY;
-  
-  const searchQuery = rawParam.replace(/^search=/, "").replace(/\.json$/, "");
-  if (badWordsFilter(searchQuery)) return;
-
-  console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery}`);
-  await handleCatalogRequest(ctx, searchQuery, googleKey);
-});
-
-router.get("/catalog/movie/ai-movies.json", async (ctx) => {
-  const _googleKey = ctx.params.googleKey!;
-  await handleTrendingRequest(ctx);
-});
-
-router.get("/:googleKey/catalog/movie/ai-movies.json", async (ctx) => {
-  const _googleKey = ctx.params.googleKey!;
-  await handleTrendingRequest(ctx);
-});
-
-router.get("/:googleKey/manifest.json", (ctx: ManifestContext) => {
-  const _googleKey = ctx.params.googleKey!;
-
-  console.log(`[${new Date().toISOString()}] Serving manifest`);
-  ctx.response.headers.set("Cache-Control", "max-age=86400");
-
-  const { behaviorHints, ...manifestWithoutBehavior } = manifest;
-  ctx.response.body = manifestWithoutBehavior;
-});
-
-router.get("/manifest.json", (ctx: ManifestContext) => {
-  console.log(`[${new Date().toISOString()}] Serving manifest`);
-
-  ctx.response.headers.set("Cache-Control", "max-age=86400");
-  ctx.response.body = manifest;
-}); 
-
-router.get("/configure", async (ctx) => {
+router.get("/configure", async (ctx: ConfigureContext) => {
   ctx.response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
 
   await ctx.send({
     root: `${Deno.cwd()}/static`,
     path: "configure.html",
-    index: "configure.html",
   });
 });
 
-router.get("/", (ctx) => {
-  ctx.response.redirect('/configure');
-});
+router.get("/", (ctx) => ctx.response.redirect("/configure"));
 
 export default router;
