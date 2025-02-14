@@ -13,7 +13,7 @@ export const getTrendingSeries = async (): Promise<TrendingSeriesResponse> => {
 
     if (!trendingSeriesJson) return { metas: [] };
 
-    const trendingSeries: Meta[] = trendingSeriesJson.map((seriesJson) => {
+    const trendingSeries: Meta[] = trendingSeriesJson.map((seriesJson: Meta) => {
       try {
         return seriesJson as Meta;
       } catch (error) {
@@ -42,7 +42,7 @@ export const getTrendingMovies = async (): Promise<TrendingMoviesResponse> => {
 
     if (!trendingMoviesJson) return { metas: [] };
 
-    const trendingMovies: Meta[] = trendingMoviesJson.map((movieJson) => {
+    const trendingMovies: Meta[] = trendingMoviesJson.map((movieJson: Meta) => {
       try {
         const parsedMovie = movieJson;
         return parsedMovie as Meta;

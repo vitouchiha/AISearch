@@ -51,11 +51,18 @@ export async function getTmdbDetailsByName(movieName: string, type: string): Pro
     } else {
       const titleField = type === "series" ? detailsData.name : detailsData.title;
       const dateField = type === "series" ? detailsData.first_air_date : detailsData.release_date;
+
+      let posterUrl: string | null = detailsData.poster_path
+        ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
+        : null;
+        
+      if (!posterUrl && type === 'series') {
+        // not sure what api to get alternate artwork from.
+      }
+      
       result = {
         id: imdbId,
-        poster: detailsData.poster_path
-          ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
-          : null,
+        poster: posterUrl,
         showName: titleField,
         year: dateField ? dateField.split("-")[0] : null,
       };
