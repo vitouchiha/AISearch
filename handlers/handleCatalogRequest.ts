@@ -6,7 +6,7 @@ import { DEV_MODE } from "../config/env.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { buildMeta } from "../utils/buildMeta.ts";
-import type { Recommendation, Meta } from "../config/types.ts";
+import type { Recommendation, Meta } from "../config/types/types.ts";
 
 const MAX_CACHE_ENTRIES = 20;
 

@@ -1,5 +1,5 @@
 import { badWordsFilter } from "../utils/badWordsFilter.ts";
-import { CatalogContext } from "../config/types.ts";
+import { CatalogContext } from "../config/types/types.ts";
 
 export const searchParamMiddleware = async (ctx: CatalogContext, next: () => Promise<unknown>) => {
   try {

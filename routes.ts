@@ -11,7 +11,7 @@ import { searchParamMiddleware } from "./middleware/searchParamMiddleware.ts";
 import { setMovieType, setSeriesType } from "./middleware/setTypeMiddleware.ts";
 
 import type { ConfigureContext, CatalogContext, TrendingContext, ManifestContext,
-              MovieCatalogParams, TrendingParams, ManifestParams } from "./config/types.ts";  
+              MovieCatalogParams, TrendingParams, ManifestParams } from "./config/types/types.ts";  
 
 const handleSearch = async (ctx: CatalogContext) => {
   const { searchQuery, googleKey, type } = ctx.state;
@@ -62,14 +62,14 @@ router.get<MovieCatalogParams>(
 
 // Trending Movies endpoint
 router.get<TrendingParams>(
-  "/:googleKey?/catalog/movie/ai-movies.json",
+  "/:googleKey?/catalog/movie/ai-trending-movies.json",
   setMovieType, 
   handleTrending
 );
 
 // Trending Series endpoint
 router.get<TrendingParams>(
-  "/:googleKey?/catalog/series/ai-tv.json",
+  "/:googleKey?/catalog/series/ai-trending-tv.json",
   setSeriesType, 
   handleTrending
 );

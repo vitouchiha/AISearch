@@ -1,4 +1,4 @@
-import { RouterContext } from "./deps.ts";
+import { RouterContext } from "../deps.ts";
 
 export interface TMDBDetails {
   id: string | null;

@@ -1,4 +1,4 @@
-import { AppContext } from "../config/types.ts";
+import { AppContext } from "../config/types/types.ts";
 import { isValidGeminiApiKey } from "../utils/isValidGeminiApiKey.ts";
 import { GEMINI_API_KEY } from "../config/env.ts";
 

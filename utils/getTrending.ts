@@ -1,5 +1,5 @@
 import { redis } from "../config/redisCache.ts";
-import { Meta } from "../config/types.ts";
+import { Meta } from "../config/types/types.ts";
 
 const TRENDING_SERIES_LIST = "trendingseries";
 

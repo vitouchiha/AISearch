@@ -1,4 +1,4 @@
-import { TMDBDetails } from "../config/types.ts";
+import { TMDBDetails } from "../config/types/types.ts";
 import { TMDB_API_KEY, DEV_MODE } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 
