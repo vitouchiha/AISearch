@@ -1,5 +1,5 @@
 
-# 🚀 Awesome Project README
+# 🚀 AISearch README
 
 Welcome to the AI Stremio Search development environment! This guide will help you run the project in DEV mode, explain what DEV_MODE does, and walk you through the local setup requirements.
 
@@ -78,6 +78,8 @@ AI_MODEL="gemini-2.0-pro-exp-02-05" # This can be any google model that vercel s
 PORT=3003
 CLOUDFLARED_TOKEN=""
 ```
+
+Don't forget to edit the `manifestBaseUrl` variable in `/static/configure.html` to point to your local or deployed server URL. This is important because it ensures that the application can correctly locate and load the manifest file for proper configuration.
 
 ---
 

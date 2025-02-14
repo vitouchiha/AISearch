@@ -9,7 +9,7 @@
   <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
     <!-- Logo Section -->
     <div class="flex flex-col items-center mb-10">
-      <h1 class="text-3xl font-bold text-center">AI Movie Finder Configuration</h1>
+      <h1 class="text-3xl font-bold text-center">AISearch FilmWhisper.dev</h1>
     </div>
 
     <!-- Description Section -->
@@ -22,7 +22,7 @@
 
     <!-- Configuration Section -->
     <div class="w-full max-w-lg bg-gray-800 rounded-lg shadow-lg p-6">
-      <h2 class="text-2xl font-bold mb-4 text-center">Configure AI Movie Finder</h2>
+      <h2 class="text-2xl font-bold mb-4 text-center">Configure</h2>
       <div class="space-y-4">
         <!-- API Key Section -->
         <div id="api-key-section">
@@ -98,20 +98,18 @@
     </footer>
 
     <script>
+      const manifestBaseUrl = "ai.filmwhisper.dev";
+      
       const googleKeyInput = document.getElementById("googleKey");
       const defaultKeyCheckbox = document.getElementById("defaultKey");
       const installButton = document.getElementById("install-button");
       const apiKeySection = document.getElementById("api-key-section");
-      const manifestBaseUrl = "ai-stremio-search.mpc.lol";
       const urlDisplayBox = document.getElementById("url-display-box");
       const urlDisplay = document.getElementById("url-display");
 
       function updateButtonState() {
-        if (defaultKeyCheckbox.checked) {
-          installButton.disabled = false;
-        } else {
-          installButton.disabled = googleKeyInput.value.trim() === "";
-        }
+        if (defaultKeyCheckbox.checked) installButton.disabled = false;
+        else installButton.disabled = googleKeyInput.value.trim() === "";
          updateUrlDisplay();
       }
 
