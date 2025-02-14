@@ -1,6 +1,7 @@
 import { TMDBDetails } from "../config/types/types.ts";
 import { TMDB_API_KEY, DEV_MODE } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
+import { fetchCinemeta } from "./cinemeta.ts";
 
 interface TmdbFetchResult {
   data: TMDBDetails;
@@ -43,25 +44,28 @@ export async function getTmdbDetailsByName(movieName: string, type: string): Pro
     if (!detailsResponse.ok) throw new Error(`TMDB details API responded with status ${detailsResponse.status}`);
 
     const detailsData = await detailsResponse.json();
-    const imdbId = detailsData.external_ids?.imdb_id;
+    const imdbId: string = detailsData.external_ids?.imdb_id;
 
     let result: TMDBDetails;
     if (!imdbId) {
       result = { id: "", poster: null, showName: null, year: null };
     } else {
-      const titleField = type === "series" ? detailsData.name : detailsData.title;
-      const dateField = type === "series" ? detailsData.first_air_date : detailsData.release_date;
+      let titleField = type === "series" ? detailsData.name : detailsData.title;
+      let dateField = type === "series" ? detailsData.first_air_date : detailsData.release_date;
 
       let posterUrl: string | null = detailsData.poster_path
         ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
         : null;
         
-      if (!posterUrl && type === 'series') {
-        // not sure what api to get alternate artwork from.
+      if (!posterUrl || !titleField || !dateField) {
+        const cinemeta = await fetchCinemeta(type, imdbId);
+        posterUrl = cinemeta?.poster || null;
+        titleField = cinemeta?.showName || null;
+        dateField = cinemeta?.year || null;
       }
       
       result = {
-        id: imdbId,
+        id: imdbId || "",
         poster: posterUrl,
         showName: titleField,
         year: dateField ? dateField.split("-")[0] : null,
