@@ -18,7 +18,9 @@ export const googleKeyMiddleware = async <
       try {
         // Try to parse the decoded string as JSON.
         const parsedKeys = JSON.parse(decodedBase64);
-        googleKey = parsedKeys.googleKey || GEMINI_API_KEY;
+        googleKey = parsedKeys.googleKey;
+        if(googleKey === 'default') googleKey = GEMINI_API_KEY;
+
         rpdbKey = parsedKeys.rpdbKey || "";
       } catch {
         // Fallback for legacy usage where the key is a simple string.

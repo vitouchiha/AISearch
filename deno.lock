@@ -211,6 +211,8 @@
     "https://esm.sh/eventsource-parser@3.0.0/denonext/eventsource-parser.mjs": "cc472edca63f2c005be63c35c6e1703c86fa231619e872f4de0d0db776ccb1fb",
     "https://esm.sh/eventsource-parser@3.0.0/denonext/stream.mjs": "898fcadde111c0feb841bbe64e0dca8ed6f360ef177d7b29e093b1ad6bf9c500",
     "https://esm.sh/eventsource-parser@3.0.0/stream?target=denonext": "6bcb7611e1dab51cded9716580ecb40f208d89f5085d061be053d4e96c1e9f3e",
+    "https://esm.sh/json-schema@0.4.0": "21a68e4e83b0441c3a90fa051c6b7c42d29926e4ff429745eebec153ac53cd7a",
+    "https://esm.sh/json-schema@0.4.0/denonext/json-schema.mjs": "95225c6fc709935fca00cfc112f2ab043d204f7bd07a8aaec75b1b5f24ca8bf6",
     "https://esm.sh/nanoid@3.3.8/denonext/non-secure.mjs": "fddf4ab6510fe8b600cfa3fa6a38b05e275757135a156142d470fc7e544a600f",
     "https://esm.sh/nanoid@3.3.8/non-secure?target=denonext": "2c3c59d8330ed3c0444aebb4611325a49feec485e1e2c34af6971ead1d10e7d9",
     "https://esm.sh/secure-json-parse@2.7.0/denonext/secure-json-parse.mjs": "bb9840bcb6fdce5857d7412b4c4e272b70044efac66a58cc78d8c97bdb56786d",
