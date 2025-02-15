@@ -14,7 +14,7 @@ import type { ConfigureContext, CatalogContext, TrendingContext, ManifestContext
               MovieCatalogParams, TrendingParams, ManifestParams } from "./config/types/types.ts";  
 
 const handleSearch = async (ctx: CatalogContext) => {
-  const { searchQuery, googleKey, type } = ctx.state;
+  const { searchQuery, googleKey, rpdbKey, type } = ctx.state;
   if (!searchQuery || !googleKey || !type) {
     ctx.response.status = 500;
     ctx.response.body = { error: "Internal server error: missing required state." };
@@ -22,16 +22,10 @@ const handleSearch = async (ctx: CatalogContext) => {
   }
 
   DEV_MODE && console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery} and type: ${type}`);
-  await handleCatalogRequest(ctx, searchQuery, type, googleKey);
+  await handleCatalogRequest(ctx, searchQuery, type, googleKey, rpdbKey);
 };
 
 const handleTrending = async (ctx: TrendingContext) => {
-  const { googleKey } = ctx.state;
-  if (!googleKey) {
-    ctx.response.status = 500;
-    ctx.response.body = { error: "Internal server error: missing google key." };
-    return;
-  }
   await handleTrendingRequest(ctx);
 };
 
@@ -42,39 +36,43 @@ const handleManifest = (ctx: ManifestContext) => {
 
 const router = new Router();
 
-router.use(googleKeyMiddleware);
-
-// Movies search endpoint
 router.get<MovieCatalogParams>(
-  "/:googleKey?/catalog/movie/ai-movies/:searchParam",
+  "/:keys?/catalog/movie/ai-movies/:searchParam",
   setMovieType,
+  googleKeyMiddleware,
   searchParamMiddleware,
   handleSearch,
 );
 
-// Series search endpoint
 router.get<MovieCatalogParams>(
-  "/:googleKey?/catalog/series/ai-tv/:searchParam",
+  "/:keys?/catalog/series/ai-tv/:searchParam",
   setSeriesType,
+  googleKeyMiddleware,
   searchParamMiddleware,
   handleSearch,
 );
 
-// Trending Movies endpoint
+// For trending endpoints:
 router.get<TrendingParams>(
-  "/:googleKey?/catalog/movie/ai-trending-movies.json",
+  "/:keys?/catalog/movie/ai-trending-movies.json",
   setMovieType, 
+  googleKeyMiddleware,
   handleTrending
 );
 
-// Trending Series endpoint
 router.get<TrendingParams>(
-  "/:googleKey?/catalog/series/ai-trending-tv.json",
+  "/:keys?/catalog/series/ai-trending-tv.json",
   setSeriesType, 
+  googleKeyMiddleware,
   handleTrending
 );
 
-router.get<ManifestParams>("/:googleKey?/manifest.json", handleManifest);
+// And for manifest:
+router.get<ManifestParams>(
+  "/:keys?/manifest.json", 
+  handleManifest,
+  googleKeyMiddleware,
+);
 
 router.get("/configure", async (ctx: ConfigureContext) => {
   ctx.response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");

@@ -24,10 +24,12 @@
     <div class="w-full max-w-lg bg-gray-800 rounded-lg shadow-lg p-6">
       <h2 class="text-2xl font-bold mb-4 text-center">Configure</h2>
       <div class="space-y-4">
-        <!-- API Key Section -->
+        <!-- Google API Key Section -->
         <div id="api-key-section">
           <div class="bg-blue-900 border border-blue-700 text-blue-200 p-3 mb-4 rounded">
-            <p class="text-sm">We require your API key for server-side operations; however, we guarantee that it is never logged or retained.</p>
+            <p class="text-sm">
+              We require your API key for server-side operations; however, we guarantee that it is never logged or retained.
+            </p>
           </div>
           <label for="googleKey" class="block text-sm font-medium text-gray-300">
             Google AI Key:
@@ -42,10 +44,24 @@
           />
         </div>
 
-        <!-- Checkbox to use default key -->
+        <!-- Ratings Poster API Key Section -->
+        <div id="rpdb-key-section">
+          <label for="rpdbKey" class="block text-sm font-medium text-gray-300">
+            Ratings Poster API Key:
+          </label>
+          <input
+            type="text"
+            id="rpdbKey"
+            name="rpdbKey"
+            placeholder="Enter your Ratings Poster API key"
+            class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <!-- Checkbox to use default Google key -->
         <div class="flex items-center">
           <input id="defaultKey" name="defaultKey" type="checkbox" class="mr-2" />
-          <label for="defaultKey" class="text-sm text-gray-300">Use default key</label>
+          <label for="defaultKey" class="text-sm text-gray-300">Use default Google key</label>
         </div>
 
         <!-- URL Display Box -->
@@ -98,76 +114,94 @@
     </footer>
 
     <script>
+      // Base URL for the manifest
       const manifestBaseUrl = "ai.filmwhisper.dev";
-      
+
+      // Get references to DOM elements
       const googleKeyInput = document.getElementById("googleKey");
+      const rpdbKeyInput = document.getElementById("rpdbKey");
       const defaultKeyCheckbox = document.getElementById("defaultKey");
       const installButton = document.getElementById("install-button");
-      const apiKeySection = document.getElementById("api-key-section");
       const urlDisplayBox = document.getElementById("url-display-box");
       const urlDisplay = document.getElementById("url-display");
 
-      function updateButtonState() {
-        if (defaultKeyCheckbox.checked) installButton.disabled = false;
-        else installButton.disabled = googleKeyInput.value.trim() === "";
-         updateUrlDisplay();
+      /**
+       * Encodes a string into URL-safe Base64.
+       * Replaces '+' with '-', '/' with '_' and removes '=' padding.
+       */
+      function encodeUrlSafeBase64(str) {
+        return btoa(str)
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
       }
 
-       function updateUrlDisplay() {
-            let googleKey = googleKeyInput.value.trim();
-
-            if (defaultKeyCheckbox.checked) googleKey = "default";
-
-            if (googleKey !== "" && isValidGeminiApiKey(googleKey) || googleKey === "default"){
-              const urlWithConfig = `https://${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;
-                urlDisplay.textContent = urlWithConfig;
-                urlDisplayBox.classList.remove("hidden");
-            } else {
-                urlDisplayBox.classList.add("hidden");
-                 urlDisplay.textContent = '';
-            }
-        }
-
+      // Validate a Google API key or the "default" keyword.
       function isValidGeminiApiKey(key) {
         if (!key) return false;
         if (typeof key !== "string") return false;
-
         const keyFormat = /^AIza[a-zA-Z0-9_-]{35,39}$/;
-        if (!keyFormat.test(key)) return false;
-
-        return true;
+        return keyFormat.test(key);
       }
 
-      googleKeyInput.addEventListener("input", () => {
-        if (!defaultKeyCheckbox.checked) updateButtonState();
-      });
-
-      defaultKeyCheckbox.addEventListener("change", () => {
-          if (defaultKeyCheckbox.checked) {
-          apiKeySection.classList.add("hidden");
+      // Update the state of the install button and URL display.
+      function updateButtonState() {
+        if (defaultKeyCheckbox.checked) {
           googleKeyInput.value = "default";
           googleKeyInput.disabled = true;
+          installButton.disabled = false;
         } else {
-          apiKeySection.classList.remove("hidden");
-          googleKeyInput.value = "";
           googleKeyInput.disabled = false;
+          installButton.disabled = googleKeyInput.value.trim() === "";
         }
-         updateButtonState();
-      });
+        updateUrlDisplay();
+      }
 
+      // Generate and display the URL with the encoded configuration.
+      function updateUrlDisplay() {
+        let googleKey = googleKeyInput.value.trim();
+        let rpdbKey = rpdbKeyInput.value.trim();
+        
+        if (defaultKeyCheckbox.checked) googleKey = "default";
 
+        // Validate Google key (or check for default)
+        if (googleKey !== "" && (isValidGeminiApiKey(googleKey) || googleKey === "default")) {
+          const keysObj = { googleKey, rpdbKey };
+          const jsonStr = JSON.stringify(keysObj);
+          // Use our URL-safe Base64 encoder instead of a simple JSON string encoding.
+          const encodedKeys = encodeUrlSafeBase64(jsonStr);
+          const urlWithConfig = `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
+          urlDisplay.textContent = urlWithConfig;
+          urlDisplayBox.classList.remove("hidden");
+        } else {
+          urlDisplayBox.classList.add("hidden");
+          urlDisplay.textContent = '';
+        }
+      }
+
+      // Listen for changes in the input fields.
+      googleKeyInput.addEventListener("input", updateButtonState);
+      rpdbKeyInput.addEventListener("input", updateUrlDisplay);
+      defaultKeyCheckbox.addEventListener("change", updateButtonState);
+
+      // Handle the Install button click event.
       installButton.addEventListener("click", () => {
         let googleKey = googleKeyInput.value.trim();
+        let rpdbKey = rpdbKeyInput.value.trim();
+        if (defaultKeyCheckbox.checked) googleKey = "default";
 
-        if (googleKey === "default" || (isValidGeminiApiKey(googleKey))) {
-          const urlWithConfig = `${manifestBaseUrl}/${encodeURIComponent(googleKey)}/manifest.json`;
-            window.location.href = `stremio://${urlWithConfig}`;
-          } else{
-               alert("Please ensure your key passes the checks before attempting to install");
-          }
+        if (googleKey === "default" || isValidGeminiApiKey(googleKey)) {
+          const keysObj = { googleKey, rpdbKey };
+          const jsonStr = JSON.stringify(keysObj);
+          const encodedKeys = encodeUrlSafeBase64(jsonStr);
+          const urlWithConfig = `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
+          window.location.href = `stremio://${urlWithConfig}`;
+        } else {
+          alert("Please ensure your Google API key is valid before attempting to install");
+        }
       });
-      updateButtonState();
 
+      updateButtonState();
     </script>
   </body>
 </html>

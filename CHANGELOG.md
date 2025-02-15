@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.0.0] - 2025-02-15
+
+This is a breaking change. Users need to reinstall.
+
+### Added
+- Rating Poster API now used.
+
+### Changed
+- User keys are now URL encoded using base64. NOT ENCRYPTED.
+
 ## [3.0.0] - 2025-02-14
 
 ### Added
@@ -18,6 +28,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ---
 
 ## [2.0.0] - 2025-02-13
+
+This is a breaking change users will have to reinstall.
 
 ### Added
 - Added TV series

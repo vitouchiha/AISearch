@@ -13,6 +13,7 @@ const upstashRedisToken = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
 const upstashVectorUrl = Deno.env.get("UPSTASH_VECTOR_REST_URL");
 const upstashVectorToken = Deno.env.get("UPSTASH_VECTOR_REST_TOKEN");
 const aiModel = Deno.env.get("AI_MODEL");
+const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const portStr = Deno.env.get("PORT") || "3000";
 const PORT = parseInt(portStr, 10);
@@ -43,6 +44,7 @@ const AI_MODEL: string = aiModel;
 export {
   GEMINI_API_KEY,
   TMDB_API_KEY,
+  RPDB_FREE_API_KEY,
   UPSTASH_REDIS_TOKEN,
   UPSTASH_REDIS_URL,
   UPSTASH_VECTOR_TOKEN,

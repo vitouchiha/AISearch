@@ -1,7 +1,7 @@
 import { RouterContext } from "../deps.ts";
 
 export interface TMDBDetails {
-  id: string | null;
+  id: string;
   poster: string | null;
   year: number | null;
   showName: string | null;
@@ -19,6 +19,7 @@ export interface Meta {
   name: string;
   type: string;
   poster: string | null;
+  normalPoster?: string | null;
   posterShape: string;
 }
   
@@ -27,21 +28,25 @@ export interface AppContext<P extends Record<string, string> = Record<string, st
   state: {
     searchQuery?: string;
     type?: string;
+    keys?: string;
     googleKey?: string;
+    rpdbKey?: string;
   };
 }
-  
+
 export type MovieCatalogParams = {
-  googleKey?: string;
+  keys: string;
   searchParam: string;
 };
-  
+
 export type TrendingParams = {
+  keys: string;
+  rpdbKey?: string;
   googleKey?: string;
 };
-  
+
 export type ManifestParams = {
-  googleKey?: string;
+  keys: string;
 };
   
 export type CatalogContext = AppContext<MovieCatalogParams>;

@@ -10,9 +10,8 @@ import type { Recommendation, Meta } from "../config/types/types.ts";
 
 const MAX_CACHE_ENTRIES = 20;
 
-export const handleCatalogRequest = async (ctx: Context, query: string, type: string, googleKey: string) => {
+export const handleCatalogRequest = async (ctx: Context, searchQuery: string, type: string, googleKey: string, rpdbKey?: string) => {
   try {
-    const searchQuery = query || (ctx.request.url.searchParams.get("search") ?? "");
     if (!searchQuery) throw new Error("No search query provided");
 
     const cachedResult = await semanticCache.get(`${type}:${searchQuery}`);
@@ -31,22 +30,26 @@ export const handleCatalogRequest = async (ctx: Context, query: string, type: st
       movieNames.map(async (movieName, index) => {
         DEV_MODE && console.log(`[${new Date().toISOString()}] Processing recommendation ${index + 1} for movie: ${movieName}`);
 
-        const { data: tmdbData, fromCache, cacheSet } = await getTmdbDetailsByName(movieName, type);
+        const { data: tmdbData, fromCache, cacheSet, normalPoster } = await getTmdbDetailsByName(movieName, type, rpdbKey);
 
         if (fromCache) fromCacheCount++;
         else fromTmdbCount++;
         if (cacheSet) cacheSetCount++;
 
-        return buildMeta({ imdb_id: tmdbData.id } as Recommendation, tmdbData, type);
+        return buildMeta({ imdb_id: tmdbData.id } as Recommendation, tmdbData, type, normalPoster ?? '');
       }),
     );
 
     const metas = metasWithPossibleNull.filter((meta): meta is Meta => meta !== null);
     const trendingKey = type === "movie" ? "trendingmovies" : "trendingseries";
     if (metas[0]) {
+      if (metas[0].normalPoster) {
+        metas[0].poster = metas[0].normalPoster;
+      }
       await redis.lpush(trendingKey, JSON.stringify(metas[0]));
       await redis.ltrim(trendingKey, 0, MAX_CACHE_ENTRIES - 1);
     }
+    metas.forEach(meta => delete meta.normalPoster);
 
     const responsePayload = { metas };
     await semanticCache.set(`${type}:${searchQuery}`, JSON.stringify(responsePayload));

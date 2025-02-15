@@ -1,21 +1,22 @@
 import { TMDBDetails } from "../config/types/types.ts";
+import { fetchJson, logError } from "../utils/utils.ts";
 
 export const fetchCinemeta = async (type: string, id: string): Promise<TMDBDetails | null> => {
-    try {
-        const response = await fetch(`https://v3-cinemeta.strem.io/meta/${type}/${id}.json`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
-        const data = await response.json();
-        return {
-            id: data?.meta?.id,
-            poster: data?.meta?.poster,
-            showName: data?.meta?.name,
-            year: data?.meta?.released,
-            type: data?.meta?.type,
-        } as TMDBDetails;
+  const url = `https://v3-cinemeta.strem.io/meta/${type}/${id}.json`;
 
-    } catch (error) {
-        console.error('Error fetching Cinemeta poster:', error);
-        return null;
-    }
+  try {
+    const { meta } = (await fetchJson(url, "Cinemeta")) || {};
+    if (!meta) return null;
+
+    return {
+      id: meta.id,
+      poster: meta.poster,
+      showName: meta.name,
+      year: meta.released,
+      type: meta.type,
+    } as TMDBDetails;
+  } catch (error) {
+    logError("Error fetching Cinemeta poster:", error);
+    return null;
+  }
 };

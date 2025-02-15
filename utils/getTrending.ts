@@ -1,60 +1,56 @@
 import { redis } from "../config/redisCache.ts";
 import { Meta } from "../config/types/types.ts";
 
-const TRENDING_SERIES_LIST = "trendingseries";
+import { getRpdbPoster } from "../services/rpdb.ts";
 
-interface TrendingSeriesResponse {
+const TRENDING_SERIES_LIST = "trendingseries";
+const TRENDING_MOVIES_LIST = "trendingmovies";
+
+interface TrendingResponse {
   metas: Meta[];
 }
 
-export const getTrendingSeries = async (): Promise<TrendingSeriesResponse> => {
+const parseMeta = (item: unknown, context: string): Meta | null => {
   try {
-    const trendingSeriesJson = await redis.lrange(TRENDING_SERIES_LIST, 0, -1);
-
-    if (!trendingSeriesJson) return { metas: [] };
-
-    const trendingSeries: Meta[] = trendingSeriesJson.map((seriesJson: Meta) => {
-      try {
-        return seriesJson as Meta;
-      } catch (error) {
-        console.error("Error parsing trending series JSON:", seriesJson, error);
-        return null;
-      }
-    }).filter((series): series is Meta => series !== null);
-
-    return { metas: trendingSeries };
+    return item as Meta;
   } catch (error) {
-    console.error("Error fetching trending series from Redis:", error);
-    return { metas: [] };
+    console.error(`Error parsing ${context} item:`, item, error);
+    return null;
   }
 };
 
-
-const TRENDING_MOVIES_LIST = "trendingmovies";
-
-interface TrendingMoviesResponse {
-  metas: Meta[];
-}
-
-export const getTrendingMovies = async (): Promise<TrendingMoviesResponse> => {
+const getTrendingList = async (listKey: string, context: string): Promise<Meta[]> => {
   try {
-    const trendingMoviesJson = await redis.lrange(TRENDING_MOVIES_LIST, 0, -1);
-
-    if (!trendingMoviesJson) return { metas: [] };
-
-    const trendingMovies: Meta[] = trendingMoviesJson.map((movieJson: Meta) => {
-      try {
-        const parsedMovie = movieJson;
-        return parsedMovie as Meta;
-      } catch (error) {
-        console.error("Error parsing trending movie JSON:", movieJson, error);
-        return null;
-      }
-    }).filter((movie): movie is Meta => movie !== null);
-
-    return { metas: trendingMovies };
+    const rawList = await redis.lrange(listKey, 0, -1);
+    if (!rawList) return [];
+    return rawList
+      .map((item) => parseMeta(item, context))
+      .filter((meta): meta is Meta => meta !== null);
   } catch (error) {
-    console.error("Error fetching trending movies from Redis:", error);
-    return { metas: [] };
+    console.error(`Error fetching ${context} from Redis:`, error);
+    return [];
   }
+};
+
+export const getTrendingSeries = async (rpdbKey?: string): Promise<TrendingResponse> => {
+  const metas = await getTrendingList(TRENDING_SERIES_LIST, "trending series");
+  if(rpdbKey){
+    console.log("Got rpdb key");
+  for (const meta of metas) {
+    const rpdb = await getRpdbPoster(meta.id, rpdbKey);
+    if (rpdb.poster) meta.poster = rpdb.poster;
+  }
+}
+  return { metas };
+};
+
+export const getTrendingMovies = async (rpdbKey?: string): Promise<TrendingResponse> => {
+  const metas = await getTrendingList(TRENDING_MOVIES_LIST, "trending movies");
+  if(rpdbKey){
+    for (const meta of metas) {
+      const rpdb = await getRpdbPoster(meta.id, rpdbKey);
+      if (rpdb.poster) meta.poster = rpdb.poster;
+    }
+  }
+  return { metas };
 };
