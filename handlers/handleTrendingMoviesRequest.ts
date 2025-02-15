@@ -3,7 +3,6 @@ import { getTrendingMovies, getTrendingSeries } from "../utils/getTrending.ts";
 
 export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
   const { type, rpdbKey } = ctx.state;
-  console.log(`rpdbKey: ${rpdbKey}`);
 
   if (!type) {
     ctx.response.status = 400;
