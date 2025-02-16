@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Configure AI Movie Finder</title>
+    <title>FilmWhisper: AISearch Configure</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
     <!-- Logo Section -->
     <div class="flex flex-col items-center mb-10">
-      <h1 class="text-3xl font-bold text-center">AISearch FilmWhisper.dev</h1>
+      <h1 class="text-3xl font-bold text-center">FilmWhisper: AISearch</h1>
     </div>
 
     <!-- Description Section -->
@@ -114,10 +114,8 @@
     </footer>
 
     <script>
-      // Base URL for the manifest
       const manifestBaseUrl = "ai.filmwhisper.dev";
 
-      // Get references to DOM elements
       const googleKeyInput = document.getElementById("googleKey");
       const rpdbKeyInput = document.getElementById("rpdbKey");
       const defaultKeyCheckbox = document.getElementById("defaultKey");
@@ -125,10 +123,6 @@
       const urlDisplayBox = document.getElementById("url-display-box");
       const urlDisplay = document.getElementById("url-display");
 
-      /**
-       * Encodes a string into URL-safe Base64.
-       * Replaces '+' with '-', '/' with '_' and removes '=' padding.
-       */
       function encodeUrlSafeBase64(str) {
         return btoa(str)
           .replace(/\+/g, '-')
@@ -136,7 +130,6 @@
           .replace(/=+$/, '');
       }
 
-      // Validate a Google API key or the "default" keyword.
       function isValidGeminiApiKey(key) {
         if (!key) return false;
         if (typeof key !== "string") return false;
@@ -144,7 +137,6 @@
         return keyFormat.test(key);
       }
 
-      // Update the state of the install button and URL display.
       function updateButtonState() {
         if (defaultKeyCheckbox.checked) {
           googleKeyInput.value = "default";
@@ -157,18 +149,15 @@
         updateUrlDisplay();
       }
 
-      // Generate and display the URL with the encoded configuration.
       function updateUrlDisplay() {
         let googleKey = googleKeyInput.value.trim();
         let rpdbKey = rpdbKeyInput.value.trim();
         
         if (defaultKeyCheckbox.checked) googleKey = "default";
 
-        // Validate Google key (or check for default)
         if (googleKey !== "" && (isValidGeminiApiKey(googleKey) || googleKey === "default")) {
           const keysObj = { googleKey, rpdbKey };
           const jsonStr = JSON.stringify(keysObj);
-          // Use our URL-safe Base64 encoder instead of a simple JSON string encoding.
           const encodedKeys = encodeUrlSafeBase64(jsonStr);
           const urlWithConfig = `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
           urlDisplay.textContent = urlWithConfig;
@@ -179,12 +168,10 @@
         }
       }
 
-      // Listen for changes in the input fields.
       googleKeyInput.addEventListener("input", updateButtonState);
       rpdbKeyInput.addEventListener("input", updateUrlDisplay);
       defaultKeyCheckbox.addEventListener("change", updateButtonState);
 
-      // Handle the Install button click event.
       installButton.addEventListener("click", () => {
         let googleKey = googleKeyInput.value.trim();
         let rpdbKey = rpdbKeyInput.value.trim();

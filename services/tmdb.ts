@@ -2,27 +2,21 @@ import { TMDBDetails } from "../config/types/types.ts";
 import { TMDB_API_KEY } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 import { fetchCinemeta } from "./cinemeta.ts";
-import { getRpdbPoster } from "./rpdb.ts";
 import { log, logError, fetchJson } from "../utils/utils.ts";
 
 interface TmdbFetchResult {
   data: TMDBDetails;
   fromCache: boolean;
   cacheSet: boolean;
-  normalPoster?: string | null;
 }
 
-export async function getTmdbDetailsByName(movieName: string, type: string, rpdbKey?: string): Promise<TmdbFetchResult> {
+export async function getTmdbDetailsByName(movieName: string, type: string): Promise<TmdbFetchResult> {
   const normalizedName = movieName.toLowerCase().trim();
   const redisKey = `${type}:name:${normalizedName}`;
 
   try {
     const cached = await redis.get<TMDBDetails>(redisKey);
     if (cached) {
-      if(rpdbKey && cached.poster){
-        const rpdb = await getRpdbPoster(cached.id, rpdbKey);
-        if(rpdb.poster) cached.poster = rpdb.poster;
-      }
       log(`Returning cached details for movie: ${movieName}`);
       return { data: cached, fromCache: true, cacheSet: false };
     }
@@ -47,7 +41,6 @@ export async function getTmdbDetailsByName(movieName: string, type: string, rpdb
     let result: TMDBDetails = { id: "", poster: null, showName: null, year: null };
     let posterUrl = null;
     if (imdbId) {
-      let rpdbPoster;
       let titleField = type === "series" ? detailsData.name : detailsData.title;
       let dateField = type === "series" ? detailsData.first_air_date : detailsData.release_date;
           posterUrl = detailsData.poster_path
@@ -62,14 +55,9 @@ export async function getTmdbDetailsByName(movieName: string, type: string, rpdb
         dateField = cinemeta?.year || null;
       }
 
-      if(rpdbKey){
-        const rpdb = await getRpdbPoster(imdbId, rpdbKey);
-        if(rpdb.poster) rpdbPoster = rpdb.poster;
-      }
-
       result = {
         id: imdbId,
-        poster: rpdbPoster || posterUrl,
+        poster: posterUrl,
         showName: titleField,
         year: dateField ? dateField.split("-")[0] : null,
       };
@@ -77,16 +65,9 @@ export async function getTmdbDetailsByName(movieName: string, type: string, rpdb
 
     let cacheSet = false;
     if (posterUrl) {
-      // Don't add rpdb poster to cache
-      const cacheObj = {
-        id: result.id,
-        poster: posterUrl,
-        showName: result.showName,
-        year: result.year,
-      }
       try {
-        await redis.set(redisKey, JSON.stringify(cacheObj));
-        await redis.set(`${type}:${imdbId}`, JSON.stringify(cacheObj));
+        await redis.set(redisKey, JSON.stringify(result));
+        await redis.set(`${type}:${imdbId}`, JSON.stringify(result));
         log(`Cached details for movie: ${movieName}`);
         cacheSet = true;
       } catch (err) {
@@ -94,7 +75,7 @@ export async function getTmdbDetailsByName(movieName: string, type: string, rpdb
       }
     }
 
-    return { data: result, fromCache: false, cacheSet, normalPoster: posterUrl };
+    return { data: result, fromCache: false, cacheSet };
   } catch (err) {
     logError(`Error fetching TMDB details for movie: ${movieName}`, err);
     return {

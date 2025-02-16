@@ -35,7 +35,6 @@ const getTrendingList = async (listKey: string, context: string): Promise<Meta[]
 export const getTrendingSeries = async (rpdbKey?: string): Promise<TrendingResponse> => {
   const metas = await getTrendingList(TRENDING_SERIES_LIST, "trending series");
   if(rpdbKey){
-    console.log("Got rpdb key");
   for (const meta of metas) {
     const rpdb = await getRpdbPoster(meta.id, rpdbKey);
     if (rpdb.poster) meta.poster = rpdb.poster;
