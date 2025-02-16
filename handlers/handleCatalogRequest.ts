@@ -1,7 +1,7 @@
 import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
 import type { Context } from "../config/deps.ts";
-import { DEV_MODE } from "../config/env.ts";
+import { DEV_MODE, SEARCH_COUNT } from "../config/env.ts";
 
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
@@ -9,8 +9,6 @@ import { buildMeta } from "../utils/buildMeta.ts";
 import type { Recommendation, Meta } from "../config/types/types.ts";
 
 import { getRpdbPoster } from "../services/rpdb.ts";
-
-const MAX_CACHE_ENTRIES = 20;
 
 export const handleCatalogRequest = async (ctx: Context, searchQuery: string, type: string, googleKey: string, rpdbKey?: string) => {
   try {
@@ -83,7 +81,7 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
     if (metas.length > 0) {
       const trendingKey = type === "movie" ? "trendingmovies" : "trendingseries";
       await redis.lpush(trendingKey, JSON.stringify(metas[0]));
-      await redis.ltrim(trendingKey, 0, MAX_CACHE_ENTRIES - 1);
+      await redis.ltrim(trendingKey, 0, SEARCH_COUNT - 1);
     }
 
     await semanticCache.set(`${type}:${searchQuery}`, JSON.stringify(metas));
