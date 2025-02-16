@@ -3,7 +3,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [4.0.0] - 2025-02-15
+## [1.2.1] - 2025-02-15
+
+### Fixed
+- Now run all Rating Poster requests in parallel. This has greatly improved performance. The things you forget when moving fast.
+- Moved RPDB logic to the handler level to be more SOLID.
+- Fixed version numbering so we aren't jumping major versions so quickly!
+
+## [1.2.0] - 2025-02-15
 
 This is a breaking change. Users need to reinstall.
 
@@ -13,7 +20,7 @@ This is a breaking change. Users need to reinstall.
 ### Changed
 - User keys are now URL encoded using base64. NOT ENCRYPTED.
 
-## [3.0.0] - 2025-02-14
+## [1.1.1] - 2025-02-14
 
 ### Added
 - Trending now on homepage
@@ -27,7 +34,7 @@ This is a breaking change. Users need to reinstall.
 
 ---
 
-## [2.0.0] - 2025-02-13
+## [1.1.0] - 2025-02-13
 
 This is a breaking change users will have to reinstall.
 

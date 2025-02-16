@@ -5,7 +5,7 @@ export const manifest = {
     configurable: true,
   },
   id: "org.ai-search",
-  version: "3.0.0",
+  version: "1.2.1",
   name: "AISearch",
   description: "Find movies and TV using natural language queries powered by Google Gemini",
   resources: ["catalog"],
