@@ -19,7 +19,6 @@ export interface Meta {
   name: string;
   type: string;
   poster: string | null;
-  normalPoster?: string | null;
   posterShape: string;
 }
   

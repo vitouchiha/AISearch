@@ -82,5 +82,13 @@ export const getRpdbPoster = async (imdbId: string, rpdbKey: string): Promise<Po
 
   //const cachePoster = await cacheImageCloud(url, imdbId);
   //return { poster: cachePoster };
+
+  // check to make sure url is active before sending it back... this will work but I feel like we are downloading
+  //  useless content server side
+  const response = await fetch(url, { method: "HEAD" });
+  if (!response.ok) {
+    console.error(`RPDB poster fetch failed: ${response.status} ${response.statusText}`);
+    return { poster: null };
+  }
   return { poster: url };
 };
