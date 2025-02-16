@@ -62,7 +62,9 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
       })
     );
 
-    const metas = metasWithPossibleNull.filter((meta): meta is Meta => meta !== null);
+    const metas = metasWithPossibleNull.filter(
+      (meta): meta is Meta => meta !== null && typeof meta.poster === "string" && meta.poster.trim() !== ""
+    );
 
     if (metas.length > 0) {
       const trendingKey = type === "movie" ? "trendingmovies" : "trendingseries";
