@@ -25,21 +25,27 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
         console.error("Error parsing cached result:", error);
         parsed = [];
       }
-      
+
       // Ensure that parsed is actually an array
       const cachedMetas: Meta[] = Array.isArray(parsed) ? parsed : [];
-    
+
       if (rpdbKey) {
-        for (const meta of cachedMetas) {
-          if (meta.id) {
-            const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
-            if (rpdbPoster?.poster) {
-              meta.poster = rpdbPoster.poster;
+        await Promise.all(
+          cachedMetas.map(async (meta) => {
+            if (meta.id) {
+              try {
+                const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
+                if (rpdbPoster?.poster) {
+                  meta.poster = rpdbPoster.poster;
+                }
+              } catch (error) {
+                console.error(`Error fetching rpdb poster for id ${meta.id}:`, error);
+              }
             }
-          }
-        }
+          })
+        );
       }
-    
+
       console.log(
         `[${new Date().toISOString()}] Cache hit for query: (${type}) ${searchQuery}`
       );
@@ -91,12 +97,20 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
 
     // Before sending the response, override meta.poster with rpdbPoster if rpdbKey is provided.
     if (rpdbKey) {
-      for (const meta of metas) {
-        if (meta.id) {
-          const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
-          if (rpdbPoster?.poster) meta.poster = rpdbPoster.poster;
-        }
-      }
+      await Promise.all(
+        metas.map(async (meta) => {
+          if (meta.id) {
+            try {
+              const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
+              if (rpdbPoster?.poster) {
+                meta.poster = rpdbPoster.poster;
+              }
+            } catch (error) {
+              console.error(`Error fetching rpdb poster for id ${meta.id}:`, error);
+            }
+          }
+        })
+      );
     }
 
     ctx.response.body = { metas };

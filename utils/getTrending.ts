@@ -34,22 +34,38 @@ const getTrendingList = async (listKey: string, context: string): Promise<Meta[]
 
 export const getTrendingSeries = async (rpdbKey?: string): Promise<TrendingResponse> => {
   const metas = await getTrendingList(TRENDING_SERIES_LIST, "trending series");
-  if(rpdbKey){
-  for (const meta of metas) {
-    const rpdb = await getRpdbPoster(meta.id, rpdbKey);
-    if (rpdb.poster) meta.poster = rpdb.poster;
+  if (rpdbKey) {
+    await Promise.all(
+      metas.map(async (meta) => {
+        try {
+          const rpdb = await getRpdbPoster(meta.id, rpdbKey);
+          if (rpdb.poster) {
+            meta.poster = rpdb.poster;
+          }
+        } catch (error) {
+          console.error(`Error fetching rpdb poster for series id ${meta.id}:`, error);
+        }
+      })
+    );
   }
-}
   return { metas };
 };
 
 export const getTrendingMovies = async (rpdbKey?: string): Promise<TrendingResponse> => {
   const metas = await getTrendingList(TRENDING_MOVIES_LIST, "trending movies");
-  if(rpdbKey){
-    for (const meta of metas) {
-      const rpdb = await getRpdbPoster(meta.id, rpdbKey);
-      if (rpdb.poster) meta.poster = rpdb.poster;
-    }
+  if (rpdbKey) {
+    await Promise.all(
+      metas.map(async (meta) => {
+        try {
+          const rpdb = await getRpdbPoster(meta.id, rpdbKey);
+          if (rpdb.poster) {
+            meta.poster = rpdb.poster;
+          }
+        } catch (error) {
+          console.error(`Error fetching rpdb poster for movie id ${meta.id}:`, error);
+        }
+      })
+    );
   }
   return { metas };
 };
