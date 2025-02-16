@@ -18,17 +18,28 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
 
     const cachedResult = await semanticCache.get(`${type}:${searchQuery}`);
     if (cachedResult) {
-      const cachedMetas: Meta[] = JSON.parse(cachedResult);
-
+      let parsed;
+      try {
+        parsed = JSON.parse(cachedResult);
+      } catch (error) {
+        console.error("Error parsing cached result:", error);
+        parsed = [];
+      }
+      
+      // Ensure that parsed is actually an array
+      const cachedMetas: Meta[] = Array.isArray(parsed) ? parsed : [];
+    
       if (rpdbKey) {
         for (const meta of cachedMetas) {
           if (meta.id) {
             const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
-            if (rpdbPoster?.poster) meta.poster = rpdbPoster.poster;
+            if (rpdbPoster?.poster) {
+              meta.poster = rpdbPoster.poster;
+            }
           }
         }
       }
-
+    
       console.log(
         `[${new Date().toISOString()}] Cache hit for query: (${type}) ${searchQuery}`
       );
