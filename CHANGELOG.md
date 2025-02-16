@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.2] - 2025-02-16
+
+## Changed
+- Added SEARCH_COUNT ENV variable to make it easier to adjust returned amounts. 20 is default.
+
 ## [1.2.1] - 2025-02-15
 
 ### Fixed

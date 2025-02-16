@@ -39,9 +39,7 @@ export const getTrendingSeries = async (rpdbKey?: string): Promise<TrendingRespo
       metas.map(async (meta) => {
         try {
           const rpdb = await getRpdbPoster(meta.id, rpdbKey);
-          if (rpdb.poster) {
-            meta.poster = rpdb.poster;
-          }
+          if (rpdb.poster) meta.poster = rpdb.poster;
         } catch (error) {
           console.error(`Error fetching rpdb poster for series id ${meta.id}:`, error);
         }
@@ -58,9 +56,7 @@ export const getTrendingMovies = async (rpdbKey?: string): Promise<TrendingRespo
       metas.map(async (meta) => {
         try {
           const rpdb = await getRpdbPoster(meta.id, rpdbKey);
-          if (rpdb.poster) {
-            meta.poster = rpdb.poster;
-          }
+          if (rpdb.poster) meta.poster = rpdb.poster;
         } catch (error) {
           console.error(`Error fetching rpdb poster for movie id ${meta.id}:`, error);
         }

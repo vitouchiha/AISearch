@@ -35,9 +35,7 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
             if (meta.id) {
               try {
                 const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
-                if (rpdbPoster?.poster) {
-                  meta.poster = rpdbPoster.poster;
-                }
+                if (rpdbPoster?.poster) meta.poster = rpdbPoster.poster;
               } catch (error) {
                 console.error(`Error fetching rpdb poster for id ${meta.id}:`, error);
               }
@@ -63,8 +61,7 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
             `[${new Date().toISOString()}] Processing recommendation ${index + 1} for movie: ${movieName}`
           );
 
-        const { data: tmdbData, fromCache, cacheSet } =
-          await getTmdbDetailsByName(movieName, type);
+        const { data: tmdbData, fromCache, cacheSet } = await getTmdbDetailsByName(movieName, type);
 
         if (fromCache) fromCacheCount++;
         else fromTmdbCount++;
@@ -102,9 +99,7 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
           if (meta.id) {
             try {
               const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
-              if (rpdbPoster?.poster) {
-                meta.poster = rpdbPoster.poster;
-              }
+              if (rpdbPoster?.poster) meta.poster = rpdbPoster.poster;
             } catch (error) {
               console.error(`Error fetching rpdb poster for id ${meta.id}:`, error);
             }

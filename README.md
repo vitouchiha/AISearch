@@ -75,6 +75,7 @@ UPSTASH_REDIS_REST_TOKEN=""
 UPSTASH_VECTOR_REST_URL=""
 UPSTASH_VECTOR_REST_TOKEN=""
 AI_MODEL="gemini-2.0-pro-exp-02-05" # This can be any google model that vercel supports
+SEARCH_COUNT=20
 PORT=3003
 CLOUDFLARED_TOKEN=""
 ```

@@ -1,4 +1,4 @@
-import { AI_MODEL, DEV_MODE } from "../config/env.ts";
+import { AI_MODEL, DEV_MODE, SEARCH_COUNT } from "../config/env.ts";
 import { createGoogleGenerativeAI, generateText } from "../config/deps.ts";
 
 export async function getMovieRecommendations(searchQuery: string, type: string, googleKey: string): Promise<string[]> {
@@ -11,7 +11,7 @@ export async function getMovieRecommendations(searchQuery: string, type: string,
   // Adjust the prompt based on whether we're searching for movies or TV series.
   const recommendationType = type === "tv" ? "TV series" : "movies";
   const prompt = `You are an expert ${recommendationType} recommendation system.
-For the search query provided, return exactly 20 ${recommendationType} recommendations as a raw JSON array.
+For the search query provided, return exactly ${SEARCH_COUNT} ${recommendationType} recommendations as a raw JSON array.
 Each element in the array must be a ${type === "tv" ? "TV series name" : "movie name"} (string).
 Do not include any additional text, formatting, or explanation. Do not repeat any names.
 Search Query: ${searchQuery}`;
