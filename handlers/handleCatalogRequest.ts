@@ -24,7 +24,7 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
         for (const meta of cachedMetas) {
           if (meta.id) {
             const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
-            if (rpdbPoster) meta.poster = rpdbPoster.poster;
+            if (rpdbPoster?.poster) meta.poster = rpdbPoster.poster;
           }
         }
       }
@@ -81,7 +81,7 @@ export const handleCatalogRequest = async (ctx: Context, searchQuery: string, ty
       for (const meta of metas) {
         if (meta.id) {
           const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
-          if (rpdbPoster) meta.poster = rpdbPoster.poster;
+          if (rpdbPoster?.poster) meta.poster = rpdbPoster.poster;
         }
       }
     }
