@@ -5,14 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FilmWhisper: AISearch Configure</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom CSS for mobile-first adjustments */
+    @media (max-width: 640px) {
+      .text-4xl {
+        font-size: 1.5rem; /* Smaller font size for mobile */
+      }
+      .text-2xl {
+        font-size: 1.25rem;
+      }
+      .p-6 {
+        padding: 1rem; /* Reduced padding for smaller screens */
+      }
+      .space-y-6 {
+        gap: 1rem; /* Reduced vertical spacing */
+      }
+      .max-w-lg {
+        max-width: 100%; /* Full width on small screens */
+      }
+      .w-full {
+        width: 100%; /* Ensure full width */
+      }
+      input[type="text"] {
+        font-size: 0.875rem; /* Smaller font size for inputs */
+      }
+      button {
+        font-size: 0.875rem; /* Smaller font size for buttons */
+      }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden">
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-auto">
   <!-- Background Animation -->
   <div class="absolute inset-0 z-0">
-    <div class="animate-pulse bg-opacity-10 bg-white rounded-full w-48 h-48 absolute top-1/4 left-1/4 blur-3xl"></div>
-    <div class="animate-bounce-slow bg-opacity-10 bg-white rounded-full w-32 h-32 absolute bottom-1/4 right-1/4 blur-3xl"></div>
+    <div class="animate-pulse bg-opacity-10 bg-white rounded-full w-32 h-32 absolute top-1/4 left-1/4 blur-3xl"></div>
+    <div class="animate-bounce-slow bg-opacity-10 bg-white rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl"></div>
   </div>
-
   <!-- Movie/Tv SVG Animation -->
   <div class="absolute inset-0 z-0 pointer-events-none">
     <svg
@@ -27,25 +55,21 @@
       ></path>
     </svg>
   </div>
-
   <!-- Logo Section -->
-  <div class="relative z-10 flex flex-col items-center mb-10">
+  <div class="relative z-10 flex flex-col items-center mb-6 sm:mb-10">
     <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 text-center">FilmWhisper: AISearch</h1>
     <p class="mt-2 text-sm text-gray-400">AI-powered movie discovery for Stremio</p>
   </div>
-
   <!-- Description Section -->
-  <div class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 mb-6">
+  <div class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 mb-4 sm:mb-6">
     <h2 class="text-2xl font-bold mb-4 text-center text-indigo-400">What does this do?</h2>
     <p class="text-gray-300 text-sm">
       This catalog uses AI to determine what you're looking for. For example, if you search for "Movie where the parents leave the child alone on vacation", it will return "Home Alone" and similar results.
     </p>
   </div>
-
   <!-- Configuration Section -->
-  <div class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 space-y-6">
+  <div class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
     <h2 class="text-2xl font-bold text-center text-cyan-400">Configure</h2>
-
     <!-- Google API Key Section -->
     <div id="api-key-section" class="space-y-2">
       <div class="bg-gray-700/80 border border-gray-600 text-gray-200 p-3 rounded-lg">
@@ -63,7 +87,6 @@
         class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
       />
     </div>
-
     <!-- Ratings Poster API Key Section -->
     <div id="rpdb-key-section" class="space-y-2">
       <label for="rpdbKey" class="block text-sm font-medium text-gray-300">Ratings Poster API Key:</label>
@@ -75,7 +98,6 @@
         class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
       />
     </div>
-
     <!-- Checkbox to use default Google key -->
     <div class="flex items-center space-x-2">
       <input
@@ -86,7 +108,6 @@
       />
       <label for="defaultKey" class="text-sm text-gray-300">Use default Google key</label>
     </div>
-
     <!-- URL Display Box -->
     <div
       id="url-display-box"
@@ -95,7 +116,6 @@
       <p class="text-xs mb-2">Copy and paste this URL to install via Stremio:</p>
       <code id="url-display" class="block bg-gray-800/80 p-2 rounded text-xs text-gray-200"></code>
     </div>
-
     <!-- Install Button -->
     <button
       id="install-button"
@@ -105,9 +125,8 @@
       Install Addon
     </button>
   </div>
-
   <!-- GitHub Link Section -->
-  <footer class="relative z-10 w-full max-w-lg mt-10 text-center">
+  <footer class="relative z-10 w-full max-w-lg mt-6 sm:mt-10 text-center">
     <a
       href="https://github.com/mkcfdc/AISearch"
       target="_blank"

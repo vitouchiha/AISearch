@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Fixed an issue with TMDB returning an empty response. Return early to fix
+- Fixed mobile formatting on the configure page
 
 ### Changed
 
