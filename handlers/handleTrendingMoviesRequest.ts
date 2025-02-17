@@ -10,7 +10,6 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
     return;
   }
 
-  // Wrap the trending functions in arrow functions
   const trendingHandlers: Record<string, () => Promise<unknown>> = {
     movie: () => getTrendingMovies(rpdbKey),
     series: () => getTrendingSeries(rpdbKey),

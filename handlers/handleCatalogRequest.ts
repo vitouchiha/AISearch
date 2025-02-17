@@ -1,7 +1,8 @@
 import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
 import type { Context } from "../config/deps.ts";
-import { DEV_MODE, SEARCH_COUNT } from "../config/env.ts";
+import { SEARCH_COUNT } from "../config/env.ts";
+import { log, logError } from "../utils/utils.ts";
 
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
@@ -26,7 +27,7 @@ export const handleCatalogRequest = async (
       try {
         parsed = JSON.parse(cachedResult);
       } catch (error) {
-        console.error("Error parsing cached result:", error);
+        logError("Error parsing cached result:", error);
         parsed = [];
       }
 
@@ -37,10 +38,8 @@ export const handleCatalogRequest = async (
         await updateRpdbPosters(cachedMetas, rpdbKey);
       }
 
-      console.log(
-        `[${
-          new Date().toISOString()
-        }] Cache hit for query: (${type}) ${searchQuery}`,
+      log(
+        `Cache hit for query: (${type}) ${searchQuery}`
       );
       ctx.response.body = { metas: cachedMetas };
       return;
@@ -55,9 +54,8 @@ export const handleCatalogRequest = async (
 
     const metasWithPossibleNull = await Promise.all(
       movieNames.map(async (movieName, index) => {
-        DEV_MODE &&
-          console.log(
-            `[${new Date().toISOString()}] Processing recommendation ${
+          log(
+            `Processing recommendation ${
               index + 1
             } for ${type}: ${movieName}`,
           );
@@ -94,9 +92,9 @@ export const handleCatalogRequest = async (
 
     await semanticCache.set(`${type}:${searchQuery}`, JSON.stringify(metas));
 
-    console.log(`${fromCacheCount} ${type}(s) returned from cache.`);
-    console.log(`${fromTmdbCount} ${type}(s) fetched from TMDB.`);
-    console.log(`${cacheSetCount} ${type}(s) added to cache.`);
+    log(`${fromCacheCount} ${type}(s) returned from cache.`);
+    log(`${fromTmdbCount} ${type}(s) fetched from TMDB.`);
+    log(`${cacheSetCount} ${type}(s) added to cache.`);
 
     if (rpdbKey) {
       await updateRpdbPosters(metas, rpdbKey);
@@ -104,7 +102,7 @@ export const handleCatalogRequest = async (
 
     ctx.response.body = { metas };
   } catch (error: unknown) {
-    console.error(`[${new Date().toISOString()}] Error:`, error);
+    logError(`Error:`, error);
     ctx.response.status = 500;
     ctx.response.body = {
       error: "Failed to generate recommendations",

@@ -1,5 +1,6 @@
 import { redis } from "../config/redisCache.ts";
 import { Meta } from "../config/types/types.ts";
+import { logError } from "./utils.ts";
 
 import { updateRpdbPosters } from "../services/rpdb.ts";
 
@@ -30,7 +31,7 @@ const getTrendingList = async (
       .map((item) => parseMeta(item, context))
       .filter((meta): meta is Meta => meta !== null);
   } catch (error) {
-    console.error(`Error fetching ${context} from Redis:`, error);
+    logError(`Error fetching ${context} from Redis:`, error);
     return [];
   }
 };

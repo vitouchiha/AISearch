@@ -12,7 +12,7 @@ export const logError = (msg: string, err: unknown) =>
 export async function fetchJson(url: string, label: string) {
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`${label} API responded with status ${res.status}`);
+    logError(`${label} API responded with status ${res.status}`, res);
   }
   return res.json();
 }

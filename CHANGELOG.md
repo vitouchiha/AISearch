@@ -15,6 +15,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Changed all console.log's to log or logError for better more robust handling.
+- Changed the AI prompt for better answers.
 - Moved to a structured response from Gemini, this has brought the parsing errors to 0!
 - Moved some repeating code to helper functions.
 

@@ -1,4 +1,5 @@
 import { Context } from "../config/deps.ts";
+import { log } from "../utils/utils.ts";
 
 export const responseLog = async (
   ctx: Context,
@@ -12,9 +13,5 @@ export const responseLog = async (
   const apiKeyRegex = /\/AIza[a-zA-Z0-9_-]+/g;
   logUrl = logUrl.replace(apiKeyRegex, "/[API_KEY_OBFUSCATED]");
 
-  console.log(
-    `[${new Date().toISOString()}] ${ctx.request.method} ${logUrl} - ${
-      ms.toFixed(2)
-    }ms`,
-  );
+  log(`${ctx.request.method} ${logUrl} - ${ms.toFixed(2)}ms`);
 };

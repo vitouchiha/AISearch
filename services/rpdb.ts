@@ -1,4 +1,5 @@
 import { Meta } from "../config/types/types.ts";
+import { logError } from "../utils/utils.ts";
 
 //import { cacheImageCloud } from "../config/s3.ts";
 
@@ -68,7 +69,7 @@ const checkKey = (key: string): TierResponse | null => {
 
     return tier !== null ? { tier } : null;
   } catch (error) {
-    console.error("Error in checkKey:", error);
+    logError("Error in checkKey:", error);
     return null;
   }
 };
@@ -109,7 +110,7 @@ export async function updateRpdbPosters(
             meta.poster = rpdbPoster.poster;
           }
         } catch (error) {
-          console.error(`Error fetching rpdb poster for id ${meta.id}:`, error);
+          logError(`Error fetching rpdb poster for id ${meta.id}:`, error);
         }
       }
     }),

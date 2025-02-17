@@ -1,5 +1,6 @@
 import { badWordsFilter } from "../utils/badWordsFilter.ts";
 import { CatalogContext } from "../config/types/types.ts";
+import { logError } from "../utils/utils.ts";
 
 export const searchParamMiddleware = async (
   ctx: CatalogContext,
@@ -22,7 +23,7 @@ export const searchParamMiddleware = async (
     ctx.state.searchQuery = searchQuery;
     await next();
   } catch (error) {
-    console.error("Error in searchParamMiddleware:", error);
+    logError("Error in searchParamMiddleware:", error);
     ctx.response.status = 500;
     ctx.response.body = { error: "Internal server error." };
   }
