@@ -1,6 +1,6 @@
 services:
   ai-stremio-search:
-    image: aisearch:latest
+    image: ghcr.io/mkcfdc/aisearch:latest
     container_name: ai-stremio-search
     ports:
       - "${PORT}:${PORT}"
