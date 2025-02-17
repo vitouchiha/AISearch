@@ -68,7 +68,7 @@
     </p>
   </div>
   <!-- Configuration Section -->
-  <div class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
+  <div class="relative z-10 w-full max-w-xl bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
     <h2 class="text-2xl font-bold text-center text-cyan-400">Configure</h2>
     <!-- Google API Key Section -->
     <div id="api-key-section" class="space-y-2">
@@ -125,16 +125,16 @@
       Install Addon
     </button>
   </div>
-  <!-- GitHub Link Section -->
-  <footer class="relative z-10 w-full max-w-lg mt-6 sm:mt-10 text-center">
+  <footer class="relative z-10 w-full max-w-lg mx-auto mt-6 sm:mt-10 text-center">
+    <!-- GitHub Link -->
     <a
       href="https://github.com/mkcfdc/AISearch"
       target="_blank"
       rel="noopener noreferrer"
-      class="inline-flex items-center text-blue-400 hover:text-blue-300 transition duration-300"
+      class="inline-flex items-center justify-center w-full text-blue-400 hover:text-blue-300 transition duration-300 rounded-lg py-3 px-4 mb-4"
     >
       <svg
-        class="w-6 h-6 mr-2"
+        class="w-5 h-5 mr-2"
         role="img"
         viewBox="0 0 24 24"
         fill="currentColor"
@@ -152,7 +152,62 @@
       </svg>
       View this project on GitHub
     </a>
-    <div class="mt-2 text-xs text-gray-500">v{{VERSION}} {{DEV_MODE}}</div>
+  
+    <!-- Version and Dev Mode Info -->
+    <div class="text-xs text-gray-500 mb-6">v{{VERSION}} {{DEV_MODE}}</div>
+  
+    <!-- Statistics Section -->
+    <div class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 space-y-4">
+      <h1 class="text-lg font-semibold text-gray-300">Statistics</h1>
+  
+      <!-- Total Installs -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-6 h-6 mr-2 text-green-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
+          </svg>
+          <span class="text-sm text-gray-400">Total Installs</span>
+        </div>
+        <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">
+          {{INSTALLS}}
+        </p>
+      </div>
+  
+      <!-- Database Size -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-6 h-6 mr-2 text-purple-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7a2 2 0 012-2h12a2 2 0 012 2m-2 2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2"
+            />
+          </svg>
+          <span class="text-sm text-gray-400">Database Keys</span>
+        </div>
+        <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+          {{DB_SIZE}}
+        </p>
+      </div>
+    </div>
   </footer>
 
   <script>

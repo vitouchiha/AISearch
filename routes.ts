@@ -16,6 +16,7 @@ import type {
   TrendingParams,
   ManifestParams,
 } from "./config/types/types.ts";
+import { redis } from "./config/redisCache.ts";
 
 const catalogMiddleware = [
   googleKeyMiddleware,
@@ -33,17 +34,24 @@ const handleSearch = async (ctx: CatalogContext) => {
 
 const handleTrending = (ctx: AppContext<TrendingParams>) => handleTrendingRequest(ctx);
 
-const handleManifest = (ctx: ManifestContext) => {
+const handleManifest = async (ctx: ManifestContext) => {
   log("Serving manifest");
+  await redis.incr("manifest_requests");
   ctx.response.body = manifest;
 };
 
 const handleConfigure = async (ctx: ConfigureContext) => {
   try {
-    const html = (await Deno.readTextFile("./views/configure.html"))
+    const installs = await redis.get("manifest_requests") || "0";
+    const dbSize: number = await redis.dbsize();
+    const htmlContent = await Deno.readTextFile("./views/configure.html");
+    const html = htmlContent
       .replace("{{ROOT_URL}}", ROOT_URL)
       .replace("{{VERSION}}", manifest.version)
+      .replace("{{INSTALLS}}", String(installs))
+      .replace("{{DB_SIZE}}", String(dbSize))
       .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
+
     ctx.response.headers.set("Content-Type", "text/html");
     ctx.response.body = html;
   } catch (error) {
