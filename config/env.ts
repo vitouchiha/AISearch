@@ -20,6 +20,7 @@ const SEARCH_COUNT = parseInt(SEARCH_COUNT_STR, 10);
 
 const portStr = Deno.env.get("PORT") || "3000";
 const PORT = parseInt(portStr, 10);
+const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 if (
   !geminiKey ||
@@ -45,6 +46,7 @@ const UPSTASH_VECTOR_TOKEN: string = upstashVectorToken;
 const AI_MODEL: string = aiModel;
 
 export {
+  ROOT_URL,
   AI_MODEL,
   DEV_MODE,
   GEMINI_API_KEY,

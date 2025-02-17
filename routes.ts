@@ -1,5 +1,5 @@
 import { Router } from "./config/deps.ts";
-import { DEV_MODE } from "./config/env.ts";
+import { ROOT_URL, DEV_MODE } from "./config/env.ts";
 
 import { manifest } from "./config/manifest.ts";
 
@@ -89,14 +89,17 @@ router.get<ManifestParams>(
 );
 
 router.get("/configure", async (ctx: ConfigureContext) => {
-  ctx.response.headers.set(
-    "Cache-Control",
-    "no-cache, no-store, must-revalidate",
-  );
-  await ctx.send({
-    root: `${Deno.cwd()}/static`,
-    path: "configure.html",
-  });
+  try {
+    let html = await Deno.readTextFile("./views/configure.html");
+    html = html.replace("{{ROOT_URL}}", ROOT_URL);
+
+    ctx.response.headers.set("Content-Type", "text/html");
+    ctx.response.body = html;
+  } catch (error) {
+    console.error("Error serving configure page:", error);
+    ctx.response.status = 500;
+    ctx.response.body = "Internal Server Error";
+  }
 });
 
 router.get("/", (ctx) => ctx.response.redirect("/configure"));

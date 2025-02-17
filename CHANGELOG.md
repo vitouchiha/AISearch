@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [1.2.3] - 2025-02-16
 
 ### Added
+- Added ROOT_URL env.
 - We now send small HEAD requests to make sure the posters are actually there before returning to the user. If there is a reduction in speed we will add a timeout.
 
 ### Fixed

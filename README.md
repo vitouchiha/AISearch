@@ -74,6 +74,7 @@ This command will start all services in detached mode.
 Your `.env` file should contain the following keys:
 
 ```dotenv
+ROOT_URL="http://localhost:3000"
 GEMINI_API_KEY=""
 TMDB_API_KEY=""
 UPSTASH_REDIS_REST_URL=""
@@ -85,11 +86,6 @@ SEARCH_COUNT=20
 PORT=3003
 CLOUDFLARED_TOKEN=""
 ```
-
-Don't forget to edit the `manifestBaseUrl` variable in `/static/configure.html`
-to point to your local or deployed server URL. This is important because it
-ensures that the application can correctly locate and load the manifest file for
-proper configuration.
 
 ---
 

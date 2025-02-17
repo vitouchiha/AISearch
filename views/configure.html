@@ -135,7 +135,7 @@
     </footer>
 
     <script>
-      const manifestBaseUrl = "ai.filmwhisper.dev";
+      const manifestBaseUrl = "{{ROOT_URL}}";
 
       const googleKeyInput = document.getElementById("googleKey");
       const rpdbKeyInput = document.getElementById("rpdbKey");
@@ -184,7 +184,7 @@
           const jsonStr = JSON.stringify(keysObj);
           const encodedKeys = encodeUrlSafeBase64(jsonStr);
           const urlWithConfig =
-            `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
+            `${manifestBaseUrl}/${encodedKeys}/manifest.json`;
           urlDisplay.textContent = urlWithConfig;
           urlDisplayBox.classList.remove("hidden");
         } else {
@@ -207,8 +207,12 @@
           const jsonStr = JSON.stringify(keysObj);
           const encodedKeys = encodeUrlSafeBase64(jsonStr);
           const urlWithConfig =
-            `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
-          window.location.href = `stremio://${urlWithConfig}`;
+            `${manifestBaseUrl}/${encodedKeys}/manifest.json`;
+          const strippedUrl = urlWithConfig
+                                .replace(/^https?:\/\//, "")
+                                .replace(/^http?:\/\//, "");
+
+          window.location.href = `stremio://${strippedUrl}`;
         } else {
           alert(
             "Please ensure your Google API key is valid before attempting to install",
