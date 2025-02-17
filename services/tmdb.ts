@@ -2,7 +2,7 @@ import { TMDBDetails } from "../config/types/types.ts";
 import { TMDB_API_KEY } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 import { fetchCinemeta } from "./cinemeta.ts";
-import { log, logError, fetchJson } from "../utils/utils.ts";
+import { fetchJson, log, logError } from "../utils/utils.ts";
 
 interface TmdbFetchResult {
   data: TMDBDetails;
@@ -10,7 +10,10 @@ interface TmdbFetchResult {
   cacheSet: boolean;
 }
 
-export async function getTmdbDetailsByName(movieName: string, type: string): Promise<TmdbFetchResult> {
+export async function getTmdbDetailsByName(
+  movieName: string,
+  type: string,
+): Promise<TmdbFetchResult> {
   const normalizedName = movieName.toLowerCase().trim();
   const redisKey = `${type}:name:${normalizedName}`;
 
@@ -27,23 +30,37 @@ export async function getTmdbDetailsByName(movieName: string, type: string): Pro
   log(`Fetching TMDB details for movie: ${movieName}`);
   try {
     const tmdbType = type === "series" ? "tv" : type;
-    const searchUrl = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
-      movieName
-    )}`;
+    const searchUrl =
+      `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_API_KEY}&query=${
+        encodeURIComponent(
+          movieName,
+        )
+      }`;
     const searchData = await fetchJson(searchUrl, "TMDB search");
     const firstResult = searchData.results?.[0];
-    if (!firstResult) throw new Error(`No results found for movie: ${movieName}`);
+    if (!firstResult) {
+      throw new Error(`No results found for movie: ${movieName}`);
+    }
 
-    const detailsUrl = `https://api.themoviedb.org/3/${tmdbType}/${firstResult.id}?api_key=${TMDB_API_KEY}&append_to_response=external_ids`;
+    const detailsUrl =
+      `https://api.themoviedb.org/3/${tmdbType}/${firstResult.id}?api_key=${TMDB_API_KEY}&append_to_response=external_ids`;
     const detailsData = await fetchJson(detailsUrl, "TMDB details");
     const imdbId = detailsData.external_ids?.imdb_id;
 
-    let result: TMDBDetails = { id: "", poster: null, showName: null, year: null };
+    let result = {
+      id: "",
+      poster: null,
+      showName: null,
+      year: null,
+    } as TMDBDetails;
+    
     let posterUrl = null;
     if (imdbId) {
       let titleField = type === "series" ? detailsData.name : detailsData.title;
-      let dateField = type === "series" ? detailsData.first_air_date : detailsData.release_date;
-          posterUrl = detailsData.poster_path
+      let dateField = type === "series"
+        ? detailsData.first_air_date
+        : detailsData.release_date;
+      posterUrl = detailsData.poster_path
         ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
         : null;
 

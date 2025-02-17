@@ -1,7 +1,10 @@
 import { badWordsFilter } from "../utils/badWordsFilter.ts";
 import { CatalogContext } from "../config/types/types.ts";
 
-export const searchParamMiddleware = async (ctx: CatalogContext, next: () => Promise<unknown>) => {
+export const searchParamMiddleware = async (
+  ctx: CatalogContext,
+  next: () => Promise<unknown>,
+) => {
   try {
     const searchQuery = extractSearchQuery(ctx.params.searchParam);
     if (!searchQuery) {
@@ -11,7 +14,9 @@ export const searchParamMiddleware = async (ctx: CatalogContext, next: () => Pro
     }
     if (badWordsFilter(searchQuery)) {
       ctx.response.status = 400;
-      ctx.response.body = { error: "Search query contains inappropriate words." };
+      ctx.response.body = {
+        error: "Search query contains inappropriate words.",
+      };
       return;
     }
     ctx.state.searchQuery = searchQuery;
@@ -24,6 +29,6 @@ export const searchParamMiddleware = async (ctx: CatalogContext, next: () => Pro
 };
 
 function extractSearchQuery(rawParam?: string): string | null {
-    const match = rawParam?.match(/^search=(.+)\.json$/);
-    return match ? match[1] : null;
-  }
+  const match = rawParam?.match(/^search=(.+)\.json$/);
+  return match ? match[1] : null;
+}

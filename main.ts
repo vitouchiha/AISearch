@@ -1,4 +1,4 @@
-import { Application, oakCors, Context } from "./config/deps.ts";
+import { Application, Context, oakCors } from "./config/deps.ts";
 import { DEV_MODE, PORT } from "./config/env.ts";
 import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 import router from "./routes.ts";
@@ -25,8 +25,15 @@ app.use((ctx: Context) => {
   ctx.response.body = { error: "Endpoint not found" };
 });
 
-app.addEventListener("error", (evt) => console.error(`[${new Date().toISOString()}] Unhandled error:`, evt.error));
+app.addEventListener(
+  "error",
+  (evt) =>
+    console.error(`[${new Date().toISOString()}] Unhandled error:`, evt.error),
+);
 
-DEV_MODE && console.log(`[${new Date().toISOString()}] Stremio AI Addon running on port ${PORT}`);
+DEV_MODE &&
+  console.log(
+    `[${new Date().toISOString()}] Stremio AI Addon running on port ${PORT}`,
+  );
 
 await app.listen({ hostname: "0.0.0.0", port: PORT });

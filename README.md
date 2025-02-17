@@ -1,7 +1,8 @@
-
 # 🚀 AISearch README
 
-Welcome to the AI Stremio Search development environment! This guide will help you run the project in DEV mode, explain what DEV_MODE does, and walk you through the local setup requirements.
+Welcome to the AI Stremio Search development environment! This guide will help
+you run the project in DEV mode, explain what DEV_MODE does, and walk you
+through the local setup requirements.
 
 ---
 
@@ -17,14 +18,16 @@ Welcome to the AI Stremio Search development environment! This guide will help y
 
 ## 🔧 Run DEV
 
-To start the project in DEV mode, execute the following commands in your terminal:
+To start the project in DEV mode, execute the following commands in your
+terminal:
 
 ```shell
 export DEV_MODE=true
 deno task dev
 ```
 
-> **Note:** `DEV_MODE` is automatically set when the project is opened in a devcontainer.
+> **Note:** `DEV_MODE` is automatically set when the project is opened in a
+> devcontainer.
 
 ---
 
@@ -32,9 +35,12 @@ deno task dev
 
 `DEV_MODE` enables several development-specific features, such as:
 
-- **Debug Logging:** Provides detailed `console.log` outputs for easier troubleshooting.
-- **Local Environment File Usage:** Loads variables from your `.env` file for local development.
-- **Enhanced Developer Experience:** Better error messages and real-time feedback.
+- **Debug Logging:** Provides detailed `console.log` outputs for easier
+  troubleshooting.
+- **Local Environment File Usage:** Loads variables from your `.env` file for
+  local development.
+- **Enhanced Developer Experience:** Better error messages and real-time
+  feedback.
 
 ---
 
@@ -80,7 +86,10 @@ PORT=3003
 CLOUDFLARED_TOKEN=""
 ```
 
-Don't forget to edit the `manifestBaseUrl` variable in `/static/configure.html` to point to your local or deployed server URL. This is important because it ensures that the application can correctly locate and load the manifest file for proper configuration.
+Don't forget to edit the `manifestBaseUrl` variable in `/static/configure.html`
+to point to your local or deployed server URL. This is important because it
+ensures that the application can correctly locate and load the manifest file for
+proper configuration.
 
 ---
 

@@ -1,7 +1,10 @@
 import { TMDBDetails } from "../config/types/types.ts";
 import { fetchJson, logError } from "../utils/utils.ts";
 
-export const fetchCinemeta = async (type: string, id: string): Promise<TMDBDetails | null> => {
+export const fetchCinemeta = async (
+  type: string,
+  id: string,
+): Promise<TMDBDetails | null> => {
   const url = `https://v3-cinemeta.strem.io/meta/${type}/${id}.json`;
 
   try {

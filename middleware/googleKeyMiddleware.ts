@@ -4,7 +4,7 @@ import { GEMINI_API_KEY } from "../config/env.ts";
 import { decodeUrlSafeBase64 } from "../utils/urlSafe.ts";
 
 export const googleKeyMiddleware = async <
-  P extends Record<string, string | undefined>
+  P extends Record<string, string | undefined>,
 >(ctx: AppContext<P>, next: () => Promise<unknown>) => {
   try {
     const keysParam = ctx.params.keys;
@@ -19,7 +19,7 @@ export const googleKeyMiddleware = async <
         // Try to parse the decoded string as JSON.
         const parsedKeys = JSON.parse(decodedBase64);
         googleKey = parsedKeys.googleKey;
-        if(googleKey === 'default') googleKey = GEMINI_API_KEY;
+        if (googleKey === "default") googleKey = GEMINI_API_KEY;
 
         rpdbKey = parsedKeys.rpdbKey || "";
       } catch {
@@ -36,14 +36,12 @@ export const googleKeyMiddleware = async <
     ctx.state.googleKey = finalGoogleKey;
     ctx.state.rpdbKey = rpdbKey;
     await next();
-
   } catch (error) {
     console.error("[googleKeyMiddleware] Error encountered:", error);
     ctx.response.status = 500;
     ctx.response.body = { error: "Internal server error." };
   }
 };
-
 
 function getGoogleKey(providedKey?: string): string {
   const valid = isValidGeminiApiKey(providedKey ?? "");

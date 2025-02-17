@@ -7,7 +7,14 @@ services:
     env_file:
       - .env
     #restart: always
-    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read", "main.ts"]
+    command: [
+      "deno",
+      "run",
+      "--allow-net",
+      "--allow-env",
+      "--allow-read",
+      "main.ts",
+    ]
     networks:
       - secure_net
 

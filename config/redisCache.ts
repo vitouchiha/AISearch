@@ -1,5 +1,5 @@
-import { Redis, Ratelimit, Context } from "./deps.ts";
-import { UPSTASH_REDIS_URL, UPSTASH_REDIS_TOKEN } from "./env.ts";
+import { Context, Ratelimit, Redis } from "./deps.ts";
+import { UPSTASH_REDIS_TOKEN, UPSTASH_REDIS_URL } from "./env.ts";
 
 export const redis = new Redis({
   url: UPSTASH_REDIS_URL!,
@@ -14,7 +14,9 @@ export const ratelimit = new Ratelimit({
 });
 
 export async function applyRateLimit(ctx: Context, identifier: string) {
-  const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
+  const { success, limit, remaining, reset } = await ratelimit.limit(
+    identifier,
+  );
 
   ctx.response.headers.set("X-RateLimit-Limit", String(limit));
   ctx.response.headers.set("X-RateLimit-Remaining", String(remaining));

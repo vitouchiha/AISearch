@@ -1,3 +1,5 @@
+import { Meta } from "../config/types/types.ts";
+
 //import { cacheImageCloud } from "../config/s3.ts";
 
 const API_URL = "https://api.ratingposterdb.com";
@@ -60,7 +62,9 @@ const checkKey = (key: string): TierResponse | null => {
       "t4": 4,
     };
 
-    const tier = Object.entries(tierMapping).find(([prefix]) => key.startsWith(prefix))?.[1] ?? null;
+    const tier = Object.entries(tierMapping).find(([prefix]) =>
+      key.startsWith(prefix)
+    )?.[1] ?? null;
 
     return tier !== null ? { tier } : null;
   } catch (error) {
@@ -69,26 +73,45 @@ const checkKey = (key: string): TierResponse | null => {
   }
 };
 
-export const getRpdbPoster = async (imdbId: string, rpdbKey: string): Promise<PosterResponse> => {
+export const getRpdbPoster = async (
+  imdbId: string,
+  rpdbKey: string,
+): Promise<PosterResponse> => {
   const keyCheck = checkKey(rpdbKey);
   if (!keyCheck || typeof keyCheck.tier !== "number") return { poster: null };
 
   const { tier } = keyCheck;
 
-  const url =
-    tier >= 3
-      ? `${API_URL}/${rpdbKey}/imdb/rating-order/${imdbId}.jpg?order=myanimelist%2Cimdb%2Ccommonsense%2Cletterboxd`
-      : `${API_URL}/${rpdbKey}/imdb/poster-default/${imdbId}.jpg`;
+  const url = tier >= 3
+    ? `${API_URL}/${rpdbKey}/imdb/rating-order/${imdbId}.jpg?order=myanimelist%2Cimdb%2Ccommonsense%2Cletterboxd`
+    : `${API_URL}/${rpdbKey}/imdb/poster-default/${imdbId}.jpg`;
 
   //const cachePoster = await cacheImageCloud(url, imdbId);
   //return { poster: cachePoster };
 
-  // check to make sure url is active before sending it back... this will work but I feel like we are downloading
-  //  useless content server side
   const response = await fetch(url, { method: "HEAD" });
   if (!response.ok) {
-    console.error(`RPDB poster fetch failed: ${response.status} ${response.statusText}`);
     return { poster: null };
   }
   return { poster: url };
 };
+
+export async function updateRpdbPosters(
+  metas: Meta[],
+  rpdbKey: string,
+): Promise<void> {
+  await Promise.all(
+    metas.map(async (meta) => {
+      if (meta.id) {
+        try {
+          const rpdbPoster = await getRpdbPoster(meta.id, rpdbKey);
+          if (rpdbPoster?.poster) {
+            meta.poster = rpdbPoster.poster;
+          }
+        } catch (error) {
+          console.error(`Error fetching rpdb poster for id ${meta.id}:`, error);
+        }
+      }
+    }),
+  );
+}

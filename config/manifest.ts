@@ -7,9 +7,10 @@ export const manifest = {
   id: "org.ai-search",
   version: "1.2.1",
   name: "AISearch",
-  description: "Find movies and TV using natural language queries powered by Google Gemini",
+  description:
+    "Find movies and TV using natural language queries powered by Google Gemini",
   resources: ["catalog"],
-  types: ["movie","series"],
+  types: ["movie", "series"],
   catalogs: [
     {
       id: "ai-movies",
@@ -32,6 +33,6 @@ export const manifest = {
       id: "ai-trending-tv",
       name: "AI Trending TV Shows",
       type: "series",
-    }
+    },
   ],
 } as Manifest;

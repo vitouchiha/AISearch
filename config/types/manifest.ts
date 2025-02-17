@@ -53,7 +53,7 @@ export interface Manifest {
 
   // Content catalogs provided by the addon
   catalogs: Catalog[];
-  
+
   // Optional addon catalogs (a catalog of other addon manifests)
   addonCatalogs?: Catalog[];
 

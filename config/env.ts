@@ -31,7 +31,7 @@ if (
   !aiModel
 ) {
   console.error(
-    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TMDB_API_KEY, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_TOKEN, and AI_MODEL are set in the environment. If in dev, use DEV_MODE"
+    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TMDB_API_KEY, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_TOKEN, and AI_MODEL are set in the environment. If in dev, use DEV_MODE",
   );
   throw new Error("Missing envs");
 }
@@ -45,15 +45,15 @@ const UPSTASH_VECTOR_TOKEN: string = upstashVectorToken;
 const AI_MODEL: string = aiModel;
 
 export {
+  AI_MODEL,
+  DEV_MODE,
   GEMINI_API_KEY,
-  TMDB_API_KEY,
+  PORT,
   RPDB_FREE_API_KEY,
+  SEARCH_COUNT,
+  TMDB_API_KEY,
   UPSTASH_REDIS_TOKEN,
   UPSTASH_REDIS_URL,
   UPSTASH_VECTOR_TOKEN,
   UPSTASH_VECTOR_URL,
-  SEARCH_COUNT,
-  AI_MODEL,
-  PORT,
-  DEV_MODE,
 };

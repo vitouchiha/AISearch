@@ -10,18 +10,32 @@ import { googleKeyMiddleware } from "./middleware/googleKeyMiddleware.ts";
 import { searchParamMiddleware } from "./middleware/searchParamMiddleware.ts";
 import { setMovieType, setSeriesType } from "./middleware/setTypeMiddleware.ts";
 
-import type { ConfigureContext, CatalogContext, TrendingContext, ManifestContext,
-              MovieCatalogParams, TrendingParams, ManifestParams } from "./config/types/types.ts";  
+import type {
+  CatalogContext,
+  ConfigureContext,
+  ManifestContext,
+  ManifestParams,
+  MovieCatalogParams,
+  TrendingContext,
+  TrendingParams,
+} from "./config/types/types.ts";
 
 const handleSearch = async (ctx: CatalogContext) => {
   const { searchQuery, googleKey, rpdbKey, type } = ctx.state;
   if (!searchQuery || !googleKey || !type) {
     ctx.response.status = 500;
-    ctx.response.body = { error: "Internal server error: missing required state." };
+    ctx.response.body = {
+      error: "Internal server error: missing required state.",
+    };
     return;
   }
 
-  DEV_MODE && console.log(`[${new Date().toISOString()}] Received catalog request for query: ${searchQuery} and type: ${type}`);
+  DEV_MODE &&
+    console.log(
+      `[${
+        new Date().toISOString()
+      }] Received catalog request for query: ${searchQuery} and type: ${type}`,
+    );
   await handleCatalogRequest(ctx, searchQuery, type, googleKey, rpdbKey);
 };
 
@@ -55,27 +69,30 @@ router.get<MovieCatalogParams>(
 // For trending endpoints:
 router.get<TrendingParams>(
   "/:keys?/catalog/movie/ai-trending-movies.json",
-  setMovieType, 
+  setMovieType,
   googleKeyMiddleware,
-  handleTrending
+  handleTrending,
 );
 
 router.get<TrendingParams>(
   "/:keys?/catalog/series/ai-trending-tv.json",
-  setSeriesType, 
+  setSeriesType,
   googleKeyMiddleware,
-  handleTrending
+  handleTrending,
 );
 
 // And for manifest:
 router.get<ManifestParams>(
-  "/:keys?/manifest.json", 
+  "/:keys?/manifest.json",
   handleManifest,
   googleKeyMiddleware,
 );
 
 router.get("/configure", async (ctx: ConfigureContext) => {
-  ctx.response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  ctx.response.headers.set(
+    "Cache-Control",
+    "no-cache, no-store, must-revalidate",
+  );
   await ctx.send({
     root: `${Deno.cwd()}/static`,
     path: "configure.html",

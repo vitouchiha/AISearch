@@ -6,7 +6,9 @@
     <title>FilmWhisper: AISearch Configure</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
+  <body
+    class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6"
+  >
     <!-- Logo Section -->
     <div class="flex flex-col items-center mb-10">
       <h1 class="text-3xl font-bold text-center">FilmWhisper: AISearch</h1>
@@ -16,7 +18,9 @@
     <div class="w-full max-w-lg bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
       <h2 class="text-2xl font-bold mb-4 text-center">What does this do?</h2>
       <p class="text-gray-300">
-        This catalog uses AI to determine what you're looking for. For example, if you search for "Movie where the parents leave the child alone on vacation", it will return "Home Alone" and similar results.
+        This catalog uses AI to determine what you're looking for. For example,
+        if you search for "Movie where the parents leave the child alone on
+        vacation", it will return "Home Alone" and similar results.
       </p>
     </div>
 
@@ -26,12 +30,18 @@
       <div class="space-y-4">
         <!-- Google API Key Section -->
         <div id="api-key-section">
-          <div class="bg-blue-900 border border-blue-700 text-blue-200 p-3 mb-4 rounded">
+          <div
+            class="bg-blue-900 border border-blue-700 text-blue-200 p-3 mb-4 rounded"
+          >
             <p class="text-sm">
-              We require your API key for server-side operations; however, we guarantee that it is never logged or retained.
+              We require your API key for server-side operations; however, we
+              guarantee that it is never logged or retained.
             </p>
           </div>
-          <label for="googleKey" class="block text-sm font-medium text-gray-300">
+          <label
+            for="googleKey"
+            class="block text-sm font-medium text-gray-300"
+          >
             Google AI Key:
           </label>
           <input
@@ -60,8 +70,14 @@
 
         <!-- Checkbox to use default Google key -->
         <div class="flex items-center">
-          <input id="defaultKey" name="defaultKey" type="checkbox" class="mr-2" />
-          <label for="defaultKey" class="text-sm text-gray-300">Use default Google key</label>
+          <input
+            id="defaultKey"
+            name="defaultKey"
+            type="checkbox"
+            class="mr-2"
+          />
+          <label for="defaultKey" class="text-sm text-gray-300"
+          >Use default Google key</label>
         </div>
 
         <!-- URL Display Box -->
@@ -69,8 +85,13 @@
           id="url-display-box"
           class="hidden bg-gray-700 rounded-lg p-4 text-gray-100 break-words"
         >
-          <p class="text-sm mb-2">Copy and paste this URL to install via Stremio:</p>
-          <code id="url-display" class="block bg-gray-800 p-2 rounded text-xs"></code>
+          <p class="text-sm mb-2">
+            Copy and paste this URL to install via Stremio:
+          </p>
+          <code
+            id="url-display"
+            class="block bg-gray-800 p-2 rounded text-xs"
+          ></code>
         </div>
 
         <!-- Install Button -->
@@ -125,9 +146,9 @@
 
       function encodeUrlSafeBase64(str) {
         return btoa(str)
-          .replace(/\+/g, '-')
-          .replace(/\//g, '_')
-          .replace(/=+$/, '');
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=+$/, "");
       }
 
       function isValidGeminiApiKey(key) {
@@ -152,19 +173,23 @@
       function updateUrlDisplay() {
         let googleKey = googleKeyInput.value.trim();
         let rpdbKey = rpdbKeyInput.value.trim();
-        
+
         if (defaultKeyCheckbox.checked) googleKey = "default";
 
-        if (googleKey !== "" && (isValidGeminiApiKey(googleKey) || googleKey === "default")) {
+        if (
+          googleKey !== "" &&
+          (isValidGeminiApiKey(googleKey) || googleKey === "default")
+        ) {
           const keysObj = { googleKey, rpdbKey };
           const jsonStr = JSON.stringify(keysObj);
           const encodedKeys = encodeUrlSafeBase64(jsonStr);
-          const urlWithConfig = `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
+          const urlWithConfig =
+            `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
           urlDisplay.textContent = urlWithConfig;
           urlDisplayBox.classList.remove("hidden");
         } else {
           urlDisplayBox.classList.add("hidden");
-          urlDisplay.textContent = '';
+          urlDisplay.textContent = "";
         }
       }
 
@@ -181,10 +206,13 @@
           const keysObj = { googleKey, rpdbKey };
           const jsonStr = JSON.stringify(keysObj);
           const encodedKeys = encodeUrlSafeBase64(jsonStr);
-          const urlWithConfig = `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
+          const urlWithConfig =
+            `https://${manifestBaseUrl}/${encodedKeys}/manifest.json`;
           window.location.href = `stremio://${urlWithConfig}`;
         } else {
-          alert("Please ensure your Google API key is valid before attempting to install");
+          alert(
+            "Please ensure your Google API key is valid before attempting to install",
+          );
         }
       });
 
