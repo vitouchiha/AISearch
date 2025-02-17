@@ -59,7 +59,7 @@ export const handleCatalogRequest = async (
           console.log(
             `[${new Date().toISOString()}] Processing recommendation ${
               index + 1
-            } for movie: ${movieName}`,
+            } for ${type}: ${movieName}`,
           );
 
         const { data: tmdbData, fromCache, cacheSet } =

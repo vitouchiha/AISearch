@@ -13,7 +13,7 @@ export async function getMovieRecommendations(
   const google = createGoogleGenerativeAI({ apiKey: googleKey });
   const movieRecommender = google(AI_MODEL, { structuredOutputs: true });
 
-  const recommendationType = type === "tv" ? "TV series" : "movies";
+  const recommendationType = type === "series" ? "TV series" : "movies";
   const prompt = `You are an expert ${recommendationType} recommendation system.
 For the search query provided, return exactly ${SEARCH_COUNT} ${recommendationType} recommendations as a raw JSON array.
 Each element in the array must be a ${type === "tv" ? "TV series name" : "movie name"} (string).

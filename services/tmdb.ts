@@ -27,7 +27,7 @@ export async function getTmdbDetailsByName(
     logError(`Redis cache error for movie: ${movieName}`, err);
   }
 
-  log(`Fetching TMDB details for movie: ${movieName}`);
+  log(`Fetching TMDB details for ${type}: ${movieName}`);
   try {
     const tmdbType = type === "series" ? "tv" : type;
     const searchUrl =
@@ -99,7 +99,7 @@ export async function getTmdbDetailsByName(
 
     return { data: result, fromCache: false, cacheSet };
   } catch (err) {
-    logError(`Error fetching TMDB details for movie: ${movieName}`, err);
+    logError(`Error fetching TMDB details for ${type}: ${movieName}`, err);
     return {
       data: { id: "", poster: null, showName: null, year: null },
       fromCache: false,
