@@ -23,6 +23,7 @@
     "https://esm.sh/eventsource-parser@^3.0.0/stream?target=denonext": "https://esm.sh/eventsource-parser@3.0.0/stream?target=denonext",
     "https://esm.sh/nanoid@^3.3.8/non-secure?target=denonext": "https://esm.sh/nanoid@3.3.8/non-secure?target=denonext",
     "https://esm.sh/secure-json-parse@^2.7.0?target=denonext": "https://esm.sh/secure-json-parse@2.7.0?target=denonext",
+    "https://esm.sh/zod": "https://esm.sh/zod@3.24.2",
     "https://esm.sh/zod-to-json-schema@^3.24.1?target=denonext": "https://esm.sh/zod-to-json-schema@3.24.1?target=denonext",
     "https://esm.sh/zod@^3.0.0?target=denonext": "https://esm.sh/zod@3.24.2?target=denonext",
     "https://esm.sh/zod@^3.24.1?target=denonext": "https://esm.sh/zod@3.24.2?target=denonext"
@@ -219,6 +220,7 @@
     "https://esm.sh/secure-json-parse@2.7.0?target=denonext": "00b85213b6c18313c3de9c07941e27f9666f8c601818c221775a4f744430f89f",
     "https://esm.sh/zod-to-json-schema@3.24.1/denonext/zod-to-json-schema.mjs": "e06c331ee78571bd1231453c23cfb6ffdb66b421fa2be04abe093f0478a894ca",
     "https://esm.sh/zod-to-json-schema@3.24.1?target=denonext": "81ec2eb2fb6ec876c9cae8fdbebf2cf7d28170b742c5b63fe63572ce594b9bea",
+    "https://esm.sh/zod@3.24.2": "634dc151ffdec010f55988d783c024d926124f7e943e00c27004f73bc5543902",
     "https://esm.sh/zod@3.24.2/denonext/zod.mjs": "742680b93730f63c3a3160f75475b69f661bd353d6b8b46f602c7a685837e76d",
     "https://esm.sh/zod@3.24.2?target=denonext": "634dc151ffdec010f55988d783c024d926124f7e943e00c27004f73bc5543902"
   }

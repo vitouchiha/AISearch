@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.\
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.3] - 2025-02-16
+
+### Added
+- We now send small HEAD requests to make sure the posters are actually there before returning to the user. If there is a reduction in speed we will add a timeout.
+
+### Fixed
+
+- Fixed an issue with TMDB returning an empty response. Return early to fix
+
+### Changed
+
+- Moved to a structured response from Gemini, this has brought the parsing errors to 0!
+- Moved some repeating code to helper functions.
+
+---
+
 ## [1.2.2] - 2025-02-16
 
 ### Changed

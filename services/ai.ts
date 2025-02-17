@@ -1,60 +1,48 @@
 import { AI_MODEL, DEV_MODE, SEARCH_COUNT } from "../config/env.ts";
-import { createGoogleGenerativeAI, generateText } from "../config/deps.ts";
+import { createGoogleGenerativeAI, generateObject, z } from "../config/deps.ts";
 
 export async function getMovieRecommendations(
   searchQuery: string,
   type: string,
   googleKey: string,
 ): Promise<string[]> {
+
+  // Prevent abuse by limiting query length.
+  if (searchQuery.length > 400) return [];
+
   const google = createGoogleGenerativeAI({ apiKey: googleKey });
   const movieRecommender = google(AI_MODEL, { structuredOutputs: true });
-
-  // Limit search query length so people don't abuse the API
-  if (searchQuery.length > 400) return [];
 
   const recommendationType = type === "tv" ? "TV series" : "movies";
   const prompt = `You are an expert ${recommendationType} recommendation system.
 For the search query provided, return exactly ${SEARCH_COUNT} ${recommendationType} recommendations as a raw JSON array.
-Each element in the array must be a ${
-    type === "tv" ? "TV series name" : "movie name"
-  } (string).
+Each element in the array must be a ${type === "tv" ? "TV series name" : "movie name"} (string).
 Do not include any additional text, formatting, or explanation. Do not repeat any names.
 Search Query: ${searchQuery}`;
 
   DEV_MODE &&
-    console.log(`[${new Date().toISOString()}] Sending prompt: ${prompt}`);
+    console.log(
+      `[${new Date().toISOString()}] Sending prompt: ${prompt}`
+    );
 
-  const { text: rawResponse } = await generateText({
+  // using this completely fixes the issues with parsing weird responses.
+  // It seems slightly faster too. But that may just be running local.
+
+  const recommendationsSchema = z.array(z.string());
+  const { object: recommendations } = await generateObject({
     model: movieRecommender,
+    schema: recommendationsSchema,
     prompt,
   });
+
   DEV_MODE &&
-    console.log(`[${new Date().toISOString()}] Raw response: ${rawResponse}`);
+    console.log(
+      `[${new Date().toISOString()}] Parsed ${recommendations.length} ${recommendationType} names`
+    );
+  DEV_MODE &&
+    console.log(
+      `\n\n[${new Date().toISOString()}] Recommendations: ${recommendations}\n\n`
+    );
 
-  let cleanedResponse = rawResponse.trim();
-  if (cleanedResponse.startsWith("```json")) {
-    cleanedResponse = cleanedResponse
-      .replace(/^```json/, "")
-      .replace(/```$/, "")
-      .trim();
-  }
-
-  let recommendations: string[];
-  try {
-    recommendations = JSON.parse(cleanedResponse);
-    if (!Array.isArray(recommendations)) {
-      throw new Error("Response is not an array");
-    }
-  } catch (jsonError: unknown) {
-    throw jsonError instanceof Error
-      ? new Error("Failed to parse recommendations JSON: " + jsonError.message)
-      : new Error("Failed to parse recommendations JSON (unknown error).");
-  }
-
-  console.log(
-    `[${
-      new Date().toISOString()
-    }] Parsed ${recommendations.length} ${recommendationType} names`,
-  );
   return recommendations;
 }

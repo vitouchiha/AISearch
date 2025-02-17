@@ -39,7 +39,12 @@ export async function getTmdbDetailsByName(
     const searchData = await fetchJson(searchUrl, "TMDB search");
     const firstResult = searchData.results?.[0];
     if (!firstResult) {
-      throw new Error(`No results found for movie: ${movieName}`);
+      logError(`No results found for movie: ${movieName}`, searchData);
+      return {
+        data: { id: "", poster: null, showName: null, year: null },
+        fromCache: false,
+        cacheSet: false,
+      };
     }
 
     const detailsUrl =

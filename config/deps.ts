@@ -14,9 +14,10 @@ export { Redis } from "https://esm.sh/@upstash/redis";
 
 export { SemanticCache } from "https://esm.sh/@upstash/semantic-cache";
 export { Index } from "https://esm.sh/@upstash/vector";
-export { generateText } from "https://esm.sh/ai";
+export { generateText, generateObject } from "https://esm.sh/ai";
 export { createGoogleGenerativeAI } from "https://esm.sh/@ai-sdk/google";
 export { Filter } from "https://esm.sh/bad-words";
+export { z } from "https://esm.sh/zod";
 
 // export {
 //   S3Client,
