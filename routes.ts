@@ -91,7 +91,10 @@ router.get<ManifestParams>(
 router.get("/configure", async (ctx: ConfigureContext) => {
   try {
     let html = await Deno.readTextFile("./views/configure.html");
-    html = html.replace("{{ROOT_URL}}", ROOT_URL);
+    html = html
+              .replace("{{ROOT_URL}}", ROOT_URL)
+              .replace("{{VERSION}}", manifest.version)
+              .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
 
     ctx.response.headers.set("Content-Type", "text/html");
     ctx.response.body = html;
