@@ -93,4 +93,10 @@ router.get<ManifestParams>("/manifest.json", googleKeyMiddleware, handleManifest
 router.get("/configure", handleConfigure);
 router.get("/", (ctx) => ctx.response.redirect("/configure"));
 
+router.get("/favicon.ico", (ctx) => {
+  ctx.response.status = 200; 
+  ctx.response.headers.set("Content-Type", "text/plain");
+  ctx.response.body = "Not Found";
+});
+
 export default router;
