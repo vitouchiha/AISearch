@@ -28,7 +28,12 @@ app.use((ctx: Context) => {
 });
 
 app.addEventListener("error", (evt) => {
-  logError(`Unhandled error:`, evt.error);
+  const error = evt.error;
+  if (error instanceof Deno.errors.BrokenPipe || error.message.includes("broken pipe")) {
+    log("Client disconnected early (broken pipe). Ignoring...");
+    return;
+  }
+  logError(`Unhandled error:`, error);
 });
 
 log(`Stremio AI Addon running on port ${PORT}`);
