@@ -89,7 +89,8 @@ router.get<TrendingParams>(
   handleTrending,
 );
 
-router.get<ManifestParams>("/manifest.json", googleKeyMiddleware, handleManifest);
+router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
+
 router.get("/configure", handleConfigure);
 router.get("/", (ctx) => ctx.response.redirect("/configure"));
 
