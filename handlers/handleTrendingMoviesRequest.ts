@@ -1,9 +1,16 @@
 import { Context } from "../config/deps.ts";
+import { NO_CACHE } from "../config/env.ts";
 import { getTrendingMovies, getTrendingSeries } from "../utils/getTrending.ts";
 
 export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
   const { type, rpdbKey } = ctx.state;
 
+  if(NO_CACHE === "true") {
+    ctx.response.status = 400;
+    ctx.response.body = { error: "Trending is disabled." };
+    return;
+  }
+  
   if (!type) {
     ctx.response.status = 400;
     ctx.response.body = { error: "Trending type is required." };

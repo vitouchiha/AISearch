@@ -1,11 +1,12 @@
 import type { Manifest } from "./types/manifest.ts";
+import { NO_CACHE } from "./env.ts";
 
 export const manifest = {
   behaviorHints: {
     configurable: true,
   },
   id: "org.ai-search",
-  version: "1.2.1",
+  version: "1.2.3",
   name: "AISearch",
   description:
     "Find movies and TV using natural language queries powered by Google Gemini",
@@ -24,15 +25,19 @@ export const manifest = {
       type: "series",
       extra: [{ name: "search", isRequired: true }],
     },
-    {
-      id: "ai-trending-movies",
-      name: "AI Trending Movies",
-      type: "movie",
-    },
-    {
-      id: "ai-trending-tv",
-      name: "AI Trending TV Shows",
-      type: "series",
-    },
+    ...(!NO_CACHE
+      ? [
+          {
+            id: "ai-trending-movies",
+            name: "AI Trending Movies",
+            type: "movie",
+          },
+          {
+            id: "ai-trending-tv",
+            name: "AI Trending TV Shows",
+            type: "series",
+          },
+        ]
+      : []),
   ],
 } as Manifest;

@@ -3,9 +3,10 @@
 All notable changes to this project will be documented in this file.\
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.2.3] - 2025-02-16
+## [1.2.3] - 2025-02-18
 
 ### Added
+- Added DISABLE_CACHE env. Setting DISABLE_CACHE=true will disable all caching and removes the need for Upstash. Great for self hosting. Speed seems decent, but be aware that every request will hit your APIs.
 - Added ROOT_URL env.
 - We now send small HEAD requests to make sure the posters are actually there before returning to the user. If there is a reduction in speed we will add a timeout.
 

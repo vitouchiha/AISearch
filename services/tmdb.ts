@@ -1,5 +1,5 @@
 import { TMDBDetails } from "../config/types/types.ts";
-import { TMDB_API_KEY } from "../config/env.ts";
+import { TMDB_API_KEY, NO_CACHE } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 import { fetchCinemeta } from "./cinemeta.ts";
 import { fetchJson, log, logError } from "../utils/utils.ts";
@@ -10,6 +10,9 @@ interface TmdbFetchResult {
   cacheSet: boolean;
 }
 
+// If NO_CACHE is "true", we disable caching.
+const useCache = NO_CACHE !== "true";
+
 export async function getTmdbDetailsByName(
   movieName: string,
   type: string,
@@ -17,14 +20,16 @@ export async function getTmdbDetailsByName(
   const normalizedName = movieName.toLowerCase().trim();
   const redisKey = `${type}:name:${normalizedName}`;
 
-  try {
-    const cached = await redis.get<TMDBDetails>(redisKey);
-    if (cached) {
-      log(`Returning cached details for movie: ${movieName}`);
-      return { data: cached, fromCache: true, cacheSet: false };
+  if (useCache && redis) {
+    try {
+      const cached = await redis.get<TMDBDetails>(redisKey);
+      if (cached) {
+        log(`Returning cached details for movie: ${movieName}`);
+        return { data: cached, fromCache: true, cacheSet: false };
+      }
+    } catch (err) {
+      logError(`Redis cache error for movie: ${movieName}`, err);
     }
-  } catch (err) {
-    logError(`Redis cache error for movie: ${movieName}`, err);
   }
 
   log(`Fetching TMDB details for ${type}: ${movieName}`);
@@ -32,9 +37,7 @@ export async function getTmdbDetailsByName(
     const tmdbType = type === "series" ? "tv" : type;
     const searchUrl =
       `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_API_KEY}&query=${
-        encodeURIComponent(
-          movieName,
-        )
+        encodeURIComponent(movieName)
       }`;
     const searchData = await fetchJson(searchUrl, "TMDB search");
     const firstResult = searchData.results?.[0];
@@ -59,7 +62,7 @@ export async function getTmdbDetailsByName(
       year: null,
     } as TMDBDetails;
     
-    let posterUrl = null;
+    let posterUrl: string | null = null;
     if (imdbId) {
       let titleField = type === "series" ? detailsData.name : detailsData.title;
       let dateField = type === "series"
@@ -86,7 +89,7 @@ export async function getTmdbDetailsByName(
     }
 
     let cacheSet = false;
-    if (posterUrl) {
+    if (useCache && posterUrl && redis) {
       try {
         await redis.set(redisKey, JSON.stringify(result));
         await redis.set(`${type}:${imdbId}`, JSON.stringify(result));

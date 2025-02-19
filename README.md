@@ -85,6 +85,7 @@ AI_MODEL="gemini-2.0-pro-exp-02-05" # This can be any google model that vercel s
 SEARCH_COUNT=20
 PORT=3003
 CLOUDFLARED_TOKEN=""
+DISABLE_CACHE=true or false
 ```
 
 ---
