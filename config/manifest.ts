@@ -27,7 +27,7 @@ export const manifest = {
       type: "series",
       extra: [{ name: "search", isRequired: true }],
     },
-    ...(!NO_CACHE
+    ...(NO_CACHE !== "true"
       ? [
           {
             id: "ai-trending-movies",
