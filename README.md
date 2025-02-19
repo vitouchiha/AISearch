@@ -71,6 +71,8 @@ This command will start all services in detached mode.
 
 ## 🌱 Environment Variables
 
+When DISABLE_CACHE is 'true' Upstash is not required. This is helpful when self hosting. There is a slight loss in speed. But from my testing it's not so bad if self hosting.
+
 Your `.env` file should contain the following keys:
 
 ```dotenv
