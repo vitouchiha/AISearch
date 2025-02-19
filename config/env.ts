@@ -2,7 +2,7 @@ import { load } from "jsr:@std/dotenv";
 import { log, logError } from "../utils/utils.ts";
 
 // Load .env file in development mode.
-const DEV_MODE = Deno.env.get("DEV_MODE") ?? "false";
+const DEV_MODE = Deno.env.get("DEV_MODE");
 if (DEV_MODE === "true") {
   await load({ export: true });
   log("Development mode: .env file loaded.");
