@@ -9,7 +9,7 @@ if (DEV_MODE === "true") {
 }
 
 const NO_CACHE = Deno.env.get("DISABLE_CACHE") ?? "false";
-if (NO_CACHE !== "false") {
+if (NO_CACHE === "true") {
   log("!!! Caching disabled !!!");
 }
 
