@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.\
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.4] - 2025-02-19
+
+### Added
+- Use Deno cron to clear Vector cache every 30 days. This will force a refetch to get the latest recommendations from AI.
+- Deno Cron is in beta, so we will run it for awhile and test. We shall see.
+- Cron timing can be adjusted by using the RESET_VECTOR_CRON environment variable. (defaults to 30 days)
+- A better option would be to use TTL but at this moment, Upstash does not support TTL on their vectors.
+
 ## [1.2.3] - 2025-02-18
 
 ### Added

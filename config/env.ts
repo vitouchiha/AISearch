@@ -23,6 +23,8 @@ const upstashVectorToken = Deno.env.get("UPSTASH_VECTOR_REST_TOKEN");
 const aiModel = Deno.env.get("AI_MODEL");
 const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
+const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
+
 const SEARCH_COUNT_STR = Deno.env.get("SEARCH_COUNT") || "20";
 const SEARCH_COUNT = parseInt(SEARCH_COUNT_STR, 10);
 const portStr = Deno.env.get("PORT") || "3000";
@@ -61,4 +63,5 @@ export {
   UPSTASH_REDIS_URL_FINAL as UPSTASH_REDIS_URL,
   UPSTASH_VECTOR_TOKEN_FINAL as UPSTASH_VECTOR_TOKEN,
   UPSTASH_VECTOR_URL_FINAL as UPSTASH_VECTOR_URL,
+  RESET_VECTOR_CRON,
 };

@@ -7,4 +7,4 @@ COPY . .
 
 EXPOSE 8000
 LABEL org.opencontainers.image.source="https://github.com/mkcfdc/AISearch"
-CMD ["deno", "--allow-net", "--allow-env", "--allow-read=.", "run", "main.ts"]
+CMD ["deno", "--allow-net", "--allow-env", "--allow-read=.", "--unstable-cron", "run", "main.ts"]
