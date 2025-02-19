@@ -109,5 +109,15 @@ router.get("/favicon.ico", (ctx) => {
   ctx.response.headers.set("Content-Type", "text/plain");
   ctx.response.body = "Not Found";
 });
+router.get("/images/logo.webp", (ctx) => {
+  ctx.response.status = 200;
+  ctx.response.headers.set("Content-Type", "image/webp");
+  ctx.response.body = Deno.readFileSync("./views/images/filmwhisper.webp");
+});
+router.get("/images/background.webp", (ctx) => {
+  ctx.response.status = 200;
+  ctx.response.headers.set("Content-Type", "image/webp");
+  ctx.response.body = Deno.readFileSync("./views/images/fw-background.webp");
+});
 
 export default router;

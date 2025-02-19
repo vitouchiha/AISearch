@@ -1,12 +1,14 @@
 import type { Manifest } from "./types/manifest.ts";
-import { NO_CACHE } from "./env.ts";
+import { NO_CACHE, ROOT_URL } from "./env.ts";
 
 export const manifest = {
   behaviorHints: {
     configurable: true,
   },
   id: "org.ai-search",
-  version: "1.2.3",
+  version: "1.2.4",
+  logo: ROOT_URL + "/images/logo.webp",
+  background: ROOT_URL + "/images/background.webp",
   name: "AISearch",
   description:
     "Find movies and TV using natural language queries powered by Google Gemini",
