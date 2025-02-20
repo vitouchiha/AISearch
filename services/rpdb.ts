@@ -1,5 +1,5 @@
 import { Meta } from "../config/types/types.ts";
-import { logError } from "../utils/utils.ts";
+import { logError, validatePosterUrl } from "../utils/utils.ts";
 
 //import { cacheImageCloud } from "../config/s3.ts";
 
@@ -90,10 +90,12 @@ export const getRpdbPoster = async (
   //const cachePoster = await cacheImageCloud(url, imdbId);
   //return { poster: cachePoster };
 
-  const response = await fetch(url, { method: "HEAD" });
-  if (!response.ok) {
+
+  const isValidPoster = await validatePosterUrl(url);
+  if (!isValidPoster) {
     return { poster: null };
   }
+
   return { poster: url };
 };
 

@@ -6,8 +6,6 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
   const { type, rpdbKey } = ctx.state;
 
   if(NO_CACHE === "true") {
-    ctx.response.status = 400;
-    ctx.response.body = { error: "Trending is disabled." };
     return;
   }
   
@@ -32,7 +30,6 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
 
   try {
     const trendingResponse = await getTrending();
-    //ctx.response.headers.set("Cache-Control", "max-age=3600");
     ctx.response.body = trendingResponse;
   } catch (error) {
     console.error("Error handling trending request:", error);

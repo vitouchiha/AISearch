@@ -25,6 +25,12 @@ const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
 
+const SEMANTIC_PROXIMITY = Number(Deno.env.get("SEMANTIC_PROXIMITY") || 0.95);
+if(SEMANTIC_PROXIMITY > 1.0 || SEMANTIC_PROXIMITY < 0.0) {
+  logError("SEMANTIC_PROXIMITY must be a float between 0.0 and 1.0", null);
+  throw new Error("Invalid SEMANTIC_PROXIMITY");
+}
+
 const SEARCH_COUNT_STR = Deno.env.get("SEARCH_COUNT") || "20";
 const SEARCH_COUNT = parseInt(SEARCH_COUNT_STR, 10);
 const portStr = Deno.env.get("PORT") || "3000";
@@ -64,4 +70,5 @@ export {
   UPSTASH_VECTOR_TOKEN_FINAL as UPSTASH_VECTOR_TOKEN,
   UPSTASH_VECTOR_URL_FINAL as UPSTASH_VECTOR_URL,
   RESET_VECTOR_CRON,
+  SEMANTIC_PROXIMITY
 };

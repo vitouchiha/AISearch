@@ -1,5 +1,5 @@
 import { TMDBDetails } from "../config/types/types.ts";
-import { fetchJson, logError } from "../utils/utils.ts";
+import { fetchJson, logError, validatePosterUrl } from "../utils/utils.ts";
 
 export const fetchCinemeta = async (
   type: string,
@@ -11,19 +11,10 @@ export const fetchCinemeta = async (
     const { meta } = (await fetchJson(url, "Cinemeta")) || {};
     if (!meta) return null;
 
-    // Check if the poster URL is active.
     let posterUrl = meta.poster;
     if (posterUrl) {
-      try {
-        const headResponse = await fetch(posterUrl, { method: "HEAD" });
-        if (!headResponse.ok) {
-          posterUrl = null;
-        }
-      } catch (err) {
-        logError(
-          `Error checking Cinemeta poster URL with HEAD request: ${posterUrl}`,
-          err
-        );
+      const isValidPoster = await validatePosterUrl(posterUrl);
+      if (!isValidPoster) {
         posterUrl = null;
       }
     }

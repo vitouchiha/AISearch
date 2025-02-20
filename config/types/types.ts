@@ -3,7 +3,7 @@ import { RouterContext } from "../deps.ts";
 export interface TMDBDetails {
   id: string;
   poster: string | null;
-  year: number | null;
+  year: string | null;
   showName: string | null;
 }
 
@@ -16,7 +16,7 @@ export interface Recommendation {
 
 export interface Meta {
   id: string;
-  name: string;
+  name: string | null;
   type: string;
   poster: string | null;
   posterShape: string;

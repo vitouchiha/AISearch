@@ -16,3 +16,14 @@ export async function fetchJson(url: string, label: string) {
   }
   return res.json();
 }
+
+
+export async function validatePosterUrl(url: string) {
+  try {
+    const response = await fetch(url, { method: "HEAD" });
+    return response.ok && response.headers.get("content-type")?.startsWith("image/");
+  } catch (error) {
+    logError(`HEAD request failed for ${url}:`, error);
+    return false;
+  }
+}
