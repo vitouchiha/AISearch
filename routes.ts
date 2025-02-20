@@ -101,7 +101,7 @@ router.get<TrendingParams>(
 
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 
-router.get("/configure", handleConfigure);
+router.get("/:keys?/configure", handleConfigure);
 router.get("/", (ctx) => ctx.response.redirect("/configure"));
 
 router.get("/favicon.ico", (ctx) => {

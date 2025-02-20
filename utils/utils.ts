@@ -6,8 +6,7 @@ export const log = (msg: string) =>
   DEV_MODE && console.log(`[${timestamp()}] ${msg}`);
 
 export const logError = (msg: string, err: unknown) =>
-  DEV_MODE && err instanceof Error &&
-  console.error(`[${timestamp()}] ${msg}`, err.message);
+  err instanceof Error && console.error(`[${timestamp()}] ${msg}`, err.message);
 
 export async function fetchJson(url: string, label: string) {
   const res = await fetch(url);

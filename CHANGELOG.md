@@ -10,6 +10,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Deno Cron is in beta, so we will run it for awhile and test. We shall see.
 - Cron timing can be adjusted by using the RESET_VECTOR_CRON environment variable. (defaults to 30 days)
 - A better option would be to use TTL but at this moment, Upstash does not support TTL on their vectors.
+- SEMANTIC_PROXIMITY=0.95 # Defaults to 0.95 max value of 1.00
+
+### Changed
+- Made redis request parallel too.
 
 ## [1.2.3] - 2025-02-18
 
