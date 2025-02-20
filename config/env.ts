@@ -20,7 +20,7 @@ const upstashRedisUrl = Deno.env.get("UPSTASH_REDIS_REST_URL");
 const upstashRedisToken = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
 const upstashVectorUrl = Deno.env.get("UPSTASH_VECTOR_REST_URL");
 const upstashVectorToken = Deno.env.get("UPSTASH_VECTOR_REST_TOKEN");
-const aiModel = Deno.env.get("AI_MODEL") || "gemini-2.0-pro-exp-02-05";
+const aiModel = Deno.env.get("AI_MODEL") || "gemini-2.0-flash-lite-preview-02-05";
 const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
