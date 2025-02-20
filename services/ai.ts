@@ -36,6 +36,12 @@ export async function getMovieRecommendations(
     prompt,
   });
 
+  if(recommendations.length === 0 || recommendations === 'string') {
+    // sometimes the ai malfunctions and returns a string instead of an array; this is a workaround
+    log(`No ${recommendationType} recommendations found`);
+    return [];
+  }
+
   log(`Parsed ${recommendations.length} ${recommendationType} names`);
   log(`\n\nRecommendations: ${recommendations}\n\n`);
 
