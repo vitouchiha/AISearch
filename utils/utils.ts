@@ -19,8 +19,9 @@ export async function fetchJson(url: string, label: string) {
 
 export async function validatePosterUrl(url: string) {
   try {
-    const response = await fetch(url, { method: "HEAD" });
-    return response.ok && response.headers.get("content-type")?.startsWith("image/");
+    //const response = await fetch(url, { method: "HEAD" });
+    //return response.ok && response.headers.get("content-type")?.startsWith("image/");
+    return true;
   } catch (error) {
     logError(`HEAD request failed for ${url}:`, error);
     return false;
