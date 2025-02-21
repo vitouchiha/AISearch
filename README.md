@@ -73,12 +73,15 @@ This command will start all services in detached mode.
 
 When DISABLE_CACHE is 'true' Upstash is not required. This is helpful when self hosting. There is a slight loss in speed. But from my testing it's not so bad if self hosting.
 
+Note: It has been reported that Gemini rate limits are hit when caching is off.
+
 Your `.env` file should contain the following keys:
 
 ```dotenv
 ROOT_URL="http://localhost:3000"
 GEMINI_API_KEY=""
 TMDB_API_KEY=""
+RPDB_FREE_API_KEY="" # This is required to do a proper health check
 UPSTASH_REDIS_REST_URL=""
 UPSTASH_REDIS_REST_TOKEN=""
 UPSTASH_VECTOR_REST_URL=""
