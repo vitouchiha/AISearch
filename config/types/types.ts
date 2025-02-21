@@ -17,7 +17,7 @@ export interface Recommendation {
 export interface Meta {
   id: string;
   name: string | null;
-  type: string;
+  type: "movie" | "series";
   poster: string | null;
   posterShape: string;
 }
@@ -27,7 +27,7 @@ export interface AppContext<
 > extends RouterContext<string, P> {
   state: {
     searchQuery?: string;
-    type?: string;
+    type?: "movie" | "series";
     keys?: string;
     googleKey?: string;
     rpdbKey?: string;

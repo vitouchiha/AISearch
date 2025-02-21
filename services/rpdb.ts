@@ -1,5 +1,6 @@
 import { Meta } from "../config/types/types.ts";
 import { logError, validatePosterUrl } from "../utils/utils.ts";
+import { RPDB_FREE_API_KEY } from "../config/env.ts";
 
 //import { cacheImageCloud } from "../config/s3.ts";
 
@@ -117,4 +118,14 @@ export async function updateRpdbPosters(
       }
     }),
   );
+}
+
+export async function rpdbHealthCheck() {
+  try {
+    const ratePostersResponse = await fetch(`https://api.ratingposterdb.com/${RPDB_FREE_API_KEY}/isValid`, { method: "HEAD" });
+    return ratePostersResponse.ok;
+  } catch (error) {
+    console.error("RatePosters health check failed:", error);
+    return false;
+  }
 }

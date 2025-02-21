@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,66 +10,83 @@
     /* Custom CSS for mobile-first adjustments */
     @media (max-width: 640px) {
       .text-4xl {
-        font-size: 1.5rem; /* Smaller font size for mobile */
+        font-size: 1.5rem;
+        /* Smaller font size for mobile */
       }
+
       .text-2xl {
         font-size: 1.25rem;
       }
+
       .p-6 {
-        padding: 1rem; /* Reduced padding for smaller screens */
+        padding: 1rem;
+        /* Reduced padding for smaller screens */
       }
+
       .space-y-6 {
-        gap: 1rem; /* Reduced vertical spacing */
+        gap: 1rem;
+        /* Reduced vertical spacing */
       }
+
       .max-w-lg {
-        max-width: 100%; /* Full width on small screens */
+        max-width: 100%;
+        /* Full width on small screens */
       }
+
       .w-full {
-        width: 100%; /* Ensure full width */
+        width: 100%;
+        /* Ensure full width */
       }
+
       input[type="text"] {
-        font-size: 0.875rem; /* Smaller font size for inputs */
+        font-size: 0.875rem;
+        /* Smaller font size for inputs */
       }
+
       button {
-        font-size: 0.875rem; /* Smaller font size for buttons */
+        font-size: 0.875rem;
+        /* Smaller font size for buttons */
       }
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-auto">
+
+<body
+  class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-auto">
   <!-- Background Animation -->
   <div class="absolute inset-0 z-0">
     <div class="animate-pulse bg-opacity-10 bg-white rounded-full w-32 h-32 absolute top-1/4 left-1/4 blur-3xl"></div>
-    <div class="animate-bounce-slow bg-opacity-10 bg-white rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl"></div>
+    <div
+      class="animate-bounce-slow bg-opacity-10 bg-white rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl">
+    </div>
   </div>
   <!-- Movie/Tv SVG Animation -->
   <div class="absolute inset-0 z-0 pointer-events-none">
-    <svg
-      class="w-full h-full opacity-20"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 1440 320"
-    >
-      <path
-        fill="currentColor"
-        fill-opacity="0.1"
-        d="M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,202.7C672,203,768,149,864,144C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-      ></path>
+    <svg class="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+      <path fill="currentColor" fill-opacity="0.1"
+        d="M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,202.7C672,203,768,149,864,144C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+      </path>
     </svg>
   </div>
   <!-- Logo Section -->
   <div class="relative z-10 flex flex-col items-center mb-6 sm:mb-10">
-    <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 text-center">FilmWhisper: AISearch</h1>
+    <h1
+      class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 text-center">
+      FilmWhisper: AISearch</h1>
     <p class="mt-2 text-sm text-gray-400">AI-powered movie discovery for Stremio</p>
   </div>
   <!-- Description Section -->
-  <div class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+  <div
+    class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 mb-4 sm:mb-6">
     <h2 class="text-2xl font-bold mb-4 text-center text-indigo-400">What does this do?</h2>
     <p class="text-gray-300 text-sm">
-      This catalog uses AI to determine what you're looking for. For example, if you search for "Movie where the parents leave the child alone on vacation", it will return "Home Alone" and similar results.
+      This catalog uses AI to determine what you're looking for. For example, if you search for "Movie where the parents
+      leave the child alone on vacation", it will return "Home Alone" and similar results.
     </p>
   </div>
   <!-- Configuration Section -->
-  <div class="relative z-10 w-full max-w-xl bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
+  <div
+    class="relative z-10 w-full max-w-xl bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
     <h2 class="text-2xl font-bold text-center text-cyan-400">Configure</h2>
     <!-- Google API Key Section -->
     <div id="api-key-section" class="space-y-2">
@@ -78,68 +96,38 @@
         </p>
       </div>
       <label for="googleKey" class="block text-sm font-medium text-gray-300">Google AI Key:</label>
-      <input
-        type="text"
-        id="googleKey"
-        name="googleKey"
-        required
-        placeholder="Enter your Google AI key"
-        class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
-      />
+      <input type="text" id="googleKey" name="googleKey" required placeholder="Enter your Google AI key"
+        class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300" />
     </div>
     <!-- Ratings Poster API Key Section -->
     <div id="rpdb-key-section" class="space-y-2">
       <label for="rpdbKey" class="block text-sm font-medium text-gray-300">Ratings Poster API Key:</label>
-      <input
-        type="text"
-        id="rpdbKey"
-        name="rpdbKey"
-        placeholder="Enter your Ratings Poster API key"
-        class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
-      />
+      <input type="text" id="rpdbKey" name="rpdbKey" placeholder="Enter your Ratings Poster API key"
+        class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300" />
     </div>
     <!-- Checkbox to use default Google key -->
     <div class="flex items-center space-x-2">
-      <input
-        id="defaultKey"
-        name="defaultKey"
-        type="checkbox"
-        class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300"
-      />
+      <input id="defaultKey" name="defaultKey" type="checkbox"
+        class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
       <label for="defaultKey" class="text-sm text-gray-300">Use default Google key</label>
     </div>
     <!-- URL Display Box -->
-    <div
-      id="url-display-box"
-      class="hidden bg-gray-700/80 rounded-lg p-4 text-gray-100 break-words shadow-lg"
-    >
+    <div id="url-display-box" class="hidden bg-gray-700/80 rounded-lg p-4 text-gray-100 break-words shadow-lg">
       <p class="text-xs mb-2">Copy and paste this URL to install via Stremio:</p>
       <code id="url-display" class="block bg-gray-800/80 p-2 rounded text-xs text-gray-200"></code>
     </div>
     <!-- Install Button -->
-    <button
-      id="install-button"
+    <button id="install-button"
       class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled
-    >
+      disabled>
       Install Addon
     </button>
   </div>
   <footer class="relative z-10 w-full max-w-lg mx-auto mt-6 sm:mt-10 text-center">
     <!-- GitHub Link -->
-    <a
-      href="https://github.com/mkcfdc/AISearch"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-flex items-center justify-center w-full text-blue-400 hover:text-blue-300 transition duration-300 rounded-lg py-3 px-4 mb-4"
-    >
-      <svg
-        class="w-5 h-5 mr-2"
-        role="img"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+    <a href="https://github.com/mkcfdc/AISearch" target="_blank" rel="noopener noreferrer"
+      class="inline-flex items-center justify-center w-full text-blue-400 hover:text-blue-300 transition duration-300 rounded-lg py-3 px-4 mb-4">
+      <svg class="w-5 h-5 mr-2" role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <title>GitHub</title>
         <path
           d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.205 11.387.6.111.82-.261.82-.577
@@ -147,35 +135,24 @@
           1.205.084 1.84 1.236 1.84 1.236 1.07 1.835 2.809 1.304 3.495.997.108-.776.42-1.305.763-1.605-2.665-.3-5.466-1.335-5.466-5.93
           0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.957-.266 1.98-.399 3-.405 1.02.006 2.043.139 3
           .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81
-          1.11.81 2.235 0 1.61-.015 2.91-.015 3.31 0 .315.21.694.825.576C20.565 21.092 24 16.592 24 12c0-6.627-5.373-12-12-12"
-        />
+          1.11.81 2.235 0 1.61-.015 2.91-.015 3.31 0 .315.21.694.825.576C20.565 21.092 24 16.592 24 12c0-6.627-5.373-12-12-12" />
       </svg>
       View this project on GitHub
     </a>
-  
+
     <!-- Version and Dev Mode Info -->
     <div class="text-xs text-gray-500 mb-6">v{{VERSION}} {{DEV_MODE}}</div>
-  
+
     <!-- Statistics Section -->
     <div class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 space-y-4">
       <h1 class="text-lg font-semibold text-gray-300">Statistics</h1>
-  
+
       <!-- Total Installs -->
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-6 h-6 mr-2 text-green-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-green-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           <span class="text-sm text-gray-400">Total Installs</span>
         </div>
@@ -183,28 +160,34 @@
           {{INSTALLS}}
         </p>
       </div>
-  
+
       <!-- Database Size -->
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-6 h-6 mr-2 text-purple-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7a2 2 0 012-2h12a2 2 0 012 2m-2 2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-purple-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7a2 2 0 012-2h12a2 2 0 012 2m-2 2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2" />
           </svg>
           <span class="text-sm text-gray-400">Database Keys</span>
         </div>
         <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
           {{DB_SIZE}}
+        </p>
+      </div>
+
+      <!-- Vector Count -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-yellow-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12l-8 5-8-5 8-5 8 5z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v10" />
+          </svg>
+          <span class="text-sm text-gray-400">Vector Count</span>
+        </div>
+        <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+          {{VECTOR_COUNT}}
         </p>
       </div>
     </div>
@@ -281,8 +264,8 @@
         const urlWithConfig =
           `${manifestBaseUrl}/${encodedKeys}/manifest.json`;
         const strippedUrl = urlWithConfig
-                              .replace(/^https?:\/\//, "")
-                              .replace(/^http?:\/\//, "");
+          .replace(/^https?:\/\//, "")
+          .replace(/^http?:\/\//, "");
         window.location.href = `stremio://${strippedUrl}`;
       } else {
         alert(
@@ -294,4 +277,5 @@
     updateButtonState();
   </script>
 </body>
+
 </html>

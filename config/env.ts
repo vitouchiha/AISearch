@@ -39,6 +39,7 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 if (
   !geminiKey ||
+  !RPDB_FREE_API_KEY || 
   !tmdbKey ||
   !aiModel ||
   (NO_CACHE !== "true" && (!upstashRedisUrl || !upstashRedisToken || !upstashVectorUrl || !upstashVectorToken))

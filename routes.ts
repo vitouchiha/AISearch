@@ -16,7 +16,13 @@ import type {
   TrendingParams,
   ManifestParams,
 } from "./config/types/types.ts";
+
 import { redis } from "./config/redisCache.ts";
+import { index } from "./config/semanticCache.ts";
+import { tmdbHealthCheck } from "./services/tmdb.ts";
+import { cinemetaHealthCheck } from "./services/cinemeta.ts";
+import { rpdbHealthCheck } from "./services/rpdb.ts";
+
 const useCache = NO_CACHE !== "true";
 
 
@@ -38,8 +44,8 @@ const handleTrending = (ctx: AppContext<TrendingParams>) => handleTrendingReques
 
 const handleManifest = async (ctx: ManifestContext) => {
   log("Serving manifest");
-  if(useCache && redis){
-  await redis.incr("manifest_requests");
+  if (useCache && redis) {
+    await redis.incr("manifest_requests");
   }
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;
@@ -49,10 +55,12 @@ const handleConfigure = async (ctx: ConfigureContext) => {
   try {
     let installs: string = "NO CACHE";
     let dbSize: string = "NO CACHE";
+    let vectorCount: string = "NO CACHE";
 
-    if(useCache && redis){
-    installs = await redis.get("manifest_requests") || "0";
-    dbSize = String(await redis.dbsize());
+    if (useCache && redis && index) {
+      installs = await redis.get("manifest_requests") || "0";
+      dbSize = String(await redis.dbsize());
+      vectorCount = String((await index.info()).vectorCount);
     }
     const htmlContent = await Deno.readTextFile("./views/configure.html");
     const html = htmlContent
@@ -60,6 +68,7 @@ const handleConfigure = async (ctx: ConfigureContext) => {
       .replace("{{VERSION}}", manifest.version)
       .replace("{{INSTALLS}}", installs)
       .replace("{{DB_SIZE}}", dbSize)
+      .replace("{{VECTOR_COUNT}}", vectorCount)
       .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
 
     ctx.response.headers.set("Content-Type", "text/html");
@@ -104,8 +113,82 @@ router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleM
 router.get("/:keys?/configure", handleConfigure);
 router.get("/", (ctx) => ctx.response.redirect("/configure"));
 
+router.get("/health", async (ctx) => {
+  const health = {
+    redis: true,
+    vector: true,
+    tmdb: true,
+    cinemeta: true,
+    ratePosters: true,
+  };
+
+  // Internal checks: Redis and Vector index
+  if (useCache && redis && index) {
+    const [redisResult, indexResult] = await Promise.allSettled([
+      redis.ping(),
+      index.info(),
+    ]);
+
+    if (redisResult.status === "fulfilled") {
+      health.redis = redisResult.value === "PONG";
+    } else {
+      console.error("Redis health check failed:", redisResult.reason);
+      health.redis = false;
+    }
+
+    if (indexResult.status === "fulfilled") {
+      health.vector = indexResult.value.vectorCount !== null;
+    } else {
+      console.error("Vector index health check failed:", indexResult.reason);
+      health.vector = false;
+    }
+  }
+
+  // External checks run concurrently
+  const [tmdbResult, cinemetaResult, ratePostersResult] = await Promise.allSettled([
+    tmdbHealthCheck(),
+    cinemetaHealthCheck(),
+    rpdbHealthCheck(),
+  ]);
+
+  health.tmdb = tmdbResult.status === "fulfilled" ? tmdbResult.value : false;
+  if (tmdbResult.status !== "fulfilled") {
+    console.error("TMDB health check failed:", tmdbResult.reason);
+  }
+
+  health.cinemeta = cinemetaResult.status === "fulfilled" ? cinemetaResult.value : false;
+  if (cinemetaResult.status !== "fulfilled") {
+    console.error("Cinemeta health check failed:", cinemetaResult.reason);
+  }
+
+  health.ratePosters = ratePostersResult.status === "fulfilled" ? ratePostersResult.value : false;
+  if (ratePostersResult.status !== "fulfilled") {
+    console.error("RatePosters health check failed:", ratePostersResult.reason);
+  }
+
+  // Overall health status: all services must be healthy
+  const allHealthy = Object.values(health).every(status => status);
+
+  if (allHealthy) {
+    ctx.response.status = 200;
+    ctx.response.headers.set("Content-Type", "text/plain");
+    ctx.response.body = "OK";
+  } else {
+    ctx.response.status = 500;
+    ctx.response.headers.set("Content-Type", "application/json");
+    ctx.response.body = JSON.stringify({
+      status: "unhealthy",
+      redis: health.redis ? "ok" : "failed",
+      vector: health.vector ? "ok" : "failed",
+      tmdb: health.tmdb ? "ok" : "failed",
+      cinemeta: health.cinemeta ? "ok" : "failed",
+      ratePosters: health.ratePosters ? "ok" : "failed",
+    });
+  }
+});
+
 router.get("/favicon.ico", (ctx) => {
-  ctx.response.status = 200; 
+  ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "text/plain");
   ctx.response.body = "Not Found";
 });

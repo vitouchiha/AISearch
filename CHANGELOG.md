@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [1.2.4] - 2025-02-19
 
 ### Added
+- RPDB_FREE_API_KEY is now a required ENV. We use it to make sure the rateposter API is online.
+- Added /health endpoint. This will simply return plain text OK if all systems are good to go. If checks fail, it returns 500 error and json data on which service is down.
 - Use Deno cron to clear Vector cache every 30 days. This will force a refetch to get the latest recommendations from AI.
 - Deno Cron is in beta, so we will run it for awhile and test. We shall see.
 - Cron timing can be adjusted by using the RESET_VECTOR_CRON environment variable. (defaults to 30 days)

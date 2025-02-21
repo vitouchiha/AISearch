@@ -32,3 +32,12 @@ export const fetchCinemeta = async (
   }
 };
 
+export async function cinemetaHealthCheck() {
+  try {
+    const cinemetaResponse = await fetch("https://v3-cinemeta.strem.io/meta/movie/tt0111161.json", { method: "HEAD" });
+    return cinemetaResponse.ok;
+  } catch (error) {
+    console.error("Cinemeta health check failed:", error);
+    return false;
+  }
+}
