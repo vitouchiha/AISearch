@@ -32,6 +32,7 @@ export const handleCatalogRequest = async (
   searchQuery: string,
   type: "movie" | "series",
   googleKey: string,
+  tmdbKey: string,
   rpdbKey?: string
 ): Promise<void> => {
 
@@ -82,7 +83,7 @@ export const handleCatalogRequest = async (
         log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
 
         const { data: tmdbData, fromCache, cacheSet } =
-          await getTmdbDetailsByName(movieName, type);
+          await getTmdbDetailsByName(movieName, type, tmdbKey);
 
         stats.fromCache += fromCache ? 1 : 0;
         stats.fromTmdb += fromCache ? 0 : 1;

@@ -30,7 +30,10 @@ export interface AppContext<
     type?: "movie" | "series";
     keys?: string;
     googleKey?: string;
+    tmdbKey?: string;
     rpdbKey?: string;
+    traktKey?: string;
+    userId?: string;
   };
 }
 
@@ -48,6 +51,16 @@ export type TrendingParams = {
 export type ManifestParams = {
   keys: string;
 };
+
+export type Keys = {
+  googleKey: string;
+  tmdbKey: string;
+  rpdbKey: string;
+  traktKey: string;
+  traktRefresh: string;
+  traktExpiresAt: string;
+  userId?: string;
+}
 
 export type CatalogContext = AppContext<MovieCatalogParams>;
 export type TrendingContext = AppContext<TrendingParams>;

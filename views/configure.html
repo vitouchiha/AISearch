@@ -7,45 +7,19 @@
   <title>FilmWhisper: AISearch Configure</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom CSS for mobile-first adjustments */
-    @media (max-width: 640px) {
-      .text-4xl {
-        font-size: 1.5rem;
-        /* Smaller font size for mobile */
+    .animate-bounce-slow {
+      animation: bounce 6s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
       }
 
-      .text-2xl {
-        font-size: 1.25rem;
-      }
-
-      .p-6 {
-        padding: 1rem;
-        /* Reduced padding for smaller screens */
-      }
-
-      .space-y-6 {
-        gap: 1rem;
-        /* Reduced vertical spacing */
-      }
-
-      .max-w-lg {
-        max-width: 100%;
-        /* Full width on small screens */
-      }
-
-      .w-full {
-        width: 100%;
-        /* Ensure full width */
-      }
-
-      input[type="text"] {
-        font-size: 0.875rem;
-        /* Smaller font size for inputs */
-      }
-
-      button {
-        font-size: 0.875rem;
-        /* Smaller font size for buttons */
+      50% {
+        transform: translateY(-20px);
       }
     }
   </style>
@@ -53,229 +27,357 @@
 
 <body
   class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-auto">
-  <!-- Background Animation -->
-  <div class="absolute inset-0 z-0">
-    <div class="animate-pulse bg-opacity-10 bg-white rounded-full w-32 h-32 absolute top-1/4 left-1/4 blur-3xl"></div>
-    <div
-      class="animate-bounce-slow bg-opacity-10 bg-white rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl">
-    </div>
-  </div>
-  <!-- Movie/Tv SVG Animation -->
   <div class="absolute inset-0 z-0 pointer-events-none">
+    <div class="animate-pulse bg-white bg-opacity-10 rounded-full w-32 h-32 absolute top-1/4 left-1/4 blur-3xl"></div>
+    <div
+      class="animate-bounce-slow bg-white bg-opacity-10 rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl">
+    </div>
     <svg class="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
       <path fill="currentColor" fill-opacity="0.1"
-        d="M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,202.7C672,203,768,149,864,144C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
-      </path>
+        d="M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,202.7C672,203,768,149,864,144C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
     </svg>
   </div>
-  <!-- Logo Section -->
-  <div class="relative z-10 flex flex-col items-center mb-6 sm:mb-10">
-    <h1
-      class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 text-center">
-      FilmWhisper: AISearch</h1>
-    <p class="mt-2 text-sm text-gray-400">AI-powered movie discovery for Stremio</p>
-  </div>
-  <!-- Description Section -->
-  <div
-    class="relative z-10 w-full max-w-lg bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 mb-4 sm:mb-6">
-    <h2 class="text-2xl font-bold mb-4 text-center text-indigo-400">What does this do?</h2>
-    <p class="text-gray-300 text-sm">
-      This catalog uses AI to determine what you're looking for. For example, if you search for "Movie where the parents
-      leave the child alone on vacation", it will return "Home Alone" and similar results.
-    </p>
-  </div>
-  <!-- Configuration Section -->
-  <div
-    class="relative z-10 w-full max-w-xl bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
-    <h2 class="text-2xl font-bold text-center text-cyan-400">Configure</h2>
-    <!-- Google API Key Section -->
-    <div id="api-key-section" class="space-y-2">
-      <div class="bg-gray-700/80 border border-gray-600 text-gray-200 p-3 rounded-lg">
-        <p class="text-xs">
-          We require your API key for server-side operations; however, we guarantee that it is never logged or retained.
-        </p>
-      </div>
-      <label for="googleKey" class="block text-sm font-medium text-gray-300">Google AI Key:</label>
-      <input type="text" id="googleKey" name="googleKey" required placeholder="Enter your Google AI key"
-        class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300" />
-    </div>
-    <!-- Ratings Poster API Key Section -->
-    <div id="rpdb-key-section" class="space-y-2">
-      <label for="rpdbKey" class="block text-sm font-medium text-gray-300">Ratings Poster API Key:</label>
-      <input type="text" id="rpdbKey" name="rpdbKey" placeholder="Enter your Ratings Poster API key"
-        class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300" />
-    </div>
-    <!-- Checkbox to use default Google key -->
-    <div class="flex items-center space-x-2">
-      <input id="defaultKey" name="defaultKey" type="checkbox"
-        class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
-      <label for="defaultKey" class="text-sm text-gray-300">Use default Google key</label>
-    </div>
-    <!-- URL Display Box -->
-    <div id="url-display-box" class="hidden bg-gray-700/80 rounded-lg p-4 text-gray-100 break-words shadow-lg">
-      <p class="text-xs mb-2">Copy and paste this URL to install via Stremio:</p>
-      <code id="url-display" class="block bg-gray-800/80 p-2 rounded text-xs text-gray-200"></code>
-    </div>
-    <!-- Install Button -->
-    <button id="install-button"
-      class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled>
-      Install Addon
-    </button>
-  </div>
-  <footer class="relative z-10 w-full max-w-lg mx-auto mt-6 sm:mt-10 text-center">
-    <!-- GitHub Link -->
-    <a href="https://github.com/mkcfdc/AISearch" target="_blank" rel="noopener noreferrer"
-      class="inline-flex items-center justify-center w-full text-blue-400 hover:text-blue-300 transition duration-300 rounded-lg py-3 px-4 mb-4">
-      <svg class="w-5 h-5 mr-2" role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <title>GitHub</title>
-        <path
-          d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.205 11.387.6.111.82-.261.82-.577
-          0-.285-.011-1.04-.017-2.04-3.338.724-4.042-1.612-4.042-1.612-.546-1.387-1.333-1.757-1.333-1.757-1.089-.745.083-.729.083-.729
-          1.205.084 1.84 1.236 1.84 1.236 1.07 1.835 2.809 1.304 3.495.997.108-.776.42-1.305.763-1.605-2.665-.3-5.466-1.335-5.466-5.93
-          0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.957-.266 1.98-.399 3-.405 1.02.006 2.043.139 3
-          .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81
-          1.11.81 2.235 0 1.61-.015 2.91-.015 3.31 0 .315.21.694.825.576C20.565 21.092 24 16.592 24 12c0-6.627-5.373-12-12-12" />
-      </svg>
-      View this project on GitHub
-    </a>
 
-    <!-- Version and Dev Mode Info -->
-    <div class="text-xs text-gray-500 mb-6">v{{VERSION}} {{DEV_MODE}}</div>
+  <main class="relative z-10 flex flex-col items-center w-full max-w-2xl space-y-6 sm:space-y-10">
+    <header class="flex flex-col items-center text-center">
+      <h1
+        class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+        FilmWhisper: AISearch</h1>
+      <p class="mt-2 text-sm text-gray-400">AI-powered movie discovery for Stremio</p>
+    </header>
 
-    <!-- Statistics Section -->
-    <div class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 space-y-4">
-      <h1 class="text-lg font-semibold text-gray-300">Statistics</h1>
+    <section class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6">
+      <h2 class="text-xl sm:text-2xl font-bold mb-4 text-center text-indigo-400">What does this do?</h2>
+      <p class="text-gray-300 text-sm">
+        This catalog uses AI to determine what you're looking for. For example, if you search for "Movie where the
+        parents leave the child alone on vacation", it will return "Home Alone" and similar results.
+      </p>
+    </section>
 
-      <!-- Total Installs -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-green-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span class="text-sm text-gray-400">Total Installs</span>
+    <section class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <h2 class="text-xl sm:text-2xl font-bold text-center text-cyan-400">Configure</h2>
+      <div class="space-y-2">
+        <div class="bg-gray-700/80 border border-gray-600 text-gray-200 p-3 rounded-lg text-xs">
+          <p>We use your API keys on your behalf for server-side operations; They are stored using AES256 encryption and only used for your personal requests.</p>
         </div>
-        <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">
-          {{INSTALLS}}
-        </p>
+        <label for="googleKey" class="block text-sm font-medium text-gray-300">Google AI Key:</label>
+        <input type="text" id="googleKey" name="googleKey" required placeholder="Enter your Google AI key"
+          class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300 text-sm sm:text-base" />
       </div>
-
-      <!-- Database Size -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-purple-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7a2 2 0 012-2h12a2 2 0 012 2m-2 2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2" />
-          </svg>
-          <span class="text-sm text-gray-400">Database Keys</span>
+      <div class="space-y-2">
+        <label for="tmdbKey" class="block text-sm font-medium text-gray-300">TMDB API Key:</label>
+        <input type="text" id="tmdbKey" name="tmdbKey" placeholder="Enter your TMDB API key"
+          class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300 text-sm sm:text-base" />
+      </div>
+      <div class="space-y-2">
+        <label for="rpdbKey" class="block text-sm font-medium text-gray-300">Ratings Poster API Key:</label>
+        <input type="text" id="rpdbKey" name="rpdbKey" placeholder="Enter your Ratings Poster API key"
+          class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-sm sm:text-base" />
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="block text-sm font-medium text-gray-300">Trakt.tv Account</label>
+          <span id="trakt-status" class="text-sm text-gray-400">Not connected</span>
         </div>
-        <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-          {{DB_SIZE}}
-        </p>
+        <button id="trakt-auth-button"
+          class="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">Connect
+          Trakt.tv</button>
       </div>
-
-      <!-- Vector Count -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-yellow-400" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12l-8 5-8-5 8-5 8 5z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v10" />
-          </svg>
-          <span class="text-sm text-gray-400">Vector Count</span>
+      <div class="space-y-2">
+        <div class="flex items-center space-x-2">
+          <input id="defaultGoogleKey" name="defaultGoogleKey" type="checkbox"
+            class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
+          <label for="defaultGoogleKey" class="text-sm text-gray-300">Use default Google key</label>
         </div>
-        <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
-          {{VECTOR_COUNT}}
-        </p>
+        <div class="flex items-center space-x-2">
+          <input id="defaultTmdbKey" name="defaultTmdbKey" type="checkbox"
+            class="text-purple-500 focus:ring-purple-500 rounded transition duration-300" />
+          <label for="defaultTmdbKey" class="text-sm text-gray-300">Use default TMDB key</label>
+        </div>
       </div>
+      <!-- The URL display box will be shown only after storing keys -->
+      <div id="url-display-box" class="hidden bg-gray-700/80 rounded-lg p-4 text-gray-100 break-words shadow-lg">
+        <p class="text-xs mb-2">Copy and paste this URL to install via Stremio:</p>
+        <code id="url-display" class="block bg-gray-800/80 p-2 rounded text-xs text-gray-200"></code>
+      </div>
+      <div class="space-y-2">
+        <button id="install-button"
+          class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled>
+          Install Addon
+        </button>
+        <!-- New button for updating keys -->
+        <button id="update-keys-button"
+          class="w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+          Update Keys
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="relative z-10 w-full max-w-2xl mt-6 sm:mt-10 space-y-6">
+    <div class="text-center">
+      <a href="https://github.com/mkcfdc/AISearch" target="_blank" rel="noopener noreferrer"
+        class="inline-flex items-center text-blue-400 hover:text-blue-300 transition duration-300 py-3 px-4">
+        <svg class="w-5 h-5 mr-2" role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.205 11.387.6.111.82-.261.82-.577 0-.285-.011-1.04-.017-2.04-3.338.724-4.042-1.612-4.042-1.612-.546-1.387-1.333-1.757-1.333-1.757-1.089-.745.083-.729.083-.729 1.205.084 1.84 1.236 1.84 1.236 1.07 1.835 2.809 1.304 3.495.997.108-.776.42-1.305.763-1.605-2.665-.3-5.466-1.335-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.957-.266 1.98-.399 3-.405 1.02.006 2.043.139 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81 1.11.81 2.235 0 1.61-.015 2.91-.015 3.31 0 .315.21.694.825.576C20.565 21.092 24 16.592 24 12c0-6.627-5.373-12-12-12" />
+        </svg>
+        View this project on GitHub
+      </a>
     </div>
+    <div class="text-xs text-gray-500 text-center">v{{VERSION}} {{DEV_MODE}}</div>
+    <section class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4">
+      <h3 class="text-lg font-semibold text-gray-300">Statistics</h3>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-green-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span class="text-sm text-gray-400">Total Installs</span>
+          </div>
+          <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">
+            {{INSTALLS}}</p>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-purple-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7a2 2 0 012-2h12a2 2 0 012 2m-2 2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2" />
+            </svg>
+            <span class="text-sm text-gray-400">Database Keys</span>
+          </div>
+          <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+            {{DB_SIZE}}</p>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-yellow-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12l-8 5-8-5 8-5 8 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v10" />
+            </svg>
+            <span class="text-sm text-gray-400">Vector Count</span>
+          </div>
+          <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+            {{VECTOR_COUNT}}</p>
+        </div>
+      </div>
+    </section>
   </footer>
 
   <script>
     const manifestBaseUrl = "{{ROOT_URL}}";
-    const googleKeyInput = document.getElementById("googleKey");
-    const rpdbKeyInput = document.getElementById("rpdbKey");
-    const defaultKeyCheckbox = document.getElementById("defaultKey");
-    const installButton = document.getElementById("install-button");
-    const urlDisplayBox = document.getElementById("url-display-box");
-    const urlDisplay = document.getElementById("url-display");
+    const elements = {
+      googleKeyInput: document.getElementById("googleKey"),
+      tmdbKeyInput: document.getElementById("tmdbKey"),
+      rpdbKeyInput: document.getElementById("rpdbKey"),
+      defaultGoogleKeyCheckbox: document.getElementById("defaultGoogleKey"),
+      defaultTmdbKeyCheckbox: document.getElementById("defaultTmdbKey"),
+      installButton: document.getElementById("install-button"),
+      updateKeysButton: document.getElementById("update-keys-button"),
+      urlDisplayBox: document.getElementById("url-display-box"),
+      urlDisplay: document.getElementById("url-display"),
+      traktAuthButton: document.getElementById("trakt-auth-button"),
+      traktStatus: document.getElementById("trakt-status"),
+    };
+  
+    let traktTokens = getTokens();
 
-    function encodeUrlSafeBase64(str) {
-      return btoa(str)
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
+    function generateUserId() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0,
+              v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    function getUserId() {
+      let userId = localStorage.getItem("userId");
+      if (!userId) {
+        userId = generateUserId();
+        localStorage.setItem("userId", userId);
+      }
+      return userId;
+    }
+
+    async function storeKeys(keys) {
+      const userId = getUserId();
+      const response = await fetch(`${manifestBaseUrl}/api/store-keys`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, ...keys }),
+      });
+      if (!response.ok) throw new Error("Failed to store keys");
+      return userId;
+    }
+
+    function storeTokens(tokens) {
+      sessionStorage.setItem("traktTokens", JSON.stringify(tokens));
+    }
+    function getTokens() {
+      const stored = sessionStorage.getItem("traktTokens");
+      return stored ? JSON.parse(stored) : { access_token: null, refresh_token: null, expires_at: null };
+    }
+    function clearTokens() {
+      sessionStorage.removeItem("traktTokens");
+      traktTokens = { access_token: null, refresh_token: null, expires_at: null };
+    }
+
+    function storeApiKeys(apiKeys) {
+      const { googleKey, tmdbKey, rpdbKey } = apiKeys;
+      sessionStorage.setItem("apiKeys", JSON.stringify({ googleKey, tmdbKey, rpdbKey }));
+    }
+    function loadApiKeys() {
+      const stored = sessionStorage.getItem("apiKeys");
+      if (stored) {
+        const { googleKey, tmdbKey, rpdbKey } = JSON.parse(stored);
+        if (googleKey) elements.googleKeyInput.value = googleKey;
+        if (tmdbKey) elements.tmdbKeyInput.value = tmdbKey;
+        if (rpdbKey) elements.rpdbKeyInput.value = rpdbKey;
+      }
     }
 
     function isValidGeminiApiKey(key) {
-      if (!key) return false;
-      if (typeof key !== "string") return false;
-      const keyFormat = /^AIza[a-zA-Z0-9_-]{35,39}$/;
-      return keyFormat.test(key);
+      return typeof key === "string" && /^AIza[a-zA-Z0-9_-]{35,39}$/.test(key);
     }
-
-    function updateButtonState() {
-      if (defaultKeyCheckbox.checked) {
-        googleKeyInput.value = "default";
-        googleKeyInput.disabled = true;
-        installButton.disabled = false;
-      } else {
-        googleKeyInput.disabled = false;
-        installButton.disabled = googleKeyInput.value.trim() === "";
-      }
-      updateUrlDisplay();
+    function getKeys() {
+      const googleKey = elements.defaultGoogleKeyCheckbox.checked
+        ? "default"
+        : elements.googleKeyInput.value.trim();
+      const tmdbKey = elements.defaultTmdbKeyCheckbox.checked
+        ? "default"
+        : elements.tmdbKeyInput.value.trim();
+      const rpdbKey = elements.rpdbKeyInput.value.trim();
+      const traktKey = traktTokens["access_token"];
+      const traktRefresh = traktTokens["refresh_token"];
+      const traktExpiresAt = traktTokens["expires_at"];
+      return { googleKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
     }
-
-    function updateUrlDisplay() {
-      let googleKey = googleKeyInput.value.trim();
-      let rpdbKey = rpdbKeyInput.value.trim();
-      if (defaultKeyCheckbox.checked) googleKey = "default";
-      if (
-        googleKey !== "" &&
-        (isValidGeminiApiKey(googleKey) || googleKey === "default")
-      ) {
-        const keysObj = { googleKey, rpdbKey };
-        const jsonStr = JSON.stringify(keysObj);
-        const encodedKeys = encodeUrlSafeBase64(jsonStr);
-        const urlWithConfig =
-          `${manifestBaseUrl}/${encodedKeys}/manifest.json`;
-        urlDisplay.textContent = urlWithConfig;
-        urlDisplayBox.classList.remove("hidden");
+    function generateManifestUrl(userId) {
+      return `${manifestBaseUrl}/user:${userId}/manifest.json`;
+    }
+    function updateTraktStatus() {
+      if (traktTokens["access_token"]) {
+        elements.traktStatus.textContent = "Connected";
+        elements.traktStatus.classList.add("text-green-400");
+        elements.traktAuthButton.textContent = "Disconnect Trakt.tv";
       } else {
-        urlDisplayBox.classList.add("hidden");
-        urlDisplay.textContent = "";
+        elements.traktStatus.textContent = "Not connected";
+        elements.traktStatus.classList.remove("text-green-400");
+        elements.traktAuthButton.textContent = "Connect Trakt.tv";
       }
     }
 
-    googleKeyInput.addEventListener("input", updateButtonState);
-    rpdbKeyInput.addEventListener("input", updateUrlDisplay);
-    defaultKeyCheckbox.addEventListener("change", updateButtonState);
-
-    installButton.addEventListener("click", () => {
-      let googleKey = googleKeyInput.value.trim();
-      let rpdbKey = rpdbKeyInput.value.trim();
-      if (defaultKeyCheckbox.checked) googleKey = "default";
-      if (googleKey === "default" || isValidGeminiApiKey(googleKey)) {
-        const keysObj = { googleKey, rpdbKey };
-        const jsonStr = JSON.stringify(keysObj);
-        const encodedKeys = encodeUrlSafeBase64(jsonStr);
-        const urlWithConfig =
-          `${manifestBaseUrl}/${encodedKeys}/manifest.json`;
-        const strippedUrl = urlWithConfig
-          .replace(/^https?:\/\//, "")
-          .replace(/^http?:\/\//, "");
-        window.location.href = `stremio://${strippedUrl}`;
+    async function handleAuthCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const access_token = urlParams.get("access_token");
+      const refresh_token = urlParams.get("refresh_token");
+      const expires_at = urlParams.get("expires_at");
+  
+      if (access_token && refresh_token && expires_at) {
+        traktTokens = { access_token, refresh_token, expires_at };
+        storeTokens(traktTokens);
+        await storeKeys(getKeys());
+        window.history.replaceState({}, document.title, window.location.pathname);
       } else {
-        alert(
-          "Please ensure your Google API key is valid before attempting to install",
-        );
+        traktTokens = getTokens();
+      }
+      updateTraktStatus();
+      updateUI();
+    }
+
+    function updateUI() {
+      const { googleKey } = getKeys();
+      const isGoogleKeyValid = googleKey === "default" || isValidGeminiApiKey(googleKey);
+  
+      elements.googleKeyInput.disabled = elements.defaultGoogleKeyCheckbox.checked;
+      elements.tmdbKeyInput.disabled = elements.defaultTmdbKeyCheckbox.checked;
+      if (elements.defaultGoogleKeyCheckbox.checked) elements.googleKeyInput.value = "default";
+      if (elements.defaultTmdbKeyCheckbox.checked) elements.tmdbKeyInput.value = "default";
+  
+      elements.installButton.disabled = !isGoogleKeyValid;
+    }
+  
+    // Event Listeners for inputs: update UI and persist API keys to sessionStorage on change
+    elements.googleKeyInput.addEventListener("input", () => {
+      updateUI();
+      storeApiKeys(getKeys());
+    });
+    elements.tmdbKeyInput.addEventListener("input", () => {
+      updateUI();
+      storeApiKeys(getKeys());
+    });
+    elements.rpdbKeyInput.addEventListener("input", () => {
+      updateUI();
+      storeApiKeys(getKeys());
+    });
+    elements.defaultGoogleKeyCheckbox.addEventListener("change", () => {
+      updateUI();
+      storeApiKeys(getKeys());
+    });
+    elements.defaultTmdbKeyCheckbox.addEventListener("change", () => {
+      updateUI();
+      storeApiKeys(getKeys());
+    });
+
+    elements.traktAuthButton.addEventListener("click", () => {
+      if (traktTokens["access_token"]) {
+        clearTokens();
+        updateTraktStatus();
+        updateUI();
+      } else {
+        window.location.href = `${manifestBaseUrl}/auth/login`;
       }
     });
 
-    updateButtonState();
+    elements.installButton.addEventListener("click", async () => {
+      const keys = getKeys();
+      const { googleKey } = keys;
+      if (googleKey === "default" || isValidGeminiApiKey(googleKey)) {
+        try {
+          const userId = await storeKeys(keys);
+          storeApiKeys(keys);
+          const url = generateManifestUrl(userId);
+          elements.urlDisplay.textContent = url;
+          elements.urlDisplayBox.classList.remove("hidden");
+
+          if (navigator.clipboard) {
+            await navigator.clipboard.writeText(url);
+            alert("Installation URL copied to clipboard!");
+          } else {
+            alert("Installation URL is now visible below.");
+          }
+        } catch (error) {
+          alert("Failed to store keys. Please try again.");
+          console.error(error);
+        }
+      } else {
+        alert("Please enter a valid Google API key to install the addon.");
+      }
+    });
+
+    elements.updateKeysButton.addEventListener("click", async () => {
+      const keys = getKeys();
+      try {
+        await storeKeys(keys);
+        storeApiKeys(keys);
+        alert("Keys updated successfully!");
+        updateUI();
+      } catch (error) {
+        alert("Failed to update keys. Please try again.");
+        console.error(error);
+      }
+    });
+
+    window.addEventListener("load", () => {
+      loadApiKeys();
+      handleAuthCallback();
+    });
   </script>
+  
 </body>
 
 </html>

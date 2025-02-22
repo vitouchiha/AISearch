@@ -1,4 +1,4 @@
-import { Router } from "./config/deps.ts";
+import { Context, Router } from "./config/deps.ts";
 import { ROOT_URL, DEV_MODE, NO_CACHE } from "./config/env.ts";
 import { log } from "./utils/utils.ts";
 import { manifest } from "./config/manifest.ts";
@@ -22,6 +22,7 @@ import { index } from "./config/semanticCache.ts";
 import { tmdbHealthCheck } from "./services/tmdb.ts";
 import { cinemetaHealthCheck } from "./services/cinemeta.ts";
 import { rpdbHealthCheck } from "./services/rpdb.ts";
+import { handleTraktWatchlistRequest } from "./handlers/handleWatchlistRequest.ts";
 
 const useCache = NO_CACHE !== "true";
 
@@ -32,15 +33,16 @@ const catalogMiddleware = [
 ];
 
 const handleSearch = async (ctx: CatalogContext) => {
-  const { searchQuery, googleKey, rpdbKey, type } = ctx.state;
-  if (!searchQuery || !googleKey || !type) {
+  const { searchQuery, googleKey, rpdbKey, tmdbKey, type } = ctx.state;
+  if (!searchQuery || !googleKey || !tmdbKey || !type) {
     return ctx.response.status = 500, ctx.response.body = { error: "Internal server error: missing required state." };
   }
   log(`Received catalog request for query: ${searchQuery} and type: ${type}`);
-  await handleCatalogRequest(ctx, searchQuery, type, googleKey, rpdbKey);
+  await handleCatalogRequest(ctx, searchQuery, type, googleKey, tmdbKey, rpdbKey);
 };
 
 const handleTrending = (ctx: AppContext<TrendingParams>) => handleTrendingRequest(ctx);
+const handleTraktRecent = (ctx: Context) => handleTraktWatchlistRequest(ctx);
 
 const handleManifest = async (ctx: ManifestContext) => {
   log("Serving manifest");
@@ -107,6 +109,18 @@ router.get<TrendingParams>(
   googleKeyMiddleware,
   handleTrending,
 );
+
+router.get(
+  "/:keys?/catalog/movie/ai-trakt-recent-movie.json",
+  setMovieType,
+  googleKeyMiddleware,
+  handleTraktRecent);
+
+  router.get(
+    "/:keys?/catalog/series/ai-trakt-recent-tv.json",
+    setSeriesType,
+    googleKeyMiddleware,
+    handleTraktRecent);
 
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 

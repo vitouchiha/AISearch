@@ -15,6 +15,7 @@ const useCache = NO_CACHE !== "true";
 export async function getTmdbDetailsByName(
   movieName: string,
   type: string,
+  tmdbKey: string,
 ): Promise<TmdbFetchResult> {
 
   if (type !== "movie" && type !== "series") {
@@ -40,7 +41,7 @@ export async function getTmdbDetailsByName(
   log(`Fetching TMDB details for ${type}: ${movieName}`);
   try {
     const tmdbType = type === "series" ? "tv" : "movie";
-    const searchUrl = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
+    const searchUrl = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${tmdbKey}&query=${encodeURIComponent(
       movieName
     )}`;
     const searchData = await fetchJson(searchUrl, "TMDB search");
@@ -57,7 +58,7 @@ export async function getTmdbDetailsByName(
 
     const detailsUrl = `https://api.themoviedb.org/3/${tmdbType}/${
       firstResult.id
-    }?api_key=${TMDB_API_KEY}&append_to_response=external_ids`;
+    }?api_key=${tmdbKey}&append_to_response=external_ids`;
     const detailsData = await fetchJson(detailsUrl, "TMDB details");
     const imdbId = detailsData.external_ids?.imdb_id;
 

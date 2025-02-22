@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.\
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0]
+
+This version has some major breaking changes, if you are self hosting, be prepared.
+
+### Added
+- Trakt is now integrated. Using Oauth.
+- Added recommendations based on recently watched movies and series
+
+### Changed
+- User keys are now stored using AES256. This is required as we are using Oauth with trakt.
+- Install URL has changed, each user is now assigned a unique userid 
+- Users can now change their keys without needing to reinstall.
+- Redis is now a requirement. This is where the encrypted keys are stored.
+- On the configuration page, keys are stored client-side in session storage. This is cleared when the browser is closed. This is needed to keep keys from disappearing when the user connects to trakt.
+
+---
+
 ## [1.2.4] - 2025-02-19
 
 ### Added

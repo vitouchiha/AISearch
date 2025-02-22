@@ -39,6 +39,16 @@ export const manifest = {
             name: "AI Trending TV Shows",
             type: "series",
           },
+          {
+            id: "ai-trakt-recent-tv",
+            name: "AI Trakt TV Recommendations",
+            type: "series",
+          },
+          {
+            id: "ai-trakt-recent-movie",
+            name: "AI Trakt Movie Recommendations",
+            type: "movie",
+          },
         ]
       : []),
   ],

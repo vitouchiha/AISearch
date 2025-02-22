@@ -1,5 +1,6 @@
 import { load } from "jsr:@std/dotenv";
 import { log, logError } from "../utils/utils.ts";
+import { Buffer } from "./deps.ts";
 
 // Load .env file in development mode.
 const DEV_MODE = Deno.env.get("DEV_MODE");
@@ -37,15 +38,27 @@ const portStr = Deno.env.get("PORT") || "3000";
 const PORT = parseInt(portStr, 10);
 const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
+const TRAKT_CLIENT_ID = String(Deno.env.get("TRAKT_CLIENT_ID"));
+const TRAKT_CLIENT_SECRET = String(Deno.env.get("TRAKT_CLIENT_SECRET"));
+
+const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
+const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");
+if (keyBuffer.length !== 32) {
+  throw new Error(`Invalid ENCRYPTION_KEY length: ${keyBuffer.length} bytes, expected 32 bytes for AES-256. Must be a 64-char hex string.`);
+} else { console.log("Encryption key passed check");}
+
 if (
   !geminiKey ||
-  !RPDB_FREE_API_KEY || 
+  !RPDB_FREE_API_KEY ||
+  !ENCRYPTION_KEY ||
+  !TRAKT_CLIENT_ID ||
+  !TRAKT_CLIENT_SECRET ||
   !tmdbKey ||
   !aiModel ||
   (NO_CACHE !== "true" && (!upstashRedisUrl || !upstashRedisToken || !upstashVectorUrl || !upstashVectorToken))
 ) {
   logError(
-    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TMDB_API_KEY, AI_MODEL, and (if caching is enabled) UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_VECTOR_REST_URL, and UPSTASH_VECTOR_REST_TOKEN are set in the environment. If in dev, use DEV_MODE.",
+    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TRAKT_API_KEY, TRAKT_CLIENT_SECRET, TMDB_API_KEY, AI_MODEL, and (if caching is enabled) UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_VECTOR_REST_URL, and UPSTASH_VECTOR_REST_TOKEN are set in the environment. If in dev, use DEV_MODE.",
     null,
   );
   throw new Error("Missing required environment variables");
@@ -58,9 +71,12 @@ const UPSTASH_VECTOR_TOKEN_FINAL = NO_CACHE === "true" ? "" : upstashVectorToken
 
 export {
   ROOT_URL,
+  ENCRYPTION_KEY,
   aiModel as AI_MODEL,
   DEV_MODE,
   NO_CACHE,
+  TRAKT_CLIENT_ID,
+  TRAKT_CLIENT_SECRET,
   geminiKey as GEMINI_API_KEY,
   PORT,
   RPDB_FREE_API_KEY,

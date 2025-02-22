@@ -52,6 +52,7 @@ To run the project locally, you need the following services and API keys:
 - **Upstash Vector Database**: For vector-based search and storage.
 - **TMDB API Key**: Get yours from [TMDB](https://www.themoviedb.org/).
 - **AI Studio API Key**: Obtain your API key from AI Studio.
+- **Trakt Client ID and Secret**: Obtain client ID and Secret from trakt.tv
 
 Ensure you fill in your `.env` file with the required keys.
 
@@ -71,26 +72,34 @@ This command will start all services in detached mode.
 
 ## 🌱 Environment Variables
 
-When DISABLE_CACHE is 'true' Upstash is not required. This is helpful when self hosting. There is a slight loss in speed. But from my testing it's not so bad if self hosting.
-
-Note: It has been reported that Gemini rate limits are hit when caching is off.
+**Redis can no longer be disabled.**
 
 Your `.env` file should contain the following keys:
 
+### Generate Encryption Key
+
+Use the command below to generate a secure 32-byte encryption key using Node.js:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
 ```dotenv
 ROOT_URL="http://localhost:3000"
+ENCRYPTION_KEY=""
 GEMINI_API_KEY=""
 TMDB_API_KEY=""
 RPDB_FREE_API_KEY="" # This is required to do a proper health check
+TRAKT_CLIENT_ID=
+TRAKT_CLIENT_SECRET=
 UPSTASH_REDIS_REST_URL=""
 UPSTASH_REDIS_REST_TOKEN=""
 UPSTASH_VECTOR_REST_URL=""
 UPSTASH_VECTOR_REST_TOKEN=""
 AI_MODEL="gemini-2.0-pro-exp-02-05" # This can be any google model that vercel supports
 SEARCH_COUNT=20
-PORT=3003
+PORT=3000
 CLOUDFLARED_TOKEN=""
-DISABLE_CACHE=true or false
 RESET_VECTOR_CRON="0 0 1 * *"
 ```
 

@@ -2,6 +2,53 @@ import { AI_MODEL, SEARCH_COUNT } from "../config/env.ts";
 import { log } from "../utils/utils.ts";
 import { createGoogleGenerativeAI, generateObject, z } from "../config/deps.ts";
 
+
+export async function getTraktMovieRecommendations(
+  movies: string[],
+  type: string,
+  googleKey: string,
+): Promise<string[]> {
+
+  // Prevent abuse by limiting query length.
+  if (movies.length > 400) return [];
+
+  const google = createGoogleGenerativeAI({ apiKey: googleKey });
+  const movieRecommender = google(AI_MODEL, { structuredOutputs: true });
+
+  const recommendationType = type === "series" ? "TV series" : "movies";
+  const prompt = `
+  You are an expert ${recommendationType} recommendation system.
+  Based on the list of ${recommendationType} provided, return exactly ${SEARCH_COUNT} unique ${recommendationType} recommendations as a raw JSON array.
+  Each element in the array must be a ${type === "series" ? "TV series name" : "movie name"} (string).
+  Do not include any additional text, formatting, or explanation. Ensure the JSON is valid and properly escaped.
+  
+  If the search query is vague or unclear, interpret it broadly or provide recommendations across multiple genres.
+  If there are fewer than ${SEARCH_COUNT} relevant recommendations, return as many as possible without repeating any names.
+  
+  Search Query: ${movies}
+  `;
+
+  log(`Sending prompt: ${prompt}`);
+
+  const recommendationsSchema = z.array(z.string());
+  const { object: recommendations } = await generateObject({
+    model: movieRecommender,
+    schema: recommendationsSchema,
+    prompt,
+  });
+
+  if(recommendations.length === 0 || recommendations[0] === 'string') {
+    // sometimes the ai malfunctions and returns a string instead of an array; this is a workaround
+    log(`No ${recommendationType} recommendations found`);
+    return [];
+  }
+
+  log(`Parsed ${recommendations.length} ${recommendationType} names`);
+  log(`\n\nRecommendations: ${recommendations}\n\n`);
+
+  return recommendations;
+}
+
 export async function getMovieRecommendations(
   searchQuery: string,
   type: string,
