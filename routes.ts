@@ -48,13 +48,16 @@ const handleManifest = async (ctx: ManifestContext) => {
   log("Serving manifest");
 
   const trendingParam = ctx.request.url.searchParams.get("trending");
+  const traktParam = ctx.request.url.searchParams.get("trakt");
+  
   const trending = trendingParam === null ? true : trendingParam === "true";
+  const trakt = traktParam === null ? false : traktParam === "true";
 
   if (useCache && redis) {
     await redis.incr("manifest_requests");
   }
   
-  const manifest = createManifest(trending);
+  const manifest = createManifest(trending, trakt);
   
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;

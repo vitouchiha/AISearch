@@ -19,7 +19,25 @@ function getTrendingCatalogs(getTrending: boolean) {
   return [];
 }
 
-export function createManifest(trending: boolean = true): Manifest {
+function getTraktCatalogs(getTrakt: boolean) {
+  if (NO_CACHE !== "true" && getTrakt) {
+    return [
+      {
+        id: "ai-trakt-recent-tv",
+        name: "AI Trakt TV Recommendations",
+        type: "series",
+      },
+      {
+        id: "ai-trakt-recent-movie",
+        name: "AI Trakt Movie Recommendations",
+        type: "movie",
+      },
+    ];
+  }
+  return [];
+}
+
+export function createManifest(trending: boolean = true, trakt: boolean = false): Manifest {
   return {
     behaviorHints: {
       configurable: true,
@@ -49,16 +67,7 @@ export function createManifest(trending: boolean = true): Manifest {
       ...(NO_CACHE !== "true"
         ? [
             ...getTrendingCatalogs(trending),
-            {
-              id: "ai-trakt-recent-tv",
-              name: "AI Trakt TV Recommendations",
-              type: "series",
-            },
-            {
-              id: "ai-trakt-recent-movie",
-              name: "AI Trakt Movie Recommendations",
-              type: "movie",
-            },
+            ...getTraktCatalogs(trakt),
           ]
         : []),
     ],

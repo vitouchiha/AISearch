@@ -267,10 +267,18 @@
     }
     function generateManifestUrl(userId) {
       let url = `${manifestBaseUrl}/user:${userId}/manifest.json`;
+      const params = [];
 
       const optOutTrending = elements.optOutTrending;
       if (optOutTrending && optOutTrending.checked) {
-        url += "?trending=false";
+        params.push("trending=false");
+      }
+      const optInTrakt = elements.traktStatus.textContent;
+      if (optInTrakt === "Connected") {
+        params.push("trakt=true");
+      }
+      if (params.length > 0) {
+        url += "?" + params.join("&");
       }
 
       return url;
