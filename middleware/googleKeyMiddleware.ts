@@ -26,7 +26,6 @@ function parseKeysParam(keysParam: string | undefined): Keys {
     const decodedFromUrl = decodeURIComponent(keysParam);
     const decodedBase64 = decodeUrlSafeBase64(decodedFromUrl);
     const parsed = JSON.parse(decodedBase64);
-    console.log("[parseKeysParam] Parsed keys:", parsed);
 
     if (typeof parsed !== "object" || parsed === null) {
       throw new Error("Parsed keys must be an object");
