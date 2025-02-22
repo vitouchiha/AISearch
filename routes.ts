@@ -45,19 +45,18 @@ const handleTrending = (ctx: AppContext<TrendingParams>) => handleTrendingReques
 const handleTraktRecent = (ctx: Context) => handleTraktWatchlistRequest(ctx);
 
 const handleManifest = async (ctx: ManifestContext) => {
+  const { traktKey } = ctx.state;
+
   log("Serving manifest");
 
   const trendingParam = ctx.request.url.searchParams.get("trending");
-  const traktParam = ctx.request.url.searchParams.get("trakt");
-  
   const trending = trendingParam === null ? true : trendingParam === "true";
-  const trakt = traktParam === null ? false : traktParam === "true";
 
   if (useCache && redis) {
     await redis.incr("manifest_requests");
   }
   
-  const manifest = createManifest(trending, trakt);
+  const manifest = createManifest(trending, !!traktKey);
   
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;

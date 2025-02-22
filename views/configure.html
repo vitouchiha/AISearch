@@ -273,10 +273,6 @@
       if (optOutTrending && optOutTrending.checked) {
         params.push("trending=false");
       }
-      const optInTrakt = elements.traktStatus.textContent;
-      if (optInTrakt === "Connected") {
-        params.push("trakt=true");
-      }
       if (params.length > 0) {
         url += "?" + params.join("&");
       }
