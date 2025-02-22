@@ -29,6 +29,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
 
     if (typeof parsed !== "object" || parsed === null) {
       throw new Error("Parsed keys must be an object");
+      
     }
 
     let googleKey = parsed.googleKey || GEMINI_API_KEY;
@@ -43,7 +44,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
 
     return { googleKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
   } catch (error) {
-    console.error("[parseKeysParam] Error parsing keys:", error);
+    //console.error("[parseKeysParam] Error parsing keys:", error);
     return defaultKeys;
   }
 }

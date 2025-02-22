@@ -45,7 +45,7 @@ const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
 const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");
 if (keyBuffer.length !== 32) {
   throw new Error(`Invalid ENCRYPTION_KEY length: ${keyBuffer.length} bytes, expected 32 bytes for AES-256. Must be a 64-char hex string.`);
-} else { console.log("Encryption key passed check");}
+}
 
 if (
   !geminiKey ||
