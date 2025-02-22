@@ -1,7 +1,7 @@
 import { Context, Router } from "./config/deps.ts";
 import { ROOT_URL, DEV_MODE, NO_CACHE } from "./config/env.ts";
 import { log } from "./utils/utils.ts";
-import { manifest } from "./config/manifest.ts";
+import { createManifest } from "./config/manifest.ts";
 import { handleTrendingRequest } from "./handlers/handleTrendingMoviesRequest.ts";
 import { handleCatalogRequest } from "./handlers/handleCatalogRequest.ts";
 import { googleKeyMiddleware } from "./middleware/googleKeyMiddleware.ts";
@@ -27,7 +27,7 @@ import { handleTraktWatchlistRequest } from "./handlers/handleWatchlistRequest.t
 const useCache = NO_CACHE !== "true";
 
 
-const catalogMiddleware = [
+const catalogMiddleware = [ 
   googleKeyMiddleware,
   searchParamMiddleware,
 ];
@@ -46,9 +46,16 @@ const handleTraktRecent = (ctx: Context) => handleTraktWatchlistRequest(ctx);
 
 const handleManifest = async (ctx: ManifestContext) => {
   log("Serving manifest");
+
+  const trendingParam = ctx.request.url.searchParams.get("trending");
+  const trending = trendingParam === null ? true : trendingParam === "true";
+
   if (useCache && redis) {
     await redis.incr("manifest_requests");
   }
+  
+  const manifest = createManifest(trending);
+  
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;
 };
@@ -58,6 +65,7 @@ const handleConfigure = async (ctx: ConfigureContext) => {
     let installs: string = "NO CACHE";
     let dbSize: string = "NO CACHE";
     let vectorCount: string = "NO CACHE";
+    const manifest = createManifest(false);
 
     if (useCache && redis && index) {
       installs = await redis.get("manifest_requests") || "0";
