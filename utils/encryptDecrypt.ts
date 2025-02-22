@@ -1,6 +1,7 @@
 import { Buffer, randomBytes, createCipheriv, createDecipheriv } from "../config/deps.ts";
 import type { Keys } from "../config/types/types.ts";
 import { ENCRYPTION_KEY } from "../config/env.ts";
+import { logError } from "./utils.ts";
 
 const IV_LENGTH = 16;
 
@@ -28,6 +29,6 @@ export function encryptKeys(keys: Keys): string {
       return JSON.parse(decrypted) as Keys;
     } catch (error) {
       // Log error or handle accordingly
-      throw new Error("Decryption failed: " + error.message);
+      logError("Decryption failed ", error);
     }
   }

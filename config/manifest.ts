@@ -6,7 +6,7 @@ export const manifest = {
     configurable: true,
   },
   id: "org.ai-search",
-  version: "1.2.4",
+  version: "1.3.0",
   logo: ROOT_URL + "/images/logo.webp",
   background: ROOT_URL + "/images/background.webp",
   name: "AISearch",
