@@ -45,12 +45,12 @@ export function createManifest(trending: boolean = true, trakt: boolean = false,
   return {
     ...getBehaviorHints(userId),
     id: "org.ai-search",
-    version: "1.3.0",
+    version: "1.4.0",
     logo: ROOT_URL + "/images/logo.webp",
     background: ROOT_URL + "/images/background.webp",
     name: "AISearch",
     description:
-      "Find movies and TV using natural language queries powered by Google Gemini",
+      "Find movies and TV using natural language queries powered by AI. Currently supports OpenAI, Gemini, and DeepSeek!",
     resources: ["catalog"],
     types: ["movie", "series"],
     catalogs: [
