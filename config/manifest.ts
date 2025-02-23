@@ -37,11 +37,13 @@ function getTraktCatalogs(getTrakt: boolean) {
   return [];
 }
 
-export function createManifest(trending: boolean = true, trakt: boolean = false): Manifest {
+function getBehaviorHints(userId: boolean) {
+  return !userId ? { behaviorHints: { configurable: true } } : {};
+}
+
+export function createManifest(trending: boolean = true, trakt: boolean = false, userId: boolean = false): Manifest {
   return {
-    behaviorHints: {
-      configurable: true,
-    },
+    ...getBehaviorHints(userId),
     id: "org.ai-search",
     version: "1.3.0",
     logo: ROOT_URL + "/images/logo.webp",

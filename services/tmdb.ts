@@ -2,7 +2,8 @@ import { TMDBDetails } from "../config/types/types.ts";
 import { TMDB_API_KEY, NO_CACHE } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 import { fetchCinemeta } from "./cinemeta.ts";
-import { fetchJson, log, logError, validatePosterUrl } from "../utils/utils.ts";
+import { getOMDBMovieDetails } from "./omdb.ts";
+import { fetchJson, log, logError } from "../utils/utils.ts";
 
 interface TmdbFetchResult {
   data: TMDBDetails;
@@ -16,6 +17,7 @@ export async function getTmdbDetailsByName(
   movieName: string,
   type: string,
   tmdbKey: string,
+  omdbKey: string,
 ): Promise<TmdbFetchResult> {
 
   if (type !== "movie" && type !== "series") {
@@ -77,15 +79,9 @@ export async function getTmdbDetailsByName(
         ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
         : null;
 
-        if (posterUrl) {
-          const isValidPoster = await validatePosterUrl(posterUrl);
-          if (!isValidPoster) {
-            posterUrl = null;
-          }
-        }
-
       // Fallback to Cinemeta if critical fields are missing
       if (!posterUrl || !titleField || !dateField) {
+        log(`Fetching from Cinemeta. ${imdbId}`);
         const cinemeta = await fetchCinemeta(type, imdbId);
         posterUrl = cinemeta?.poster || posterUrl;
         const fallbackTitle = cinemeta?.showName || titleField;
@@ -104,6 +100,11 @@ export async function getTmdbDetailsByName(
           year: dateField ? dateField.split("-")[0] : null,
         };
       }
+    }
+
+    if (!imdbId && type === 'movie') {
+      log(`Falling back to OMDb for ${movieName}`);
+      result = await getOMDBMovieDetails(movieName, omdbKey);
     }
 
     // Cache the result if applicable
@@ -126,7 +127,6 @@ export async function getTmdbDetailsByName(
         };
       }
     }
-
     return { data: result, fromCache: false, cacheSet };
   } catch (err) {
     logError(`Error fetching TMDB details for ${type}: ${movieName}`, err);

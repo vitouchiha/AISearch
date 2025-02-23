@@ -15,13 +15,17 @@ if (NO_CACHE === "true") {
 }
 
 // Load environment variables.
+
+const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash-lite-preview-02-05'; // cheapest one with the highest rate limit.. we need it now! hahah
+const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") || 'gpt-4o-mini';
+const OMDB_API_KEY = Deno.env.get("OMDB_API_KEY");
+
 const geminiKey = Deno.env.get("GEMINI_API_KEY");
 const tmdbKey = Deno.env.get("TMDB_API_KEY");
 const upstashRedisUrl = Deno.env.get("UPSTASH_REDIS_REST_URL");
 const upstashRedisToken = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
 const upstashVectorUrl = Deno.env.get("UPSTASH_VECTOR_REST_URL");
 const upstashVectorToken = Deno.env.get("UPSTASH_VECTOR_REST_TOKEN");
-const aiModel = Deno.env.get("AI_MODEL") || "gemini-2.0-flash-lite-preview-02-05";
 const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
@@ -49,12 +53,12 @@ if (keyBuffer.length !== 32) {
 
 if (
   !geminiKey ||
+  !OMDB_API_KEY ||
   !RPDB_FREE_API_KEY ||
   !ENCRYPTION_KEY ||
   !TRAKT_CLIENT_ID ||
   !TRAKT_CLIENT_SECRET ||
   !tmdbKey ||
-  !aiModel ||
   (NO_CACHE !== "true" && (!upstashRedisUrl || !upstashRedisToken || !upstashVectorUrl || !upstashVectorToken))
 ) {
   logError(
@@ -72,7 +76,6 @@ const UPSTASH_VECTOR_TOKEN_FINAL = NO_CACHE === "true" ? "" : upstashVectorToken
 export {
   ROOT_URL,
   ENCRYPTION_KEY,
-  aiModel as AI_MODEL,
   DEV_MODE,
   NO_CACHE,
   TRAKT_CLIENT_ID,
@@ -80,6 +83,7 @@ export {
   geminiKey as GEMINI_API_KEY,
   PORT,
   RPDB_FREE_API_KEY,
+  OMDB_API_KEY,
   SEARCH_COUNT,
   tmdbKey as TMDB_API_KEY,
   UPSTASH_REDIS_TOKEN_FINAL as UPSTASH_REDIS_TOKEN,
@@ -87,5 +91,8 @@ export {
   UPSTASH_VECTOR_TOKEN_FINAL as UPSTASH_VECTOR_TOKEN,
   UPSTASH_VECTOR_URL_FINAL as UPSTASH_VECTOR_URL,
   RESET_VECTOR_CRON,
-  SEMANTIC_PROXIMITY
+  SEMANTIC_PROXIMITY,
+
+  GOOGLE_MODEL,
+  OPENAI_MODEL,
 };

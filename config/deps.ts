@@ -18,6 +18,8 @@ export { SemanticCache } from "https://esm.sh/@upstash/semantic-cache";
 export { Index } from "https://esm.sh/@upstash/vector";
 export { generateText, generateObject } from "https://esm.sh/ai";
 export { createGoogleGenerativeAI } from "https://esm.sh/@ai-sdk/google";
+export { createDeepSeek } from "https://esm.sh/@ai-sdk/deepseek";
+export { openai, createOpenAI } from "https://esm.sh/@ai-sdk/openai";
 export { Filter } from "https://esm.sh/bad-words";
 export { z } from "https://esm.sh/zod";
 

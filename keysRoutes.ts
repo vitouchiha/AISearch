@@ -8,18 +8,20 @@ const router = new Router();
 router.post("/api/store-keys", async (ctx) => {
   try {
     const body = await ctx.request.body().value;
-    const { userId, googleKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt } = body;
+    const { userId, openaiKey, googleKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt } = body;
     if (!userId) throw new Error("User ID required");
 
     const keys: Keys = {
-      googleKey: googleKey || "default",
+      googleKey: googleKey || "",
+      openAiKey: openaiKey || "",
+      deepseekKey: deepseekKey || "",
       tmdbKey: tmdbKey || "default",
       rpdbKey: rpdbKey || "",
       traktKey: traktKey || "",
       traktRefresh: traktRefresh || "",
       traktExpiresAt: traktExpiresAt || "",
     };
-
+    
     await redis?.set(`user:${userId}`, encryptKeys(keys));
     ctx.response.status = 200;
     ctx.response.body = { userId };

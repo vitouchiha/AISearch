@@ -1,6 +1,6 @@
 import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
-import type { Context } from "../config/deps.ts";
+import {type Context, z } from "../config/deps.ts";
 import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
 import { log, logError } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
@@ -8,6 +8,7 @@ import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { buildMeta } from "../utils/buildMeta.ts";
 import type { Meta } from "../config/types/types.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
+import { getProviderInfoFromState } from "../services/aiProvider.ts";
 
 const useCache = NO_CACHE !== "true";
 
@@ -15,33 +16,29 @@ const isFulfilled = <T>(
   result: PromiseSettledResult<T>
 ): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
 
-const isMeta = (meta: any): meta is Meta =>
-  meta !== null &&
-  typeof meta === "object" &&
-  typeof meta.id === "string" &&
-  meta.id.trim().length > 0 &&
-  typeof meta.poster === "string" &&
-  meta.poster.trim().length > 0 &&
-  typeof meta.name === "string" &&
-  meta.name.trim().length > 0 &&
-  typeof meta.type === "string" &&
-  meta.type.trim().length > 0;
+const MetaSchema = z.object({
+  id: z.string().trim().min(1),
+  poster: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  type: z.string().trim().min(1),
+});
+const isMeta = (meta: unknown): meta is Meta => {
+  return MetaSchema.safeParse(meta).success;
+};
 
 export const handleCatalogRequest = async (
-  ctx: Context,
-  searchQuery: string,
-  type: "movie" | "series",
-  googleKey: string,
-  tmdbKey: string,
-  rpdbKey?: string
+  ctx: Context
 ): Promise<void> => {
+  const { searchQuery, type, googleKey, openAiKey, tmdbKey, rpdbKey, omdbKey } = ctx.state;
 
-  if (!searchQuery || !googleKey) {
+  if (!searchQuery || !type || (!googleKey && !openAiKey)) {
     ctx.response.status = 400;
     ctx.response.body = {
       error: !searchQuery
         ? "Search query is required"
-        : "Google API key is required",
+        : !type
+        ? "Type is required"
+        : "Either Google API key or OpenAI API key is required",
     };
     return;
   }
@@ -65,10 +62,12 @@ export const handleCatalogRequest = async (
       }
     }
 
+    const { provider, apiKey } = getProviderInfoFromState(ctx.state);
+
     const movieNames = await getMovieRecommendations(
       searchQuery,
       type,
-      googleKey
+      { provider, apiKey }
     );
 
     if (!movieNames?.length) {
@@ -83,14 +82,13 @@ export const handleCatalogRequest = async (
         log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
 
         const { data: tmdbData, fromCache, cacheSet } =
-          await getTmdbDetailsByName(movieName, type, tmdbKey);
+          await getTmdbDetailsByName(movieName, type, tmdbKey, omdbKey);
 
         stats.fromCache += fromCache ? 1 : 0;
         stats.fromTmdb += fromCache ? 0 : 1;
         stats.cacheSet += cacheSet ? 1 : 0;
 
         const meta = buildMeta(tmdbData, type);
-
         return isMeta(meta) ? meta : null;
       })
     );

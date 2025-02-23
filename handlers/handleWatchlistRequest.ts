@@ -8,6 +8,7 @@ import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { getTraktRecentWatches } from "../services/trakt.ts";
 import { SEARCH_COUNT } from "../config/env.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
+import { getProviderInfoFromState } from "../services/aiProvider.ts";
 
 const isMeta = (meta: any): meta is Meta =>
   meta !== null &&
@@ -26,9 +27,9 @@ const isFulfilled = <T>(
 ): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
 
 export const handleTraktWatchlistRequest = async (ctx: Context) => {
-  const { tmdbKey, googleKey, traktKey, rpdbKey, userId, type } = ctx.state;
+  const { tmdbKey, googleKey, openAiKey, traktKey, rpdbKey, omdbKey, userId, type } = ctx.state;
 
-  if (!traktKey || !type || !googleKey || !userId || !tmdbKey) {
+  if (!traktKey || !type || !userId || !tmdbKey || (!googleKey && !openAiKey)) {
     ctx.response.body = { metas: [] };
     return;
   }
@@ -57,8 +58,9 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
 
   const titleString = titles.join(", ");
 
-  // run it through ai
-  const movieNames = await getTraktMovieRecommendations(titleString, type, googleKey)
+  const { provider, apiKey } = getProviderInfoFromState(ctx.state);
+
+  const movieNames = await getTraktMovieRecommendations(titleString, type, { provider, apiKey });
   const stats = { fromCache: 0, fromTmdb: 0, cacheSet: 0 };
 
   const metaResults = await Promise.allSettled(
@@ -66,7 +68,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
       log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
 
       const { data: tmdbData, fromCache, cacheSet } =
-        await getTmdbDetailsByName(movieName, type, tmdbKey);
+        await getTmdbDetailsByName(movieName, type, tmdbKey, omdbKey);
 
       stats.fromCache += fromCache ? 1 : 0;
       stats.fromTmdb += fromCache ? 0 : 1;

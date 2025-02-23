@@ -30,5 +30,6 @@ export function encryptKeys(keys: Keys): string {
     } catch (error) {
       // Log error or handle accordingly
       logError("Decryption failed ", error);
+      return;
     }
   }

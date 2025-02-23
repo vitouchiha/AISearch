@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.\
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0]
+
+This version doesn't have any breaking changes but introduces the ability to add new AI models.
+
+### Added
+- OpenAI is now integrated. Be careful as this is the most expensive provider. I do my best to cache as much as possible to save us all money!
+- DeepSeek is now integrated. BE AWARE: I have disabled this provider due to stability issues. **This provider is pretty untested as the API kept dropping when I was testing**
+- The ability to add new AI providers within aiProviders.ts
+- ai.ts now only handles Prompt management.
+- Environment variable AI_MODEL is now removed.
+- New Environment variables: GOOGLE_MODEL and OPENAI_MODEL.
+- Added OMDB fallback for Movies. Doesn't do so good with TV and don't want to waste a request. -- I'll add the ability for users to use their own key later, we are going to hit limits I'm sure !
+
+## Changed
+- Simplified the state object being passed to the Catalog handler.
+
+## Fixed
+- Fixed issue with caching new responses from tmdb.
+- Repaired Cinemeta fallback. We should now get lots of new movies!
+- Probably actually broke some shit rather then fixing. Let me know what you find.
+
+---
+
 ## [1.3.0]
 
 This version has some major breaking changes, if you are self hosting, be prepared.

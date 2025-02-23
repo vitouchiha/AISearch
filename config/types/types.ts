@@ -29,11 +29,14 @@ export interface AppContext<
     searchQuery?: string;
     type?: "movie" | "series";
     keys?: string;
+    omdbKey: string;
     googleKey?: string;
     tmdbKey?: string;
     rpdbKey?: string;
     traktKey?: string;
     userId?: string;
+    openAiKey?: string;
+    deepseekKey?: string;
   };
 }
 
@@ -53,12 +56,15 @@ export type ManifestParams = {
 };
 
 export type Keys = {
+  omdbKey: string;
   googleKey: string;
   tmdbKey: string;
   rpdbKey: string;
   traktKey: string;
   traktRefresh: string;
   traktExpiresAt: string;
+  openAiKey: string;
+  deepseekKey: string;
   userId?: string;
 }
 

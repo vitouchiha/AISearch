@@ -1,6 +1,6 @@
 import { AppContext, Keys } from "../config/types/types.ts";
 import { isValidGeminiApiKey } from "../utils/isValidGeminiApiKey.ts";
-import { GEMINI_API_KEY, TMDB_API_KEY } from "../config/env.ts";
+import { GEMINI_API_KEY, OMDB_API_KEY, TMDB_API_KEY } from "../config/env.ts";
 import { decodeUrlSafeBase64 } from "../utils/urlSafe.ts";
 import { encryptKeys, decryptKeys } from "../utils/encryptDecrypt.ts";
 import { redis } from "../config/redisCache.ts";
@@ -10,12 +10,15 @@ import { refreshTraktToken } from "../services/trakt.ts";
 function parseKeysParam(keysParam: string | undefined): Keys {
   const defaultKeys: Keys = {
     googleKey: String(GEMINI_API_KEY),
+    openAiKey: "",
+    deepseekKey: "",
     tmdbKey: String(TMDB_API_KEY),
     rpdbKey: "",
     traktKey: "",
     traktRefresh: "",
     traktExpiresAt: "",
     userId: "",
+    omdbKey: String(OMDB_API_KEY),
   };
 
   if (!keysParam) {
@@ -29,11 +32,14 @@ function parseKeysParam(keysParam: string | undefined): Keys {
 
     if (typeof parsed !== "object" || parsed === null) {
       throw new Error("Parsed keys must be an object");
-      
+
     }
 
-    let googleKey = parsed.googleKey || GEMINI_API_KEY;
+    let googleKey = parsed.googleKey;
+    const openAiKey = parsed.openAiKey;
+    const deepseekKey = parsed.deepseekKey;
     let tmdbKey = parsed.tmdbKey || TMDB_API_KEY;
+    const omdbKey = parsed.omdbKey || OMDB_API_KEY;
     const rpdbKey = parsed.rpdbKey || "";
     const traktKey = parsed.traktKey || "";
     const traktRefresh = parsed.traktRefresh || "";
@@ -42,7 +48,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
     if (googleKey === "default") googleKey = GEMINI_API_KEY;
     if (tmdbKey === "default") tmdbKey = TMDB_API_KEY;
 
-    return { googleKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
+    return { omdbKey, googleKey, openAiKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
   } catch (error) {
     //console.error("[parseKeysParam] Error parsing keys:", error);
     return defaultKeys;
@@ -61,7 +67,7 @@ export const googleKeyMiddleware = async <
     if (pathParts[1]?.startsWith("user:")) {
       const userId = pathParts[1].replace("user:", "");
       const encryptedKeys = await redis?.get(`user:${userId}`);
-      
+
       if (!encryptedKeys) {
         console.error(`[googleKeyMiddleware] No keys found for user:${userId}`);
         ctx.response.status = 404;
@@ -84,13 +90,20 @@ export const googleKeyMiddleware = async <
       keys = parseKeysParam(keysParam);
     }
 
-    const finalGoogleKey = isValidGeminiApiKey(keys.googleKey) ? keys.googleKey : GEMINI_API_KEY;
+    const finalGoogleKey = !keys.openAiKey
+      ? (isValidGeminiApiKey(keys.googleKey) ? keys.googleKey : GEMINI_API_KEY)
+      : undefined;
+    
+    const finalTmdbKey = keys.tmdbKey === 'default' ? TMDB_API_KEY : keys.tmdbKey;
 
     ctx.state.googleKey = finalGoogleKey;
-    ctx.state.tmdbKey = keys.tmdbKey;
+    ctx.state.openAiKey = keys.openAiKey;
+    ctx.state.deepseekKey = keys.deepseekKey;
+    ctx.state.tmdbKey = finalTmdbKey;
     ctx.state.rpdbKey = keys.rpdbKey;
     ctx.state.traktKey = keys.traktKey;
     ctx.state.userId = keys.userId;
+    ctx.state.omdbKey = keys.omdbKey || String(OMDB_API_KEY);
 
     await next();
   } catch (error) {

@@ -25,6 +25,7 @@ import { rpdbHealthCheck } from "./services/rpdb.ts";
 import { handleTraktWatchlistRequest } from "./handlers/handleWatchlistRequest.ts";
 
 const useCache = NO_CACHE !== "true";
+const STATIC_MANIFEST = createManifest();
 
 
 const catalogMiddleware = [ 
@@ -33,19 +34,16 @@ const catalogMiddleware = [
 ];
 
 const handleSearch = async (ctx: CatalogContext) => {
-  const { searchQuery, googleKey, rpdbKey, tmdbKey, type } = ctx.state;
-  if (!searchQuery || !googleKey || !tmdbKey || !type) {
-    return ctx.response.status = 500, ctx.response.body = { error: "Internal server error: missing required state." };
-  }
+  const { searchQuery, type } = ctx.state;
   log(`Received catalog request for query: ${searchQuery} and type: ${type}`);
-  await handleCatalogRequest(ctx, searchQuery, type, googleKey, tmdbKey, rpdbKey);
+  await handleCatalogRequest(ctx);
 };
 
 const handleTrending = (ctx: AppContext<TrendingParams>) => handleTrendingRequest(ctx);
 const handleTraktRecent = (ctx: Context) => handleTraktWatchlistRequest(ctx);
 
 const handleManifest = async (ctx: ManifestContext) => {
-  const { traktKey } = ctx.state;
+  const { traktKey, userId } = ctx.state;
 
   log("Serving manifest");
 
@@ -56,7 +54,7 @@ const handleManifest = async (ctx: ManifestContext) => {
     await redis.incr("manifest_requests");
   }
   
-  const manifest = createManifest(trending, !!traktKey);
+  const manifest = createManifest(trending, !!traktKey, !!userId);
   
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;
@@ -64,20 +62,28 @@ const handleManifest = async (ctx: ManifestContext) => {
 
 const handleConfigure = async (ctx: ConfigureContext) => {
   try {
+    const filePromise = Deno.readTextFile("./views/configure.html");
+
     let installs: string = "NO CACHE";
     let dbSize: string = "NO CACHE";
     let vectorCount: string = "NO CACHE";
-    const manifest = createManifest(false);
 
     if (useCache && redis && index) {
-      installs = await redis.get("manifest_requests") || "0";
-      dbSize = String(await redis.dbsize());
-      vectorCount = String((await index.info()).vectorCount);
+      const [installsVal, dbSizeVal, indexInfo] = await Promise.all([
+        redis.get("manifest_requests"),
+        redis.dbsize(),
+        index.info()
+      ]);
+      installs = String(installsVal) || "0";
+      dbSize = String(dbSizeVal) || "0";
+      vectorCount = String(indexInfo.vectorCount) || "0";
     }
-    const htmlContent = await Deno.readTextFile("./views/configure.html");
+
+    const htmlContent = await filePromise;
+
     const html = htmlContent
       .replace("{{ROOT_URL}}", ROOT_URL)
-      .replace("{{VERSION}}", manifest.version)
+      .replace("{{VERSION}}", STATIC_MANIFEST.version)
       .replace("{{INSTALLS}}", installs)
       .replace("{{DB_SIZE}}", dbSize)
       .replace("{{VECTOR_COUNT}}", vectorCount)
@@ -91,6 +97,7 @@ const handleConfigure = async (ctx: ConfigureContext) => {
     ctx.response.body = "Internal Server Error";
   }
 };
+
 
 const router = new Router();
 

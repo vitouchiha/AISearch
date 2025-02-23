@@ -13,6 +13,7 @@ export async function fetchJson(url: string, label: string) {
   if (!res.ok) {
     logError(`${label} API responded with status ${res.status}`, res);
   }
+  log(`Fetched ${url}`);
   return res.json();
 }
 
