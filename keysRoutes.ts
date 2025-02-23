@@ -1,14 +1,18 @@
-import { Router } from "./config/deps.ts";
+import { Router, oakCors } from "./config/deps.ts";
 import type { Keys } from "./config/types/types.ts";
 import { encryptKeys } from "./utils/encryptDecrypt.ts";
 import { redis } from "./config/redisCache.ts";
 
 const router = new Router();
 
-router.post("/api/store-keys", async (ctx) => {
+router.options("/api/store-keys", oakCors({
+  origin: "https://ai.filmwhisper.dev",
+}));
+
+router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" }), async (ctx) => {
   try {
     const body = await ctx.request.body().value;
-    const { userId, openaiKey, googleKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt } = body;
+    const { userId, omdbKey, openaiKey, googleKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt } = body;
     if (!userId) throw new Error("User ID required");
 
     const keys: Keys = {
@@ -20,6 +24,7 @@ router.post("/api/store-keys", async (ctx) => {
       traktKey: traktKey || "",
       traktRefresh: traktRefresh || "",
       traktExpiresAt: traktExpiresAt || "",
+      omdbKey: omdbKey || "",
     };
     
     await redis?.set(`user:${userId}`, encryptKeys(keys));
