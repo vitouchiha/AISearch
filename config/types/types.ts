@@ -1,25 +1,10 @@
 import { RouterContext } from "../deps.ts";
 
-export interface TMDBDetails {
-  id: string;
-  poster: string | null;
-  year: string | null;
-  showName: string | null;
-}
-
 export interface Recommendation {
   title: string;
   year: number;
   imdb_id: string;
   reason: string;
-}
-
-export interface Meta {
-  id: string;
-  name: string | null;
-  type: "movie" | "series";
-  poster: string | null;
-  posterShape: string;
 }
 
 export interface AppContext<

@@ -1,4 +1,4 @@
-import { fetchJson, logError, log } from "../../utils/utils.ts";
+import { fetchJson, formatRuntime, logError, log } from "../../utils/utils.ts";
 import { fetchCinemeta } from "../cinemeta.ts";
 import { getOMDBMovieDetails } from "../omdb.ts";
 import { redis } from "../../config/redisCache.ts";
@@ -60,9 +60,12 @@ export async function fetchNewDataInBackground(
         ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
         : null;
 
-      const runtime = type === "series"
-        ? String((detailsData as TMDBSeriesDetails).episode_run_time?.[0] || "0")
-        : String((detailsData as TMDBMovieDetails).runtime || "0");
+        const rawRuntime = type === "series"
+        ? (detailsData as TMDBSeriesDetails).episode_run_time?.[0]
+        : (detailsData as TMDBMovieDetails).runtime;
+      
+      const runtimeNumber = rawRuntime ?? 0;
+      const runtimeString = formatRuntime(runtimeNumber);
 
       const genres = detailsData.genres?.map((g) => g.name) || [];
       const background = detailsData.backdrop_path
@@ -93,7 +96,7 @@ export async function fetchNewDataInBackground(
           country,
           background,
           description: detailsData.overview || "",
-          runtime,
+          runtime: runtimeString,
           genres,
           website: detailsData.homepage || "",
         };

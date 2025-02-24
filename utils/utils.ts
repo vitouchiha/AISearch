@@ -32,3 +32,14 @@ export function validatePosterUrl(url: string) {
 export const isFulfilled = <T>(
   result: PromiseSettledResult<T>
 ): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
+
+
+export function formatRuntime(minutes: number): string {
+  if (!minutes || minutes <= 0) return "0 minutes";
+  
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  if (hrs === 0) return `${mins} minutes`;
+  return `${hrs} hours ${mins} minutes`;
+}
