@@ -50,7 +50,7 @@ export const handleCatalogRequest = async (
 
     const { provider, apiKey } = getProviderInfoFromState(ctx.state);
 
-    const movieNames = await getMovieRecommendations(
+    const { recommendations: movieNames, lang } = await getMovieRecommendations(
       searchQuery,
       type,
       { provider, apiKey }
@@ -68,7 +68,7 @@ export const handleCatalogRequest = async (
         log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
 
         const { data: tmdbData, fromCache, cacheSet } =
-          await getTmdbDetailsByName(movieName, type, tmdbKey, omdbKey);
+          await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey);
 
         stats.fromCache += fromCache ? 1 : 0;
         stats.fromTmdb += fromCache ? 0 : 1;
@@ -85,7 +85,11 @@ export const handleCatalogRequest = async (
       .filter(isMeta);
 
     if (useCache && redis && semanticCache && metas.length > 0) {
-      const trendingKey = type === "movie" ? "trendingmovies" : "trendingseries";
+      
+      const trendingKey = lang && lang !== 'en'
+  ? (type === "movie" ? `trendingmovies:${lang}` : `trendingseries:${lang}`)
+  : (type === "movie" ? "trendingmovies" : "trendingseries");
+
       const topMetaJson = JSON.stringify(metas[0]);
       const semanticJson = JSON.stringify(metas);
 

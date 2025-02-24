@@ -12,6 +12,9 @@ import { getProviderInfoFromState } from "../services/aiProvider.ts";
 
 export const handleTraktWatchlistRequest = async (ctx: Context) => {
   const { tmdbKey, googleKey, openAiKey, traktKey, rpdbKey, omdbKey, userId, type } = ctx.state;
+  // TODO: Add users language to the state!!
+  //const lang = 'en'; // everyone is english for now.
+  // We might not need to depending on how trakt sends it's data..
 
   if (!traktKey || !type || !userId || !tmdbKey || (!googleKey && !openAiKey)) {
     ctx.response.body = { metas: [] };
@@ -45,7 +48,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
 
   const { provider, apiKey } = getProviderInfoFromState(ctx.state);
 
-  const movieNames = await getTraktMovieRecommendations(titleString, type, { provider, apiKey });
+  const { recommendations: movieNames, lang } = await getTraktMovieRecommendations(titleString, type, { provider, apiKey });
   const stats = { fromCache: 0, fromTmdb: 0, cacheSet: 0 };
 
   const metaResults = await Promise.allSettled(
@@ -53,7 +56,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
       log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
 
       const { data: tmdbData, fromCache, cacheSet } =
-        await getTmdbDetailsByName(movieName, type, tmdbKey, omdbKey);
+        await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey);
 
       stats.fromCache += fromCache ? 1 : 0;
       stats.fromTmdb += fromCache ? 0 : 1;

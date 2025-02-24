@@ -3,7 +3,9 @@ import { NO_CACHE } from "../config/env.ts";
 import { getTrendingMovies, getTrendingSeries } from "../utils/getTrending.ts";
 
 export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
-  const { type, rpdbKey } = ctx.state;
+  const { type, rpdbKey } = ctx.state; 
+
+  // TODO: Need to put the users language into state so I can push data here.
 
   if(NO_CACHE === "true") {
     return;
