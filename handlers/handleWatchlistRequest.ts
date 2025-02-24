@@ -1,8 +1,8 @@
-import { Context } from "../config/deps.ts";
-import type { Meta } from "../config/types/types.ts";
+import type { Context } from "../config/deps.ts";
+import type { Meta } from "../config/types/meta.ts";
 import { redis } from "../config/redisCache.ts";
 import { log, isFulfilled } from "../utils/utils.ts";
-import { buildMeta, isMeta } from "../utils/buildMeta.ts";
+import { isMeta } from "../utils/buildMeta.ts";
 import { getTraktMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { getTraktRecentWatches } from "../services/trakt.ts";
@@ -24,6 +24,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   const cacheKey = `user:${userId}:recent-${type}`;
   const cache = await redis?.get(cacheKey) as Meta[];
   if (cache) {
+    if(cache.showName){ await redis?.del(cacheKey)}
     if (rpdbKey) {
       await updateRpdbPosters(cache, rpdbKey);
     }
@@ -62,16 +63,14 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
       stats.fromTmdb += fromCache ? 0 : 1;
       stats.cacheSet += cacheSet ? 1 : 0;
 
-      const meta = buildMeta(tmdbData, type);
-
-      return isMeta(meta) ? meta : null;
+      return isMeta(tmdbData) ? tmdbData : null;
     })
   );
 
-  const metas: Meta[] = metaResults
+  const metas = metaResults
     .filter(isFulfilled)
     .map((result) => result.value)
-    .filter(isMeta);
+    .filter(isMeta) as Meta[];
 
   await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
   if (rpdbKey) {

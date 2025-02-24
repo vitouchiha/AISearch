@@ -1,43 +1,68 @@
-import { TMDBDetails } from "../config/types/types.ts";
 import { TMDB_API_KEY, NO_CACHE } from "../config/env.ts";
 import { redis } from "../config/redisCache.ts";
 import { fetchCinemeta } from "./cinemeta.ts";
 import { getOMDBMovieDetails } from "./omdb.ts";
 import { fetchJson, log, logError } from "../utils/utils.ts";
+import { isOldCacheStructure, convertOldToNewStructure } from "./tmdbHelpers/fixOldCache.ts";
+import { fetchNewDataInBackground } from "./tmdbHelpers/fetchNewDataInBackground.ts";
+
+import type { Meta } from "../config/types/meta.ts";
+import type { TMDBMovieDetails } from "../config/types/TMDBMovieDetails.ts";
+import type { TMDBSeriesDetails } from "../config/types/TMDBSeriesDetails.ts";
 
 interface TmdbFetchResult {
-  data: TMDBDetails;
+  data: Meta;
   fromCache: boolean;
   cacheSet: boolean;
 }
 
-
 const useCache = NO_CACHE !== "true";
+
 
 export async function getTmdbDetailsByName(
   movieName: string,
   lang: string,
-  type: string,
+  type: "movie" | "series",
   tmdbKey: string,
   omdbKey: string,
 ): Promise<TmdbFetchResult> {
-
-  if (type !== "movie" && type !== "series") {
-    throw new Error(`Invalid type: ${type}. Expected "movie" or "series".`);
-  }
-
   const normalizedName = movieName.toLowerCase().trim();
-  const redisKey = lang && lang !== 'en'
-  ? `${type}:name:${lang}:${normalizedName}`
-  : `${type}:name:${normalizedName}`;
+  const redisKey =
+    lang && lang !== "en"
+      ? `${type}:name:${lang}:${normalizedName}`
+      : `${type}:name:${normalizedName}`;
 
   // Check cache first
   if (useCache && redis) {
     try {
-      const cached = await redis.get(redisKey) as TMDBDetails;
-      if (cached) {
-        log(`Returning cached details for ${type}: ${movieName}`);
-        return { data: cached, fromCache: true, cacheSet: false };
+      const cachedRaw = await redis.get(redisKey);
+      if (cachedRaw) {
+        let cached: any;
+        try {
+          cached = cachedRaw;
+        } catch (parseErr) {
+          logError("Cache parse error", parseErr);
+        }
+
+        if (cached) {
+          log(`Returning cached details for ${type}: ${movieName}`);
+
+          if (isOldCacheStructure(cached)) {
+            const converted = convertOldToNewStructure(cached, type);
+
+            fetchNewDataInBackground(type, movieName, lang, tmdbKey, omdbKey, redisKey)
+              .then(() => {
+                log("Background cache updated.");
+              })
+              .catch((err) => {
+                logError("Background update error", err);
+              });
+
+            return { data: converted, fromCache: true, cacheSet: false };
+          } else {
+            return { data: cached, fromCache: true, cacheSet: false };
+          }
+        }
       }
     } catch (err) {
       logError(`Redis cache error for ${type}: ${movieName}`, err);
@@ -50,97 +75,168 @@ export async function getTmdbDetailsByName(
     const searchUrl = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${tmdbKey}&query=${encodeURIComponent(
       movieName
     )}&language=${lang}`;
+
     const searchData = await fetchJson(searchUrl, "TMDB search");
     const firstResult = searchData.results?.[0];
 
     if (!firstResult) {
       logError(`No results found for ${type}: ${movieName}`, searchData);
       return {
-        data: { id: "", poster: null, showName: null, year: null },
+        data: {
+          id: "",
+          poster: null,
+          name: "",
+          type,
+          released: "",
+          posterShape: "poster",
+          language: "",
+          country: "",
+          background: "",
+          description: "",
+          runtime: "",
+          genres: [],
+          website: "",
+        },
         fromCache: false,
         cacheSet: false,
       };
     }
 
-    const detailsUrl = `https://api.themoviedb.org/3/${tmdbType}/${
-      firstResult.id
-    }?api_key=${tmdbKey}&append_to_response=external_ids&language=${lang}`;
-    const detailsData = await fetchJson(detailsUrl, "TMDB details");
-    const imdbId = detailsData.external_ids?.imdb_id;
+    const detailsUrl = `https://api.themoviedb.org/3/${tmdbType}/${firstResult.id}?api_key=${tmdbKey}&append_to_response=external_ids&language=${lang}`;
+    const detailsData = (await fetchJson(detailsUrl, "TMDB details")) as
+      | TMDBMovieDetails
+      | TMDBSeriesDetails;
 
-    let result: TMDBDetails = {
+    const imdbId = detailsData.external_ids?.imdb_id ?? "";
+
+    let result: Meta = {
       id: "",
       poster: null,
-      showName: null,
-      year: null,
+      name: "",
+      type,
+      released: "",
+      posterShape: "poster",
+      language: "",
+      country: "",
+      background: "",
+      description: "",
+      runtime: "",
+      genres: [],
+      website: "",
     };
 
     if (imdbId) {
-      const titleField = type === "series" ? detailsData.name : detailsData.title;
-      const dateField =
-        type === "series" ? detailsData.first_air_date : detailsData.release_date;
-      let posterUrl = detailsData.poster_path
+      const titleField = type === "series"
+        ? (detailsData as TMDBSeriesDetails).name
+        : (detailsData as TMDBMovieDetails).title;
+
+      const dateField = type === "series"
+        ? (detailsData as TMDBSeriesDetails).first_air_date
+        : (detailsData as TMDBMovieDetails).release_date;
+
+      const posterPath = detailsData.poster_path
         ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}`
         : null;
 
-      // Fallback to Cinemeta if critical fields are missing
-      if (!posterUrl || !titleField || !dateField) {
-        log(`Fetching from Cinemeta. ${imdbId}`);
+      const runtime = type === "series"
+        ? String((detailsData as TMDBSeriesDetails).episode_run_time?.[0] || "0")
+        : String((detailsData as TMDBMovieDetails).runtime || "0");
+
+      const genres = detailsData.genres?.map((g) => g.name) || [];
+
+      const background = detailsData.backdrop_path
+        ? `https://image.tmdb.org/t/p/w500${detailsData.backdrop_path}`
+        : "";
+
+      const language = detailsData.spoken_languages?.[0]?.name || "";
+      const country = (detailsData as TMDBSeriesDetails).origin_country?.[0] || "";
+      const overview = detailsData.overview || "";
+
+      if (!posterPath || !titleField || !dateField) {
+        log(`Fetching from Cinemeta. IMDB ID: ${imdbId}`);
         const cinemeta = await fetchCinemeta(type, imdbId);
-        posterUrl = cinemeta?.poster || posterUrl;
-        const fallbackTitle = cinemeta?.showName || titleField;
-        const fallbackDate = cinemeta?.year || dateField;
         result = {
+          ...result,
           id: imdbId,
-          poster: posterUrl,
-          showName: fallbackTitle,
-          year: fallbackDate ? String(fallbackDate).split("-")[0] : null,
+          poster: cinemeta?.poster || posterPath,
+          name: cinemeta?.showName || titleField || "",
+          released: cinemeta?.year ? String(cinemeta.year).split("-")[0] : "",
         };
       } else {
         result = {
+          ...result,
           id: imdbId,
-          poster: posterUrl,
-          showName: titleField,
-          year: dateField ? dateField.split("-")[0] : null,
+          poster: posterPath,
+          name: titleField,
+          released: dateField ? dateField.split("-")[0] : "",
+          language,
+          country,
+          background,
+          description: overview,
+          runtime,
+          genres,
+          website: detailsData.homepage || "",
         };
       }
-    }
-
-    if (!imdbId && type === 'movie') {
+    } else if (type === "movie") {
       log(`Falling back to OMDb for ${movieName}`);
       result = await getOMDBMovieDetails(movieName, omdbKey);
     }
 
-    // Cache the result if applicable
     let cacheSet = false;
     if (useCache && result.poster && redis) {
       try {
         const jsonResult = JSON.stringify(result);
         await Promise.all([
           redis.set(redisKey, jsonResult),
-          lang === 'en' ? redis.set(`${type}:${imdbId}`, jsonResult) : Promise.resolve(null),
+          lang === "en" && result.id
+            ? redis.set(`${type}:${result.id}`, jsonResult)
+            : Promise.resolve(null),
         ]);
         log(`Cached details for ${type}: ${movieName}`);
         cacheSet = true;
       } catch (err) {
         logError(`Error setting cache for ${type}: ${movieName}`, err);
         return {
-          data: { id: "", poster: null, showName: null, year: null },
+          data: {
+            ...result,
+            id: "",
+            poster: null,
+            name: "",
+            released: "",
+          },
           fromCache: false,
           cacheSet: false,
         };
       }
     }
+
     return { data: result, fromCache: false, cacheSet };
   } catch (err) {
     logError(`Error fetching TMDB details for ${type}: ${movieName}`, err);
     return {
-      data: { id: "", poster: null, showName: null, year: null },
+      data: {
+        id: "",
+        poster: null,
+        name: "",
+        type,
+        released: "",
+        posterShape: "poster",
+        language: "",
+        country: "",
+        background: "",
+        description: "",
+        runtime: "",
+        genres: [],
+        website: "",
+      },
       fromCache: false,
       cacheSet: false,
     };
   }
 }
+
+
 
 export async function tmdbHealthCheck(){
   try {

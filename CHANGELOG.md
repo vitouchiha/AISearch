@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
 
 ### Added
+- Added more metadata. I'll keep adding as I find more and more and more.
 - Added 'lang' to the ai's response. This provides the ISO 639-1 standard 2 letter code. This has greatly improved the multiligual support. The cache as it sits, is 98% english, so response times will be slightly slower for awhile.
 - Added caching to all static pages, best practices and all that. (This is actually a pain in the ass when testing)
 - Added security to the api endpoint.
@@ -20,6 +21,7 @@ This version doesn't have any breaking changes but introduces the ability to add
 - Added OMDB fallback for Movies. Doesn't do so good with TV and don't want to waste a request. -- I'll add the ability for users to use their own key later, we are going to hit limits I'm sure !
 
 ## Changed
+- Changed cache structure to hold on to more metadata.
 - Simplified the state object being passed to the Catalog handler.
 - Split the Javascript out of the configure html file -- it's just the right thing to do.
 - Moved some helper functions around

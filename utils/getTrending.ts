@@ -1,5 +1,5 @@
 import { redis } from "../config/redisCache.ts";
-import { Meta } from "../config/types/types.ts";
+import type { Meta } from "../config/types/meta.ts";
 import { logError } from "./utils.ts";
 
 import { updateRpdbPosters } from "../services/rpdb.ts";
@@ -25,7 +25,7 @@ const getTrendingList = async (
   context: string,
 ): Promise<Meta[]> => {
   try {
-    const rawList = await redis.lrange(listKey, 0, -1);
+    const rawList = await redis?.lrange(listKey, 0, -1);
     if (!rawList) return [];
     return rawList
       .map((item) => parseMeta(item, context))

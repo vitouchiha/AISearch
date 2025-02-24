@@ -5,8 +5,8 @@ import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
 import { log, logError, isFulfilled } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
-import { buildMeta, isMeta } from "../utils/buildMeta.ts";
-import type { Meta } from "../config/types/types.ts";
+import { isMeta } from "../utils/buildMeta.ts";
+import type { Meta } from "../config/types/meta.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
 
@@ -30,7 +30,7 @@ export const handleCatalogRequest = async (
   }
 
   const cacheKey = `${type}:${searchQuery}`;
-  let metas: Meta[] = [];
+  let metas = [] as Meta[];
 
   try {
     if (useCache && semanticCache) {
@@ -74,15 +74,14 @@ export const handleCatalogRequest = async (
         stats.fromTmdb += fromCache ? 0 : 1;
         stats.cacheSet += cacheSet ? 1 : 0;
 
-        const meta = buildMeta(tmdbData, type);
-        return isMeta(meta) ? meta : null;
+        return isMeta(tmdbData) ? tmdbData : null;
       })
     );
 
     metas = metaResults
       .filter(isFulfilled)
       .map((result) => result.value)
-      .filter(isMeta);
+      .filter(isMeta) as Meta[];
 
     if (useCache && redis && semanticCache && metas.length > 0) {
       

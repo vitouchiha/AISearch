@@ -1,6 +1,6 @@
-import type { TMDBDetails } from "../config/types/types.ts";
+import type { Meta } from "../config/types/meta.ts";
 
-export async function getOMDBMovieDetails(title: string, apiKey: string): Promise<TMDBDetails> {
+export async function getOMDBMovieDetails(title: string, apiKey: string): Promise<Meta> {
     const url = `http://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(title)}`;
     const response = await fetch(url);
 
@@ -9,11 +9,12 @@ export async function getOMDBMovieDetails(title: string, apiKey: string): Promis
     }
     const data = await response.json();
 
-    const result: TMDBDetails = {
+    const result: Meta = {
         id: data.imdbID || "",
+        type: "movie",
         poster: data.Poster && data.Poster !== "N/A" ? data.Poster : null,
-        showName: data.Title || null,
-        year: data.Year && data.Year !== "N/A" ? data.Year : null,
+        name: data.Title || null,
+        released: data.Year && data.Year !== "N/A" ? data.Year : null,
     };
     return result;
 }

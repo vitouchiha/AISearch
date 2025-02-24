@@ -1,6 +1,6 @@
-import { Meta } from "../config/types/types.ts";
 import { logError, validatePosterUrl } from "../utils/utils.ts";
 import { RPDB_FREE_API_KEY } from "../config/env.ts";
+import type { Meta } from "../config/types/meta.ts";
 
 //import { cacheImageCloud } from "../config/s3.ts";
 
