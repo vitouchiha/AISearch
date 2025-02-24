@@ -157,14 +157,8 @@ export async function getTmdbDetailsByName(
 
       if (!posterPath || !titleField || !dateField) {
         log(`Fetching from Cinemeta. IMDB ID: ${imdbId}`);
-        const cinemeta = await fetchCinemeta(type, imdbId);
-        result = {
-          ...result,
-          id: imdbId,
-          poster: cinemeta?.poster || posterPath,
-          name: cinemeta?.showName || titleField || "",
-          released: cinemeta?.year ? String(cinemeta.year).split("-")[0] : "",
-        };
+        const cinemeta = await fetchCinemeta(type, imdbId) as Meta;
+        result = cinemeta;
       } else {
         result = {
           ...result,

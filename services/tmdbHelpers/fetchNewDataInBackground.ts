@@ -76,15 +76,9 @@ export async function fetchNewDataInBackground(
 
       if (!posterPath || !titleField || !dateField) {
         log(`Fetching from Cinemeta (background). IMDB ID: ${imdbId}`);
-        const cinemeta = await fetchCinemeta(type, imdbId);
+        const cinemeta = await fetchCinemeta(type, imdbId) as Meta;
 
-        updated = {
-          ...updated,
-          id: imdbId,
-          poster: cinemeta?.poster || posterPath,
-          name: cinemeta?.showName || titleField || "",
-          released: cinemeta?.year ? String(cinemeta.year).split("-")[0] : "",
-        };
+        updated = cinemeta;
       } else {
         updated = {
           ...updated,
