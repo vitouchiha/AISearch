@@ -30,3 +30,17 @@ You have most likely hit this endpoint to much in the last hour. You will need t
 
 I've noticed in the last day or so we are hitting rate limits on TMDB and OMDB. The default keys are just not cutting it! If you are using the default 
 keys please uninstall and reinstall using your own keys.
+
+---
+
+### Not returning any results.
+
+There could be many reasons for this. Most of the time, it's because your over your limit at your AI provider.
+
+``` shell
+Error processing movie catalog request for "****": Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors. Failed after 3 attempts. Last error: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+```
+
+At the moment I do not have a way to show the user this error. I'm currently working on a solution. Until then, check your AI account quota.
+
+If you are still getting no results after checking your account quota, please open an issue.
