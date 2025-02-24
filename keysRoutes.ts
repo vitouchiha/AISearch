@@ -4,6 +4,7 @@ import { encryptKeys } from "./utils/encryptDecrypt.ts";
 import { redis } from "./config/redisCache.ts";
 import { JWT_SECRET } from "./config/env.ts";
 import { verifyToken } from "./middleware/apiAuth.ts";
+import { tokenRateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 
 const router = new Router();
 
@@ -11,7 +12,7 @@ router.options("/api/store-keys", oakCors({
   origin: "https://ai.filmwhisper.dev",
 }));
 
-router.get("/api/generate-token", async (ctx) => {
+router.get("/api/generate-token", tokenRateLimitMiddleware, async (ctx) => {
   const payload = {
     iss: "filmwhisper",
     exp: getNumericDate(60 * 60),

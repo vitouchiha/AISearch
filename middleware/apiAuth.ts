@@ -1,5 +1,6 @@
 import { Context, verify } from "../config/deps.ts";
 import { JWT_SECRET } from "../config/env.ts";
+import { logError } from "../utils/utils.ts";
 
 export async function verifyToken(ctx: Context, next: () => Promise<unknown>) {
   const authHeader = ctx.request.headers.get("Authorization");
@@ -18,6 +19,7 @@ export async function verifyToken(ctx: Context, next: () => Promise<unknown>) {
     });
     await next();
   } catch (err) {
+    logError("Error with JWT Token", err);
     ctx.response.status = 401;
     ctx.response.body = { error: "Unauthorized: Invalid token" };
     return;
