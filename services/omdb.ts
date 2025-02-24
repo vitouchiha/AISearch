@@ -5,7 +5,7 @@ export async function getOMDBMovieDetails(title: string, apiKey: string): Promis
     const response = await fetch(url);
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
 
