@@ -545,16 +545,6 @@
     window.addEventListener("load", async () => {
       loadApiKeys();
       handleAuthCallback();
-
-      try {
-        const res = await fetch(`${manifestBaseUrl}/api/generate-token`);
-        const data = await res.json();
-        if (data.token) {
-          sessionStorage.setItem("jwtToken", data.token);
-        }
-      } catch (err) {
-        console.error("Failed to get token:", err);
-      }
     });
   </script>
 
