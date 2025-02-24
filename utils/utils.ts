@@ -34,12 +34,33 @@ export const isFulfilled = <T>(
 ): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
 
 
-export function formatRuntime(minutes: number): string {
-  if (!minutes || minutes <= 0) return "0 minutes";
-  
-  const hrs = Math.floor(minutes / 60);
-  const mins = minutes % 60;
+type FormatRuntimeOptions = {
+  shortFormat?: boolean;
+  fallback?: string;
+};
 
-  if (hrs === 0) return `${mins} minutes`;
-  return `${hrs} hours ${mins} minutes`;
+export function formatRuntime(
+  raw: number | string | undefined,
+  options: FormatRuntimeOptions = {}
+): string {
+  const { shortFormat = false, fallback = "0 minutes" } = options;
+  const totalMinutes = typeof raw === "string" ? parseInt(raw, 10) : raw;
+
+  if (!totalMinutes || totalMinutes <= 0) return fallback;
+  const hrs = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+
+  if (shortFormat) {
+    if (hrs === 0) return `${mins}m`;
+    return `${hrs}h ${mins}m`;
+  }
+
+  if (hrs === 0) {
+    const minLabel = mins === 1 ? "minute" : "minutes";
+    return `${mins} ${minLabel}`;
+  }
+
+  const hourLabel = hrs === 1 ? "hour" : "hours";
+  const minLabel = mins === 1 ? "minute" : "minutes";
+  return `${hrs} ${hourLabel}, ${mins} ${minLabel}`;
 }
