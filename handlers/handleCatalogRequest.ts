@@ -106,6 +106,11 @@ export const handleCatalogRequest = async (
 
     if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
 
+    // playing with browser caching within stremio.. not sure if this will work, but if it does, we shall see..
+    ctx.response.headers.set("Cache-Control", "public, max-age=2592000");
+    const expireDate = new Date(Date.now() + 2592000 * 1000); 
+    ctx.response.headers.set("Expires", expireDate.toUTCString());
+
     ctx.response.body = { metas };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
