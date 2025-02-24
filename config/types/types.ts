@@ -29,7 +29,7 @@ export interface AppContext<
     searchQuery?: string;
     type?: "movie" | "series";
     keys?: string;
-    omdbKey: string;
+    omdbKey?: string;
     googleKey?: string;
     tmdbKey?: string;
     rpdbKey?: string;

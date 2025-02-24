@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
 
 ### Added
+- Added caching to all static pages, best practices and all that.
 - Added security to the api endpoint.
 - OpenAI is now integrated. Be careful as this is the most expensive provider. I do my best to cache as much as possible to save us all money!
 - DeepSeek is now integrated. BE AWARE: I have disabled this provider due to stability issues. **This provider is pretty untested as the API kept dropping when I was testing**
@@ -19,8 +20,12 @@ This version doesn't have any breaking changes but introduces the ability to add
 
 ## Changed
 - Simplified the state object being passed to the Catalog handler.
+- Split the Javascript out of the configure html file -- it's just the right thing to do.
+- Moved some helper functions around
+- Changed the way the AI requests are made by creating a helper function to cut down on repeating code.
 
 ## Fixed
+- Fixed the broken pipe. Shoved a favicon in. Now we won't flood.
 - Fixed issue with caching new responses from tmdb.
 - Repaired Cinemeta fallback. We should now get lots of new movies!
 - Probably actually broke some shit rather then fixing. Let me know what you find.

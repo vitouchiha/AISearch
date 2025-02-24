@@ -90,6 +90,7 @@ const handleConfigure = async (ctx: ConfigureContext) => {
       .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
 
     ctx.response.headers.set("Content-Type", "text/html");
+    ctx.response.headers.set("Cache-Control", "public, max-age=86400");
     ctx.response.body = html;
   } catch (error) {
     console.error("Error serving configure page:", error);
@@ -141,6 +142,21 @@ router.get(
 
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 
+
+router.get("/configure.js", async (ctx) => {
+  try {
+    const jsContent = await Deno.readTextFile("./views/script.js");
+    const js = jsContent.replace("{{ROOT_URL}}", ROOT_URL);
+
+    ctx.response.headers.set("Content-Type", "application/javascript");
+    ctx.response.headers.set("Cache-Control", "public, max-age=86400");
+    ctx.response.body = js;
+  } catch (error) {
+    console.error("Error serving configure.js:", error);
+    ctx.response.status = 500;
+    ctx.response.body = "Internal Server Error";
+  }
+});
 router.get("/:keys?/configure", handleConfigure);
 router.get("/", (ctx) => ctx.response.redirect("/configure"));
 
@@ -217,20 +233,16 @@ router.get("/health", async (ctx) => {
     });
   }
 });
-
-router.get("/favicon.ico", (ctx) => {
-  ctx.response.status = 200;
-  ctx.response.headers.set("Content-Type", "text/plain");
-  ctx.response.body = "Not Found";
-});
 router.get("/images/logo.webp", (ctx) => {
   ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "image/webp");
+  ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = Deno.readFileSync("./views/images/filmwhisper.webp");
 });
 router.get("/images/background.webp", (ctx) => {
   ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "image/webp");
+  ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = Deno.readFileSync("./views/images/fw-background.webp");
 });
 

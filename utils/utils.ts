@@ -17,9 +17,9 @@ export async function fetchJson(url: string, label: string) {
   return res.json();
 }
 
-
-export async function validatePosterUrl(url: string) {
+export function validatePosterUrl(url: string) {
   try {
+    // dont forget to async this if you use it.
     //const response = await fetch(url, { method: "HEAD" });
     //return response.ok && response.headers.get("content-type")?.startsWith("image/");
     return true;
@@ -28,3 +28,7 @@ export async function validatePosterUrl(url: string) {
     return false;
   }
 }
+
+export const isFulfilled = <T>(
+  result: PromiseSettledResult<T>
+): result is PromiseFulfilledResult<T> => result.status === "fulfilled";

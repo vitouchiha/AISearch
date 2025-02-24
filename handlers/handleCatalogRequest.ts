@@ -1,30 +1,16 @@
 import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
-import {type Context, z } from "../config/deps.ts";
+import {type Context } from "../config/deps.ts";
 import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
-import { log, logError } from "../utils/utils.ts";
+import { log, logError, isFulfilled } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
-import { buildMeta } from "../utils/buildMeta.ts";
+import { buildMeta, isMeta } from "../utils/buildMeta.ts";
 import type { Meta } from "../config/types/types.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
 
 const useCache = NO_CACHE !== "true";
-
-const isFulfilled = <T>(
-  result: PromiseSettledResult<T>
-): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
-
-const MetaSchema = z.object({
-  id: z.string().trim().min(1),
-  poster: z.string().trim().min(1),
-  name: z.string().trim().min(1),
-  type: z.string().trim().min(1),
-});
-const isMeta = (meta: unknown): meta is Meta => {
-  return MetaSchema.safeParse(meta).success;
-};
 
 export const handleCatalogRequest = async (
   ctx: Context

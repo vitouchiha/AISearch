@@ -1,30 +1,14 @@
 import { Context } from "../config/deps.ts";
 import type { Meta } from "../config/types/types.ts";
 import { redis } from "../config/redisCache.ts";
-import { log } from "../utils/utils.ts";
-import { buildMeta } from "../utils/buildMeta.ts";
+import { log, isFulfilled } from "../utils/utils.ts";
+import { buildMeta, isMeta } from "../utils/buildMeta.ts";
 import { getTraktMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { getTraktRecentWatches } from "../services/trakt.ts";
 import { SEARCH_COUNT } from "../config/env.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
-
-const isMeta = (meta: any): meta is Meta =>
-  meta !== null &&
-  typeof meta === "object" &&
-  typeof meta.id === "string" &&
-  meta.id.trim().length > 0 &&
-  typeof meta.poster === "string" &&
-  meta.poster.trim().length > 0 &&
-  typeof meta.name === "string" &&
-  meta.name.trim().length > 0 &&
-  typeof meta.type === "string" &&
-  meta.type.trim().length > 0;
-
-const isFulfilled = <T>(
-  result: PromiseSettledResult<T>
-): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
 
 export const handleTraktWatchlistRequest = async (ctx: Context) => {
   const { tmdbKey, googleKey, openAiKey, traktKey, rpdbKey, omdbKey, userId, type } = ctx.state;
@@ -40,6 +24,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     if (rpdbKey) {
       await updateRpdbPosters(cache, rpdbKey);
     }
+    ctx.response.headers.set("Cache-Control", "public, max-age=3600");
     ctx.response.body = { metas: cache };
     return;
   }
@@ -89,6 +74,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
+  ctx.response.headers.set("Cache-Control", "public, max-age=3600");
   ctx.response.body = { metas };
 
 }
