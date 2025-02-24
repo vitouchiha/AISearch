@@ -1,10 +1,10 @@
-import { Router, oakCors, create, getNumericDate } from "./config/deps.ts";
+import { Context, Router, oakCors, create, getNumericDate } from "./config/deps.ts";
 import type { Keys } from "./config/types/types.ts";
 import { encryptKeys } from "./utils/encryptDecrypt.ts";
 import { redis } from "./config/redisCache.ts";
 import { JWT_SECRET } from "./config/env.ts";
 import { verifyToken } from "./middleware/apiAuth.ts";
-import { tokenRateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
+import { rateLimitMiddleware, tokenRateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 
 const router = new Router();
 
@@ -66,5 +66,17 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
     }
   }
 );
+
+router.get("/api/email-verification", rateLimitMiddleware, (ctx: Context) => {
+
+  // currently not storing emails anywhere... this may be tricky. I guess I would need a long term db?
+  // shit I was trying not to store anything about the user.. but I need a way to link the user to their key..
+  // generate token;
+  // send email
+
+  ctx.response.body = 'nothing to see here';
+  return;
+
+});
 
 export { router as KeysRoutes };

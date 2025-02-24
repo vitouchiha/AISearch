@@ -43,7 +43,7 @@ const handleTrending = (ctx: AppContext<TrendingParams>) => handleTrendingReques
 const handleTraktRecent = (ctx: Context) => handleTraktWatchlistRequest(ctx);
 
 const handleManifest = async (ctx: ManifestContext) => {
-  const { traktKey, userId } = ctx.state;
+  const { traktKey } = ctx.state;
 
   log("Serving manifest");
 
@@ -54,7 +54,7 @@ const handleManifest = async (ctx: ManifestContext) => {
     await redis.incr("manifest_requests");
   }
   
-  const manifest = createManifest(trending, !!traktKey, !!userId);
+  const manifest = createManifest(trending, !!traktKey);
   
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;

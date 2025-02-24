@@ -49,16 +49,28 @@ function generateUserId() {
     return v.toString(16);
   });
 }
-
+function isValidUUID(uuid) {
+  const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return regex.test(uuid);
+}
 function getUserId() {
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  if (pathParts.length > 0 && pathParts[0].startsWith("user:")) {
+    const urlUserId = pathParts[0].slice(5);
+    if (isValidUUID(urlUserId)) {
+      localStorage.setItem("userId", urlUserId);
+      return urlUserId;
+    } else {
+      console.warn("Invalid userId in URL:", urlUserId);
+    }
+  }
   let userId = localStorage.getItem("userId");
-  if (!userId) {
+  if (!userId || !isValidUUID(userId)) {
     userId = generateUserId();
     localStorage.setItem("userId", userId);
   }
   return userId;
 }
-
 async function storeKeys(keys) {
   const userId = getUserId();
 
@@ -68,7 +80,7 @@ async function storeKeys(keys) {
     if (!tokenResponse.ok) throw new Error("Failed to fetch token");
     const tokenData = await tokenResponse.json();
     token = tokenData.token;
-    localStorage.setItem("jwtToken", token);
+    sessionStorage.setItem("jwtToken", token);
   }
 
   const response = await fetch(`${manifestBaseUrl}/api/store-keys`, {
@@ -115,7 +127,6 @@ function loadApiKeys() {
 function isValidGeminiApiKey(key) {
   return typeof key === "string" && /^AIza[a-zA-Z0-9_-]{35,39}$/.test(key);
 }
-// Basic non-empty check for OpenAI API key; you can add more robust validation if needed.
 function isValidOpenaiKey(key) {
   return typeof key === "string" && key.trim() !== "";
 }
@@ -123,6 +134,7 @@ function isValidOpenaiKey(key) {
 function getKeys() {
   let googleKey = "";
   let openaiKey = "";
+  let deepseekKey = "";
   if (selectedProvider === "google") {
     googleKey = elements.defaultGoogleKeyCheckbox.checked
       ? "default"
@@ -186,6 +198,7 @@ async function handleAuthCallback() {
 
 function updateUI() {
   const keys = getKeys();
+  
   if (selectedProvider === "google") {
     // Enable/disable Google key input based on checkbox
     elements.googleKeyInput.disabled = elements.defaultGoogleKeyCheckbox.checked;
