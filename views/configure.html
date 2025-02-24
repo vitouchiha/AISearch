@@ -273,7 +273,7 @@
     async function storeKeys(keys) {
       const userId = getUserId();
 
-      let token = localStorage.getItem("jwtToken");
+      let token = sessionStorage.getItem("jwtToken");
       if (!token) {
         const tokenResponse = await fetch(`${manifestBaseUrl}/api/generate-token`);
         if (!tokenResponse.ok) throw new Error("Failed to fetch token");
@@ -550,7 +550,7 @@
         const res = await fetch(`${manifestBaseUrl}/api/generate-token`);
         const data = await res.json();
         if (data.token) {
-          localStorage.setItem("jwtToken", data.token);
+          sessionStorage.setItem("jwtToken", data.token);
         }
       } catch (err) {
         console.error("Failed to get token:", err);
