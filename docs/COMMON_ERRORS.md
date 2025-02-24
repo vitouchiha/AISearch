@@ -44,3 +44,11 @@ Error processing movie catalog request for "****": Failed after 3 attempts. Last
 At the moment I do not have a way to show the user this error. I'm currently working on a solution. Until then, check your AI account quota.
 
 If you are still getting no results after checking your account quota, please open an issue.
+
+---
+
+### Unable to update or install addon via configuration page
+
+If you are getting an error it is most likely due to an extreme rate limit I have set. I have done it this way to reduce abuse.
+
+The rate limit is one hour.

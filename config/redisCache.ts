@@ -21,7 +21,7 @@ export const tokenRatelimit = NO_CACHE === "true" || !redis
   ? null
   : new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(2, "1 h"),
+    limiter: Ratelimit.slidingWindow(10, "1 h"),
     analytics: true,
     prefix: "@upstash/ratelimit-token",
   });
