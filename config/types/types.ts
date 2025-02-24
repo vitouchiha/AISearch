@@ -15,6 +15,7 @@ export interface AppContext<
     type?: "movie" | "series";
     keys?: string;
     omdbKey?: string;
+    claudeKey?: string;
     googleKey?: string;
     tmdbKey?: string;
     rpdbKey?: string;
@@ -49,6 +50,7 @@ export type Keys = {
   traktRefresh: string;
   traktExpiresAt: string;
   openAiKey: string;
+  claudeKey: string;
   deepseekKey: string;
   userId?: string;
 }

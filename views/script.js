@@ -2,6 +2,7 @@ const manifestBaseUrl = "{{ROOT_URL}}";
 const elements = {
   googleKeyInput: document.getElementById("googleKey"),
   openaiKeyInput: document.getElementById("openaiKey"),
+  claudeKeyInput: document.getElementById("claudeKey"),
   deepseekKeyInput: document.getElementById("deepseekKey"),
   tmdbKeyInput: document.getElementById("tmdbKey"),
   rpdbKeyInput: document.getElementById("rpdbKey"),
@@ -115,10 +116,12 @@ function storeApiKeys(apiKeys) {
 function loadApiKeys() {
   const stored = sessionStorage.getItem("apiKeys");
   if (stored) {
-    const { googleKey, openaiKey, deepseekKey, tmdbKey, rpdbKey } = JSON.parse(stored);
+    const { googleKey, openaiKey, deepseekKey, claudeKey, tmdbKey, rpdbKey } = JSON.parse(stored);
     if (googleKey) elements.googleKeyInput.value = googleKey;
+    if (claudeKey) elements.claudeKeyInput.value = claudeKey;
     if (openaiKey) elements.openaiKeyInput.value = openaiKey;
     if (deepseekKey) elements.deepseekKeyInput.value = deepseekKey;
+
     if (tmdbKey) elements.tmdbKeyInput.value = tmdbKey;
     if (rpdbKey) elements.rpdbKeyInput.value = rpdbKey;
   }
@@ -134,6 +137,7 @@ function isValidOpenaiKey(key) {
 function getKeys() {
   let googleKey = "";
   let openaiKey = "";
+  let claudeKey = "";
   let deepseekKey = "";
   if (selectedProvider === "google") {
     googleKey = elements.defaultGoogleKeyCheckbox.checked
@@ -141,6 +145,8 @@ function getKeys() {
       : elements.googleKeyInput.value.trim();
   } else if (selectedProvider === "openai") {
     openaiKey = elements.openaiKeyInput.value.trim();
+  } else if (selectedProvider === "claude") {
+    claudeKey = elements.claudeKeyInput.value.trim();
   } else if (selectedProvider === "deepseek") {
     deepseekKey = elements.deepseekKeyInput.value.trim();
   }
@@ -151,7 +157,7 @@ function getKeys() {
   const traktKey = traktTokens["access_token"];
   const traktRefresh = traktTokens["refresh_token"];
   const traktExpiresAt = traktTokens["expires_at"];
-  return { selectedProvider, googleKey, openaiKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
+  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
 }
 
 function generateManifestUrl(userId) {
@@ -208,8 +214,9 @@ function updateUI() {
     const isGoogleKeyValid = keys.googleKey === "default" || isValidGeminiApiKey(keys.googleKey);
     elements.installButton.disabled = !isGoogleKeyValid;
   } else if (selectedProvider === "openai") {
-    // For OpenAI, simply ensure a key is provided
     elements.installButton.disabled = !isValidOpenaiKey(keys.openaiKey);
+  } else if (selectedProvider === "claude") {
+    elements.installButton.disabled = !isValidOpenaiKey(keys.claudeKey);
   } else if (selectedProvider === "deepseek") {
     elements.installButton.disabled = !isValidOpenaiKey(keys.deepseekKey);
   }
@@ -230,6 +237,10 @@ elements.openaiKeyInput.addEventListener("input", () => {
   storeApiKeys(getKeys());
 });
 elements.deepseekKeyInput.addEventListener("input", () => {
+  updateUI();
+  storeApiKeys(getKeys());
+});
+elements.claudeKeyInput.addEventListener("input", () => {
   updateUI();
   storeApiKeys(getKeys());
 });
@@ -327,6 +338,28 @@ elements.installButton.addEventListener("click", async () => {
       }
     } else {
       alert("Please enter a valid Deepseek API key to install the addon.");
+    }
+  } else if (selectedProvider === "claude") {
+    if (isValidOpenaiKey(keys.claudeKey)) {
+      try {
+        const userId = await storeKeys(keys);
+        storeApiKeys(keys);
+        const url = generateManifestUrl(userId);
+        elements.urlDisplay.textContent = url;
+        elements.urlDisplayBox.classList.remove("hidden");
+
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(url);
+          alert("Installation URL copied to clipboard!");
+        } else {
+          alert("Installation URL is now visible below.");
+        }
+      } catch (error) {
+        alert("Failed to store keys. Please try again.");
+        console.error(error);
+      }
+    } else {
+      alert("Please enter a valid Claude API key to install the addon.");
     }
   }
 });

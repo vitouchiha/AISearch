@@ -34,6 +34,7 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
         omdbKey,
         openaiKey,
         googleKey,
+        claudeKey,
         deepseekKey,
         tmdbKey,
         rpdbKey,
@@ -45,6 +46,7 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
       if (!userId) throw new Error("User ID required");
 
       const keys: Keys = {
+        claudeKey: claudeKey || "",
         googleKey: googleKey || "",
         openAiKey: openaiKey || "",
         deepseekKey: deepseekKey || "",

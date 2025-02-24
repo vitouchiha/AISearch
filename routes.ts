@@ -90,7 +90,7 @@ const handleConfigure = async (ctx: ConfigureContext) => {
       .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
 
     ctx.response.headers.set("Content-Type", "text/html");
-    ctx.response.headers.set("Cache-Control", "public, max-age=86400");
+    //ctx.response.headers.set("Cache-Control", "public, max-age=86400");
     ctx.response.body = html;
   } catch (error) {
     console.error("Error serving configure page:", error);
@@ -149,7 +149,7 @@ router.get("/configure.js", async (ctx) => {
     const js = jsContent.replace("{{ROOT_URL}}", ROOT_URL);
 
     ctx.response.headers.set("Content-Type", "application/javascript");
-    ctx.response.headers.set("Cache-Control", "public, max-age=86400");
+    //ctx.response.headers.set("Cache-Control", "public, max-age=86400");
     ctx.response.body = js;
   } catch (error) {
     console.error("Error serving configure.js:", error);

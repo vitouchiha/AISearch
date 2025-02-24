@@ -59,6 +59,10 @@
           class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
           Google Gemini
         </button>
+        <button type="button" data-provider="claude"
+        class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
+        Claude 3.5
+      </button>
         <button disabled type="button" data-provider="deepseek"
           class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
           DeepSeek R1
@@ -88,6 +92,13 @@
         <input type="text" id="openaiKey" name="openaiKey" placeholder="Enter your OpenAI API key"
           class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
       </div>
+
+            <!-- Claude Configuration -->
+            <div class="provider-config hidden" data-provider-config="claude">
+              <label for="claudeKey" class="block text-sm font-medium text-gray-300">Claude API Key:</label>
+              <input type="text" id="claudeKey" name="claudeKey" placeholder="Enter your Claude API key"
+                class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700/80 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
+            </div>
 
       <!-- Deepseek Configuration -->
       <div class="provider-config hidden" data-provider-config="deepseek">

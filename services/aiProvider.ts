@@ -1,12 +1,13 @@
-import { createGoogleGenerativeAI, createOpenAI, createDeepSeek } from "../config/deps.ts";
+import { createGoogleGenerativeAI, createOpenAI, createDeepSeek, createAnthropic } from "../config/deps.ts";
 import { GOOGLE_MODEL, OPENAI_MODEL } from "../config/env.ts";
 
-export type ProviderType = 'google' | 'openai' | 'deepseek'; // this is everything before Key (lowercase)
+export type ProviderType = 'google' | 'openai' | 'deepseek' | 'claude'; // this is everything before Key (lowercase)
 
 export const aiKeyNames = [
   "googleKey",
   "openAiKey",
   "deepseekKey",
+  "claudeKey",
   // This is your state key you set in the middleware.
 ];
 
@@ -21,6 +22,10 @@ export function getAIModel(provider: ProviderType, apiKey: string, structuredOut
   if (provider === 'google') {
     const googleAI = createGoogleGenerativeAI({ apiKey });
     return googleAI(GOOGLE_MODEL, { structuredOutputs });
+  }
+  else if (provider === 'claude') {
+    const anthropicAI = createAnthropic({ apiKey });
+    return anthropicAI('claude-3-5-haiku-20241022');
   }
   else if (provider === 'openai') {
     const openAI = createOpenAI({ apiKey });

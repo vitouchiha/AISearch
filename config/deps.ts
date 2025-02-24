@@ -16,13 +16,15 @@ export { Buffer } from "node:buffer";
 
 export { SemanticCache } from "https://esm.sh/@upstash/semantic-cache";
 export { Index } from "https://esm.sh/@upstash/vector";
-export { generateText, generateObject } from "https://esm.sh/ai";
-export { createGoogleGenerativeAI } from "https://esm.sh/@ai-sdk/google";
-export { createDeepSeek } from "https://esm.sh/@ai-sdk/deepseek";
-export { openai, createOpenAI } from "https://esm.sh/@ai-sdk/openai";
-export { Filter } from "https://esm.sh/bad-words";
-export { z } from "https://esm.sh/zod";
+export { generateObject } from "https://esm.sh/ai@4.1.45";
+export { createGoogleGenerativeAI } from "https://esm.sh/@ai-sdk/google@1.1.10";
+export { createDeepSeek } from "https://esm.sh/@ai-sdk/deepseek@0.1.11";
+export { createOpenAI } from "https://esm.sh/@ai-sdk/openai@1.1.10";
+export { createAnthropic }from "https://esm.sh/@ai-sdk/anthropic@1.1.9"
+export { Filter } from "https://esm.sh/bad-words@4.0.0";
+export { z } from "https://esm.sh/zod@3.24.2";
 export { create, verify, getNumericDate } from "https://deno.land/x/djwt/mod.ts";
+
 
 
 // export {

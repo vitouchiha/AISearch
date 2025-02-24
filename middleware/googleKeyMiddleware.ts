@@ -11,6 +11,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
   const defaultKeys: Keys = {
     googleKey: String(GEMINI_API_KEY),
     openAiKey: "",
+    claudeKey: "",
     deepseekKey: "",
     tmdbKey: String(TMDB_API_KEY),
     rpdbKey: "",
@@ -37,6 +38,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
 
     let googleKey = parsed.googleKey;
     const openAiKey = parsed.openAiKey;
+    const claudeKey = parsed.claudeKey;
     const deepseekKey = parsed.deepseekKey;
     let tmdbKey = parsed.tmdbKey || TMDB_API_KEY;
     const omdbKey = parsed.omdbKey || OMDB_API_KEY;
@@ -48,7 +50,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
     if (googleKey === "default") googleKey = GEMINI_API_KEY;
     if (tmdbKey === "default") tmdbKey = TMDB_API_KEY;
 
-    return { omdbKey, googleKey, openAiKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
+    return { omdbKey, googleKey, claudeKey, openAiKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
   } catch (error) {
     //console.error("[parseKeysParam] Error parsing keys:", error);
     return defaultKeys;
@@ -66,7 +68,7 @@ export const googleKeyMiddleware = async <
 
     if (pathParts[1]?.startsWith("user:")) {
       const userId = pathParts[1].replace("user:", "");
-      const encryptedKeys = await redis?.get(`user:${userId}`);
+      const encryptedKeys = await redis?.get(`user:${userId}`) as string;
 
       if (!encryptedKeys) {
         console.error(`[googleKeyMiddleware] No keys found for user:${userId}`);
@@ -75,7 +77,7 @@ export const googleKeyMiddleware = async <
         return;
       }
 
-      keys = decryptKeys(encryptedKeys);
+      keys = decryptKeys(encryptedKeys) as Keys;
 
       keys.userId = userId;
 
@@ -90,7 +92,7 @@ export const googleKeyMiddleware = async <
       keys = parseKeysParam(keysParam);
     }
 
-    const finalGoogleKey = !keys.openAiKey
+    const finalGoogleKey = !keys.openAiKey || !keys.claudeKey || !keys.deepseekKey
       ? (isValidGeminiApiKey(keys.googleKey) ? keys.googleKey : GEMINI_API_KEY)
       : undefined;
     
@@ -98,6 +100,7 @@ export const googleKeyMiddleware = async <
 
     ctx.state.googleKey = finalGoogleKey;
     ctx.state.openAiKey = keys.openAiKey;
+    ctx.state.claudeKey = keys.claudeKey;
     ctx.state.deepseekKey = keys.deepseekKey;
     ctx.state.tmdbKey = finalTmdbKey;
     ctx.state.rpdbKey = keys.rpdbKey;

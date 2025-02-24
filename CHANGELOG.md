@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
 
 ### Added
+- Added Anthropic Claude integration. Model is set to 3.5 (no api access to 3.7 yet! + cost and all that.)
 - Added more metadata. I'll keep adding as I find more and more and more.
 - Added 'lang' to the ai's response. This provides the ISO 639-1 standard 2 letter code. This has greatly improved the multiligual support. The cache as it sits, is 98% english, so response times will be slightly slower for awhile.
 - Added caching to all static pages, best practices and all that. (This is actually a pain in the ass when testing)
