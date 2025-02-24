@@ -16,6 +16,16 @@ if (NO_CACHE === "true") {
 
 // Load environment variables.
 
+const secret = String(Deno.env.get("JWT_SECRET"));
+const JWT_SECRET = await crypto.subtle.importKey(
+  "raw",
+  new TextEncoder().encode(secret),
+  { name: "HMAC", hash: "SHA-256" },
+  false,
+  ["sign", "verify"]
+);
+
+
 const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash-lite-preview-02-05'; // cheapest one with the highest rate limit.. we need it now! hahah
 const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") || 'gpt-4o-mini';
 const OMDB_API_KEY = Deno.env.get("OMDB_API_KEY");
@@ -75,6 +85,7 @@ const UPSTASH_VECTOR_TOKEN_FINAL = NO_CACHE === "true" ? "" : upstashVectorToken
 
 export {
   ROOT_URL,
+  JWT_SECRET,
   ENCRYPTION_KEY,
   DEV_MODE,
   NO_CACHE,

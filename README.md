@@ -86,6 +86,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ```dotenv
 ROOT_URL="http://localhost:3003" # USED FOR CONFIGURATION PAGE
+JWT_SECRET="can-be-anything-you-want"
 ENCRYPTION_KEY=""
 GEMINI_API_KEY=""
 TMDB_API_KEY=""

@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
 
 ### Added
+- Added security to the api endpoint.
 - OpenAI is now integrated. Be careful as this is the most expensive provider. I do my best to cache as much as possible to save us all money!
 - DeepSeek is now integrated. BE AWARE: I have disabled this provider due to stability issues. **This provider is pretty untested as the API kept dropping when I was testing**
 - The ability to add new AI providers within aiProviders.ts

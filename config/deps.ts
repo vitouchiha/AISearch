@@ -22,6 +22,8 @@ export { createDeepSeek } from "https://esm.sh/@ai-sdk/deepseek";
 export { openai, createOpenAI } from "https://esm.sh/@ai-sdk/openai";
 export { Filter } from "https://esm.sh/bad-words";
 export { z } from "https://esm.sh/zod";
+export { create, verify, getNumericDate } from "https://deno.land/x/djwt/mod.ts";
+
 
 // export {
 //   S3Client,

@@ -40,7 +40,8 @@
 
   <main class="relative z-10 flex flex-col items-center w-full max-w-2xl space-y-6 sm:space-y-10">
     <header class="flex flex-col items-center text-center">
-      <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+      <h1
+        class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
         FilmWhisper: AISearch</h1>
       <p class="mt-2 text-sm text-gray-400">AI-powered movie discovery for Stremio</p>
     </header>
@@ -49,15 +50,18 @@
     <section class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6">
       <h2 class="text-xl sm:text-2xl font-bold text-center text-cyan-400">Select AI Provider</h2>
       <div class="flex justify-center space-x-4 my-4">
-        <button type="button" data-provider="openai" class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
+        <button type="button" data-provider="openai"
+          class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
           OpenAI
         </button>
-        <button type="button" data-provider="google" class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
+        <button type="button" data-provider="google"
+          class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
           Google Gemini
         </button>
-        <button disabled type="button" data-provider="deepseek" class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
+        <button disabled type="button" data-provider="deepseek"
+          class="provider-btn px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none">
           DeepSeek R1
-        </button>        
+        </button>
       </div>
       <p>DeepSeek is currently disabled due to API stability issues.</p>
     </section>
@@ -94,7 +98,8 @@
       <div class="mt-6 space-y-2">
         <div class="bg-gray-700/80 border border-gray-600 text-gray-200 p-3 rounded-lg text-xs">
           <p>
-            We use your API keys on your behalf for server-side operations; They are stored using AES256 encryption and only used for your personal requests.
+            We use your API keys on your behalf for server-side operations; They are stored using AES256 encryption and
+            only used for your personal requests.
           </p>
         </div>
         <div class="space-y-2">
@@ -221,21 +226,21 @@
       traktStatus: document.getElementById("trakt-status"),
       optOutTrending: document.getElementById("optOutTrending"),
     };
-  
+
     // Default provider is Google
     let selectedProvider = "google";
     let traktTokens = getTokens();
-  
+
     // Provider selection buttons
     document.querySelectorAll('.provider-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', function () {
         selectedProvider = this.getAttribute('data-provider');
         // Visual feedback: remove active ring from all and add to selected
         document.querySelectorAll('.provider-btn').forEach(b => {
           b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
         });
         this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-        
+
         // Toggle provider-specific configuration panels
         document.querySelectorAll('.provider-config').forEach(config => {
           if (config.getAttribute('data-provider-config') === selectedProvider) {
@@ -247,15 +252,15 @@
         updateUI();
       });
     });
-  
+
     function generateUserId() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = Math.random() * 16 | 0,
-              v = c === 'x' ? r : (r & 0x3 | 0x8);
+          v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     }
-    
+
     function getUserId() {
       let userId = localStorage.getItem("userId");
       if (!userId) {
@@ -264,18 +269,32 @@
       }
       return userId;
     }
-  
+
     async function storeKeys(keys) {
       const userId = getUserId();
+
+      let token = localStorage.getItem("jwtToken");
+      if (!token) {
+        const tokenResponse = await fetch(`${manifestBaseUrl}/api/generate-token`);
+        if (!tokenResponse.ok) throw new Error("Failed to fetch token");
+        const tokenData = await tokenResponse.json();
+        token = tokenData.token;
+        localStorage.setItem("jwtToken", token);
+      }
+
       const response = await fetch(`${manifestBaseUrl}/api/store-keys`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ userId, ...keys }),
       });
+
       if (!response.ok) throw new Error("Failed to store keys");
       return userId;
     }
-  
+
     function storeTokens(tokens) {
       sessionStorage.setItem("traktTokens", JSON.stringify(tokens));
     }
@@ -287,7 +306,7 @@
       sessionStorage.removeItem("traktTokens");
       traktTokens = { access_token: null, refresh_token: null, expires_at: null };
     }
-  
+
     function storeApiKeys(apiKeys) {
       // Save all keys including googleKey and openaiKey
       sessionStorage.setItem("apiKeys", JSON.stringify(apiKeys));
@@ -303,7 +322,7 @@
         if (rpdbKey) elements.rpdbKeyInput.value = rpdbKey;
       }
     }
-  
+
     function isValidGeminiApiKey(key) {
       return typeof key === "string" && /^AIza[a-zA-Z0-9_-]{35,39}$/.test(key);
     }
@@ -311,7 +330,7 @@
     function isValidOpenaiKey(key) {
       return typeof key === "string" && key.trim() !== "";
     }
-  
+
     function getKeys() {
       let googleKey = "";
       let openaiKey = "";
@@ -321,7 +340,7 @@
           : elements.googleKeyInput.value.trim();
       } else if (selectedProvider === "openai") {
         openaiKey = elements.openaiKeyInput.value.trim();
-      } else if (selectedProvider === "deepseek"){
+      } else if (selectedProvider === "deepseek") {
         deepseekKey = elements.deepseekKeyInput.value.trim();
       }
       const tmdbKey = elements.defaultTmdbKeyCheckbox.checked
@@ -333,7 +352,7 @@
       const traktExpiresAt = traktTokens["expires_at"];
       return { selectedProvider, googleKey, openaiKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
     }
-  
+
     function generateManifestUrl(userId) {
       let url = `${manifestBaseUrl}/user:${userId}/manifest.json`;
       const params = [];
@@ -345,7 +364,7 @@
       }
       return url;
     }
-  
+
     function updateTraktStatus() {
       if (traktTokens["access_token"]) {
         elements.traktStatus.textContent = "Connected";
@@ -357,13 +376,13 @@
         elements.traktAuthButton.textContent = "Connect Trakt.tv";
       }
     }
-  
+
     async function handleAuthCallback() {
       const urlParams = new URLSearchParams(window.location.search);
       const access_token = urlParams.get("access_token");
       const refresh_token = urlParams.get("refresh_token");
       const expires_at = urlParams.get("expires_at");
-  
+
       if (access_token && refresh_token && expires_at) {
         traktTokens = { access_token, refresh_token, expires_at };
         storeTokens(traktTokens);
@@ -375,7 +394,7 @@
       updateTraktStatus();
       updateUI();
     }
-  
+
     function updateUI() {
       const keys = getKeys();
       if (selectedProvider === "google") {
@@ -398,7 +417,7 @@
         elements.tmdbKeyInput.value = "default";
       }
     }
-  
+
     // Input event listeners to update UI and store keys in sessionStorage
     elements.googleKeyInput.addEventListener("input", () => {
       updateUI();
@@ -428,7 +447,7 @@
       updateUI();
       storeApiKeys(getKeys());
     });
-  
+
     elements.traktAuthButton.addEventListener("click", () => {
       if (traktTokens["access_token"]) {
         clearTokens();
@@ -438,7 +457,7 @@
         window.location.href = `${manifestBaseUrl}/auth/login`;
       }
     });
-  
+
     elements.installButton.addEventListener("click", async () => {
       const keys = getKeys();
       if (selectedProvider === "google") {
@@ -449,7 +468,7 @@
             const url = generateManifestUrl(userId);
             elements.urlDisplay.textContent = url;
             elements.urlDisplayBox.classList.remove("hidden");
-  
+
             if (navigator.clipboard) {
               await navigator.clipboard.writeText(url);
               alert("Installation URL copied to clipboard!");
@@ -471,7 +490,7 @@
             const url = generateManifestUrl(userId);
             elements.urlDisplay.textContent = url;
             elements.urlDisplayBox.classList.remove("hidden");
-  
+
             if (navigator.clipboard) {
               await navigator.clipboard.writeText(url);
               alert("Installation URL copied to clipboard!");
@@ -493,7 +512,7 @@
             const url = generateManifestUrl(userId);
             elements.urlDisplay.textContent = url;
             elements.urlDisplayBox.classList.remove("hidden");
-  
+
             if (navigator.clipboard) {
               await navigator.clipboard.writeText(url);
               alert("Installation URL copied to clipboard!");
@@ -509,7 +528,7 @@
         }
       }
     });
-  
+
     elements.updateKeysButton.addEventListener("click", async () => {
       const keys = getKeys();
       try {
@@ -522,12 +541,22 @@
         console.error(error);
       }
     });
-  
-    window.addEventListener("load", () => {
+
+    window.addEventListener("load", async () => {
       loadApiKeys();
       handleAuthCallback();
+
+      try {
+        const res = await fetch(`${manifestBaseUrl}/api/generate-token`);
+        const data = await res.json();
+        if (data.token) {
+          localStorage.setItem("jwtToken", data.token);
+        }
+      } catch (err) {
+        console.error("Failed to get token:", err);
+      }
     });
-  </script>  
+  </script>
 
 </body>
 
