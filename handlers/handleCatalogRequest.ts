@@ -9,6 +9,8 @@ import { isMeta } from "../utils/buildMeta.ts";
 import type { Meta } from "../config/types/meta.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
+import { pushBatchToQstash } from "../config/qstash.ts";
+import type { BackgroundTaskParams } from "../config/types/types.ts";
 
 const useCache = NO_CACHE !== "true";
 
@@ -31,6 +33,7 @@ export const handleCatalogRequest = async (
 
   const cacheKey = `${type}:${searchQuery}`;
   let metas = [] as Meta[];
+  const backgroundUpdateBatch: BackgroundTaskParams[] = [];
 
   try {
     if (useCache && semanticCache) {
@@ -68,7 +71,7 @@ export const handleCatalogRequest = async (
         log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
 
         const { data: tmdbData, fromCache, cacheSet } =
-          await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey);
+          await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey, backgroundUpdateBatch);
 
         stats.fromCache += fromCache ? 1 : 0;
         stats.fromTmdb += fromCache ? 0 : 1;
@@ -104,6 +107,10 @@ export const handleCatalogRequest = async (
     }
 
     if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
+
+    if(backgroundUpdateBatch.length > 0){
+      await pushBatchToQstash(backgroundUpdateBatch);
+    }
 
     // playing with browser caching within stremio.. not sure if this will work, but if it does, we shall see..
     ctx.response.headers.set("Cache-Control", "public, max-age=2592000");

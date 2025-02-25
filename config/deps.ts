@@ -10,6 +10,7 @@ export {
 
 export { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 export { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
+export { Client as QstashClient, Receiver } from "https://esm.sh/@upstash/qstash";
 export { Redis } from "https://esm.sh/@upstash/redis";
 export { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 export { Buffer } from "node:buffer";

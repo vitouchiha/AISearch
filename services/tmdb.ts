@@ -4,8 +4,8 @@ import { fetchCinemeta } from "./cinemeta.ts";
 import { getOMDBMovieDetails } from "./omdb.ts";
 import { fetchJson, formatRuntime, log, logError } from "../utils/utils.ts";
 import { isOldCacheStructure, convertOldToNewStructure } from "./tmdbHelpers/fixOldCache.ts";
-import { fetchNewDataInBackground } from "./tmdbHelpers/fetchNewDataInBackground.ts";
 
+import type { BackgroundTaskParams } from "../config/types/types.ts";
 import type { Meta } from "../config/types/meta.ts";
 import type { TMDBMovieDetails } from "../config/types/TMDBMovieDetails.ts";
 import type { TMDBSeriesDetails } from "../config/types/TMDBSeriesDetails.ts";
@@ -25,6 +25,7 @@ export async function getTmdbDetailsByName(
   type: "movie" | "series",
   tmdbKey: string,
   omdbKey: string,
+  backgroundBatch?: BackgroundTaskParams[]
 ): Promise<TmdbFetchResult> {
   const normalizedName = movieName.toLowerCase().trim();
   const redisKey =
@@ -50,13 +51,16 @@ export async function getTmdbDetailsByName(
           if (isOldCacheStructure(cached)) {
             const converted = convertOldToNewStructure(cached, type);
 
-            fetchNewDataInBackground(type, movieName, lang, tmdbKey, omdbKey, redisKey)
-              .then(() => {
-                log("Background cache updated.");
-              })
-              .catch((err) => {
-                logError("Background update error", err);
+            if (backgroundBatch) {
+              backgroundBatch.push({
+                type,
+                movieName,
+                lang,
+                tmdbKey,
+                omdbKey,
+                redisKey,
               });
+            }
 
             return { data: converted, fromCache: true, cacheSet: false };
           } else {

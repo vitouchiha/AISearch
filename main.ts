@@ -2,6 +2,7 @@ import { Application, Context, oakCors } from "./config/deps.ts";
 import { PORT } from "./config/env.ts";
 import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 import router from "./routes.ts";
+import { cacheRoute } from "./stashRoute.ts";
 import { traktRouter } from "./services/trakt.ts";
 import { KeysRoutes } from "./keysRoutes.ts";
 import { responseLog } from "./middleware/ResponseLog.ts";
@@ -29,6 +30,9 @@ app.use(traktRouter.allowedMethods());
 
 app.use(KeysRoutes.routes());
 app.use(KeysRoutes.allowedMethods());
+
+app.use(cacheRoute.routes());
+app.use(cacheRoute.allowedMethods());
 
 app.use((ctx: Context) => {
   ctx.response.status = 404;

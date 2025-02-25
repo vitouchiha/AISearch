@@ -1,5 +1,14 @@
 import { RouterContext } from "../deps.ts";
 
+export interface BackgroundTaskParams {
+  type: "movie" | "series";
+  movieName: string;
+  lang: string;
+  tmdbKey: string;
+  omdbKey: string;
+  redisKey: string;
+}
+
 export interface Recommendation {
   title: string;
   year: number;

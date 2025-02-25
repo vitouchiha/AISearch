@@ -30,6 +30,13 @@ const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash-lite-prev
 const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") || 'gpt-4o-mini';
 const OMDB_API_KEY = Deno.env.get("OMDB_API_KEY");
 
+const QSTASH_URL = Deno.env.get("QSTASH_URL");
+const QSTASH_TOKEN = Deno.env.get("QSTASH_TOKEN");
+
+const QSTASH_CURRENT_SIGNING_KEY = Deno.env.get("QSTASH_CURRENT_SIGNING_KEY");
+const QSTASH_NEXT_SIGNING_KEY = Deno.env.get("QSTASH_NEXT_SIGNING_KEY");
+const QSTASH_SECRET = Deno.env.get("QSTASH_SECRET");
+
 const geminiKey = Deno.env.get("GEMINI_API_KEY");
 const tmdbKey = Deno.env.get("TMDB_API_KEY");
 const upstashRedisUrl = Deno.env.get("UPSTASH_REDIS_REST_URL");
@@ -54,6 +61,7 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 const TRAKT_CLIENT_ID = String(Deno.env.get("TRAKT_CLIENT_ID"));
 const TRAKT_CLIENT_SECRET = String(Deno.env.get("TRAKT_CLIENT_SECRET"));
+const NGROK_URL = String(Deno.env.get("NGROK_URL")) || "";
 
 const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
 const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");
@@ -68,6 +76,11 @@ if (
   !ENCRYPTION_KEY ||
   !TRAKT_CLIENT_ID ||
   !TRAKT_CLIENT_SECRET ||
+  !QSTASH_URL ||
+  !QSTASH_TOKEN ||
+  !QSTASH_SECRET ||
+  !QSTASH_CURRENT_SIGNING_KEY ||
+  !QSTASH_NEXT_SIGNING_KEY ||
   !tmdbKey ||
   (NO_CACHE !== "true" && (!upstashRedisUrl || !upstashRedisToken || !upstashVectorUrl || !upstashVectorToken))
 ) {
@@ -101,6 +114,12 @@ export {
   UPSTASH_REDIS_URL_FINAL as UPSTASH_REDIS_URL,
   UPSTASH_VECTOR_TOKEN_FINAL as UPSTASH_VECTOR_TOKEN,
   UPSTASH_VECTOR_URL_FINAL as UPSTASH_VECTOR_URL,
+  QSTASH_URL,
+  QSTASH_TOKEN,
+  QSTASH_SECRET,
+  QSTASH_CURRENT_SIGNING_KEY,
+  QSTASH_NEXT_SIGNING_KEY,
+  NGROK_URL,
   RESET_VECTOR_CRON,
   SEMANTIC_PROXIMITY,
 
