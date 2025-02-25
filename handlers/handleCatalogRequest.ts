@@ -115,7 +115,7 @@ export const handleCatalogRequest = async (
     const expireDate = new Date(Date.now() + 2592000 * 1000); 
     ctx.response.headers.set("Expires", expireDate.toUTCString());
 
-    ctx.response.body = { metas };
+    ctx.response.body = { query: searchQuery, metas };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logError(

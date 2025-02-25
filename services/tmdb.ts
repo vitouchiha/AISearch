@@ -61,9 +61,10 @@ export async function getTmdbDetailsByName(
                 redisKey,
               });
             }
-
+            converted.imdb_id = converted.id; // stremio web requires this? I don't know....
             return { data: converted, fromCache: true, cacheSet: false };
           } else {
+            cached.imdb_id = cached.id;
             return { data: cached, fromCache: true, cacheSet: false };
           }
         }

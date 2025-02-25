@@ -17,7 +17,11 @@ app.use(async (ctx: Context, next) => {
   await next();
 });
 
-app.use(oakCors());
+app.use(oakCors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"], 
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
 app.use(responseLog);
 app.use(rateLimitMiddleware);
