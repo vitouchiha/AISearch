@@ -50,6 +50,7 @@ export function createManifest(trending: boolean = true, trakt: boolean = false)
     description:
       "Find movies and TV using natural language queries powered by AI. Currently supports OpenAI, Gemini, Claude and DeepSeek!",
     resources: ["catalog"],
+    idPrefixes: ["tt"],
     types: ["movie", "series"],
     catalogs: [
       {
@@ -57,12 +58,14 @@ export function createManifest(trending: boolean = true, trakt: boolean = false)
         name: "AI Movie Recommendations",
         type: "movie",
         extra: [{ name: "search", isRequired: true }],
+        extraSupported: ["search"],
       },
       {
         id: "ai-tv",
         name: "AI TV Recommendations",
         type: "series",
         extra: [{ name: "search", isRequired: true }],
+        extraSupported: ["search"],
       },
       ...(NO_CACHE !== "true"
         ? [
