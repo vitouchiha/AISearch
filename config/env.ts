@@ -47,7 +47,7 @@ const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
 
-const SEMANTIC_PROXIMITY = Number(Deno.env.get("SEMANTIC_PROXIMITY") || 0.95);
+const SEMANTIC_PROXIMITY = Number(Deno.env.get("SEMANTIC_PROXIMITY") || 0.97);
 if(SEMANTIC_PROXIMITY > 1.0 || SEMANTIC_PROXIMITY < 0.0) {
   logError("SEMANTIC_PROXIMITY must be a float between 0.0 and 1.0", null);
   throw new Error("Invalid SEMANTIC_PROXIMITY");
