@@ -158,7 +158,7 @@ export async function getTmdbDetailsByName(
       const country = (detailsData as TMDBSeriesDetails).origin_country?.[0] || "";
       const overview = detailsData.overview || "";
 
-      if (!posterPath || !titleField || !dateField) {
+      if (lang === 'en' && (!posterPath || !titleField || !dateField)) {
         log(`Fetching from Cinemeta. IMDB ID: ${imdbId}`);
         const cinemeta = await fetchCinemeta(type, imdbId) as Meta;
         result = cinemeta;
@@ -178,13 +178,13 @@ export async function getTmdbDetailsByName(
           website: detailsData.homepage || "",
         };
       }
-    } else if (type === "movie") {
+    } else if (lang === 'en' && type === "movie") {
       log(`Falling back to OMDb for ${movieName}`);
       result = await getOMDBMovieDetails(movieName, omdbKey);
     }
 
     let cacheSet = false;
-    if (useCache && result.poster && redis) {
+    if (useCache && result.poster && result.name && redis) {
       try {
         const jsonResult = JSON.stringify(result);
         await Promise.all([

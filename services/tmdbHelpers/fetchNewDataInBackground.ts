@@ -74,7 +74,7 @@ export async function fetchNewDataInBackground(
       const language = detailsData.spoken_languages?.[0]?.name || "";
       const country = (detailsData as TMDBSeriesDetails).origin_country?.[0] || "";
 
-      if (!posterPath || !titleField || !dateField) {
+      if (lang === 'en' && (!posterPath || !titleField || !dateField)) {
         log(`Fetching from Cinemeta (background). IMDB ID: ${imdbId}`);
         const cinemeta = await fetchCinemeta(type, imdbId) as Meta;
 
@@ -97,7 +97,7 @@ export async function fetchNewDataInBackground(
       }
     } else {
       // If no imdbId and it's a movie, fallback to OMDb
-      if (type === "movie") {
+      if (type === "movie" && lang === 'en') {
         updated = await getOMDBMovieDetails(movieName, omdbKey);
       } else {
         log(`No IMDB ID found (background) for series: ${movieName}`);
