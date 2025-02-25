@@ -43,6 +43,7 @@ export const handleCatalogRequest = async (
           metas = JSON.parse(cachedResult);
           log(`Cache hit for query: (${type}) ${searchQuery}`);
           if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
+          metas = formatPreviewMetas(metas);
           ctx.response.body = { metas };
           return;
         }
