@@ -1,6 +1,7 @@
 import { redis } from "../config/redisCache.ts";
 import type { Meta } from "../config/types/meta.ts";
 import { logError } from "./utils.ts";
+import { formatPreviewMetas } from "./utils.ts";
 
 import { updateRpdbPosters } from "../services/rpdb.ts";
 
@@ -39,19 +40,21 @@ const getTrendingList = async (
 export const getTrendingSeries = async (
   rpdbKey?: string,
 ): Promise<TrendingResponse> => {
-  const metas = await getTrendingList(TRENDING_SERIES_LIST, "trending series");
+  let metas = await getTrendingList(TRENDING_SERIES_LIST, "trending series");
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
+  metas = formatPreviewMetas(metas);
   return { metas };
 };
 
 export const getTrendingMovies = async (
   rpdbKey?: string,
 ): Promise<TrendingResponse> => {
-  const metas = await getTrendingList(TRENDING_MOVIES_LIST, "trending movies");
+  let metas = await getTrendingList(TRENDING_MOVIES_LIST, "trending movies");
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
+  metas = formatPreviewMetas(metas);
   return { metas };
 };

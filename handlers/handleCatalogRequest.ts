@@ -2,7 +2,7 @@ import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
 import {type Context } from "../config/deps.ts";
 import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
-import { log, logError } from "../utils/utils.ts";
+import { log, logError, formatPreviewMetas } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import type { Meta } from "../config/types/meta.ts";
@@ -12,6 +12,7 @@ import { pushBatchToQstash } from "../config/qstash.ts";
 import type { BackgroundTaskParams } from "../config/types/types.ts";
 
 const useCache = NO_CACHE !== "true";
+
 
 export const handleCatalogRequest = async (
   ctx: Context
@@ -82,7 +83,8 @@ export const handleCatalogRequest = async (
 
     metas = metaResults
     .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
-    .map(result => result.value);
+    .map(result => result.value)
+    .filter(meta => meta.id && meta.name);
 
     if (useCache && redis && semanticCache && metas.length > 0) {
       
@@ -109,6 +111,9 @@ export const handleCatalogRequest = async (
     if(backgroundUpdateBatch.length > 0){
       await pushBatchToQstash(backgroundUpdateBatch);
     }
+
+    // strip all the shit and just return the goods.
+    metas = formatPreviewMetas(metas);
 
     // playing with browser caching within stremio.. not sure if this will work, but if it does, we shall see..
     ctx.response.headers.set("Cache-Control", "public, max-age=2592000");

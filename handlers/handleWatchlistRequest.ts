@@ -2,7 +2,7 @@ import type { Context } from "../config/deps.ts";
 import type { Meta } from "../config/types/meta.ts";
 import type { BackgroundTaskParams } from "../config/types/types.ts";
 import { redis } from "../config/redisCache.ts";
-import { log } from "../utils/utils.ts";
+import { formatPreviewMetas, log } from "../utils/utils.ts";
 import { getTraktMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { getTraktRecentWatches } from "../services/trakt.ts";
@@ -26,7 +26,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   const backgroundUpdateBatch: BackgroundTaskParams[] = [];
   const cache = await redis?.get(cacheKey) as Meta[];
   if (cache) {
-    if(cache.showName){ await redis?.del(cacheKey)}
+    if (cache.showName) { await redis?.del(cacheKey) }
     if (rpdbKey) {
       await updateRpdbPosters(cache, rpdbKey);
     }
@@ -69,17 +69,20 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     })
   );
 
-  const metas = metaResults
-  .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
-  .map(result => result.value);
+  let metas = metaResults
+    .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
+    .map(result => result.value)
+    .filter(meta => meta.id && meta.name);
 
   await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
-    if(backgroundUpdateBatch.length > 0){
-      await pushBatchToQstash(backgroundUpdateBatch);
-    }
+  if (backgroundUpdateBatch.length > 0) {
+    await pushBatchToQstash(backgroundUpdateBatch);
+  }
+
+  metas = formatPreviewMetas(metas);
 
   ctx.response.headers.set("Cache-Control", "public, max-age=3600");
   ctx.response.body = { metas };

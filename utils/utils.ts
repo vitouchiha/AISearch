@@ -1,4 +1,5 @@
 import { DEV_MODE } from "../config/env.ts";
+import type { Meta } from "../config/types/meta.ts";
 
 export const timestamp = () => new Date().toISOString();
 
@@ -63,4 +64,17 @@ export function formatRuntime(
   const hourLabel = hrs === 1 ? "hour" : "hours";
   const minLabel = mins === 1 ? "minute" : "minutes";
   return `${hrs} ${hourLabel}, ${mins} ${minLabel}`;
+}
+
+export function formatPreviewMetas(metas: Meta[]) {
+  return metas.map(meta => ({
+    id: meta.id,
+    name: meta.name,
+    releaseInfo: meta.releaseInfo || meta.released || undefined,
+    poster: meta.poster,
+    posterShape: meta.posterShape,
+    type: meta.type
+  })).filter(meta => 
+    meta.id && meta.name && meta.type 
+  );
 }
