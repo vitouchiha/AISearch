@@ -2,10 +2,9 @@ import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
 import {type Context } from "../config/deps.ts";
 import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
-import { log, logError, isFulfilled } from "../utils/utils.ts";
+import { log, logError } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
-import { isMeta } from "../utils/buildMeta.ts";
 import type { Meta } from "../config/types/meta.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
@@ -77,14 +76,13 @@ export const handleCatalogRequest = async (
         stats.fromTmdb += fromCache ? 0 : 1;
         stats.cacheSet += cacheSet ? 1 : 0;
 
-        return isMeta(tmdbData) ? tmdbData : null;
+        return tmdbData as Meta;
       })
     );
 
     metas = metaResults
-      .filter(isFulfilled)
-      .map((result) => result.value)
-      .filter(isMeta) as Meta[];
+    .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
+    .map(result => result.value);
 
     if (useCache && redis && semanticCache && metas.length > 0) {
       

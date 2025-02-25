@@ -1,14 +1,15 @@
 import type { Context } from "../config/deps.ts";
 import type { Meta } from "../config/types/meta.ts";
+import type { BackgroundTaskParams } from "../config/types/types.ts";
 import { redis } from "../config/redisCache.ts";
-import { log, isFulfilled } from "../utils/utils.ts";
-import { isMeta } from "../utils/buildMeta.ts";
+import { log } from "../utils/utils.ts";
 import { getTraktMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { getTraktRecentWatches } from "../services/trakt.ts";
 import { SEARCH_COUNT } from "../config/env.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
+import { pushBatchToQstash } from "../config/qstash.ts";
 
 export const handleTraktWatchlistRequest = async (ctx: Context) => {
   const { tmdbKey, googleKey, openAiKey, traktKey, rpdbKey, omdbKey, userId, type } = ctx.state;
@@ -22,6 +23,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   }
 
   const cacheKey = `user:${userId}:recent-${type}`;
+  const backgroundUpdateBatch: BackgroundTaskParams[] = [];
   const cache = await redis?.get(cacheKey) as Meta[];
   if (cache) {
     if(cache.showName){ await redis?.del(cacheKey)}
@@ -57,25 +59,28 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
       log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
 
       const { data: tmdbData, fromCache, cacheSet } =
-        await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey);
+        await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey, backgroundUpdateBatch);
 
       stats.fromCache += fromCache ? 1 : 0;
       stats.fromTmdb += fromCache ? 0 : 1;
       stats.cacheSet += cacheSet ? 1 : 0;
 
-      return isMeta(tmdbData) ? tmdbData : null;
+      return tmdbData;
     })
   );
 
   const metas = metaResults
-    .filter(isFulfilled)
-    .map((result) => result.value)
-    .filter(isMeta) as Meta[];
+  .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
+  .map(result => result.value);
 
   await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
+    if(backgroundUpdateBatch.length > 0){
+      await pushBatchToQstash(backgroundUpdateBatch);
+    }
+
   ctx.response.headers.set("Cache-Control", "public, max-age=3600");
   ctx.response.body = { metas };
 

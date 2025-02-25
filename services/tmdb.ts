@@ -107,9 +107,7 @@ export async function getTmdbDetailsByName(
     }
 
     const detailsUrl = `https://api.themoviedb.org/3/${tmdbType}/${firstResult.id}?api_key=${tmdbKey}&append_to_response=external_ids&language=${lang}`;
-    const detailsData = (await fetchJson(detailsUrl, "TMDB details")) as
-      | TMDBMovieDetails
-      | TMDBSeriesDetails;
+    const detailsData = (await fetchJson(detailsUrl, "TMDB details")) as TMDBMovieDetails | TMDBSeriesDetails;
 
     const imdbId = detailsData.external_ids?.imdb_id ?? "";
 
