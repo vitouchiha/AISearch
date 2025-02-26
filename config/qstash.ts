@@ -1,7 +1,7 @@
 import { QstashClient } from "./deps.ts";
 import { log, logError } from "../utils/utils.ts";
 import type { BackgroundTaskParams } from "./types/types.ts";
-import { DEV_MODE, NGROK_URL, QSTASH_TOKEN, ROOT_URL, QSTASH_SECRET } from "./env.ts";
+import { DEV_MODE, QSTASH_TOKEN, ROOT_URL, QSTASH_SECRET, NGROK_URL } from "./env.ts";
 
 const client = new QstashClient({
   token: QSTASH_TOKEN,

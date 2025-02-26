@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
 
 ### Added
+- Added Ngrok to the Devcontainer directly.
+- Ngrok will start when the dev container is started
+- NGROK_TOKEN is needed in dev mode.
 - Added QStash for faster cache updating, away from the application. Greatly improving cache refresh. Hopefully this fixes the issues people were reporting about missing metadata.
 - Added Anthropic Claude integration. Model is set to 3.5 (no api access to 3.7 yet! + cost and all that.)
 - Added more metadata. I'll keep adding as I find more and more and more.
@@ -23,6 +26,7 @@ This version doesn't have any breaking changes but introduces the ability to add
 - Added OMDB fallback for Movies. Doesn't do so good with TV and don't want to waste a request. -- I'll add the ability for users to use their own key later, we are going to hit limits I'm sure !
 
 ## Changed
+- Reduced repeating code in the tmdb module.
 - Moved the cache refresh away from the main application logic.
 - Changed cache structure to hold on to more metadata.
 - Simplified the state object being passed to the Catalog handler.

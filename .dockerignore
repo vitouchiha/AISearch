@@ -11,3 +11,7 @@ README.md
 DEPLOYMENT.md
 CHANGELOG.md
 docs/
+node_modules/
+nohup.out
+.ngrok.env
+logs/

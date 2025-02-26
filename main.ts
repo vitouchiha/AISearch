@@ -1,10 +1,10 @@
 import { Application, Context, oakCors } from "./config/deps.ts";
-import { PORT } from "./config/env.ts";
+import { PORT, DEV_MODE, NGROK_URL } from "./config/env.ts";
 import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 import router from "./routes.ts";
 import { cacheRoute } from "./stashRoute.ts";
 import { traktRouter } from "./services/trakt.ts";
-import { KeysRoutes } from "./keysRoutes.ts";
+import { keysRoutes } from "./keysRoutes.ts";
 import { responseLog } from "./middleware/ResponseLog.ts";
 import { log, logError } from "./utils/utils.ts";
 
@@ -32,8 +32,8 @@ app.use(router.allowedMethods());
 app.use(traktRouter.routes());
 app.use(traktRouter.allowedMethods());
 
-app.use(KeysRoutes.routes());
-app.use(KeysRoutes.allowedMethods());
+app.use(keysRoutes.routes());
+app.use(keysRoutes.allowedMethods());
 
 app.use(cacheRoute.routes());
 app.use(cacheRoute.allowedMethods());
@@ -52,5 +52,9 @@ app.addEventListener("error", (evt) => {
   logError(`Unhandled error:`, error);
 });
 
-log(`Stremio AI Addon running on port ${PORT}`);
+app.addEventListener("listen", ({ port }) => {
+  console.log(`Stremio AI Addon running on port ${port}`);
+  DEV_MODE ? console.log(`Ngrok running on ${NGROK_URL}`) : null;
+});
+
 await app.listen({ hostname: "0.0.0.0", port: PORT });

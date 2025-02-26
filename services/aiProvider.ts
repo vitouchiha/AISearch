@@ -8,7 +8,6 @@ export const aiKeyNames = [
   "openAiKey",
   "deepseekKey",
   "claudeKey",
-  // This is your state key you set in the middleware.
 ];
 
 export interface ProviderInfo {
@@ -17,26 +16,26 @@ export interface ProviderInfo {
 }
 
 export function getAIModel(provider: ProviderType, apiKey: string, structuredOutputs = false) {
-
-  // add more here, follow the pattern
-  if (provider === 'google') {
-    const googleAI = createGoogleGenerativeAI({ apiKey });
-    return googleAI(GOOGLE_MODEL, { structuredOutputs });
+  switch (provider) {
+    case 'google': {
+      const googleAI = createGoogleGenerativeAI({ apiKey });
+      return googleAI(GOOGLE_MODEL, { structuredOutputs });
+    }
+    case 'claude': {
+      const anthropicAI = createAnthropic({ apiKey });
+      return anthropicAI('claude-3-5-haiku-20241022');
+    }
+    case 'openai': {
+      const openAI = createOpenAI({ apiKey });
+      return openAI(OPENAI_MODEL, { structuredOutputs });
+    }
+    case 'deepseek': {
+      const deepseek = createDeepSeek({ apiKey });
+      return deepseek('deepseek-chat');
+    }
+    default:
+      throw new Error(`Unsupported provider: ${provider}`);
   }
-  else if (provider === 'claude') {
-    const anthropicAI = createAnthropic({ apiKey });
-    return anthropicAI('claude-3-5-haiku-20241022');
-  }
-  else if (provider === 'openai') {
-    const openAI = createOpenAI({ apiKey });
-    return openAI(OPENAI_MODEL, { structuredOutputs });
-  }
-  else if (provider === 'deepseek') {
-    const deepseek = createDeepSeek({ apiKey });
-    return deepseek('deepseek-chat');
-  }
-
-  throw new Error(`Unsupported provider: ${provider}`);
 }
 
 

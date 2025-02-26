@@ -1,2 +1,6 @@
 .env
 cloudflared/
+node_modules/
+logs/
+nohup.out
+.ngrok.env

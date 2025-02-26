@@ -26,7 +26,7 @@ const JWT_SECRET = await crypto.subtle.importKey(
 );
 
 
-const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash-lite-preview-02-05'; // cheapest one with the highest rate limit.. we need it now! hahah
+const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash'; // cheapest one with the highest rate limit.. we need it now! hahah
 const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") || 'gpt-4o-mini';
 const OMDB_API_KEY = Deno.env.get("OMDB_API_KEY");
 
@@ -47,7 +47,7 @@ const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
 
-const SEMANTIC_PROXIMITY = Number(Deno.env.get("SEMANTIC_PROXIMITY") || 0.98);
+const SEMANTIC_PROXIMITY = Number(Deno.env.get("SEMANTIC_PROXIMITY") || 0.95);
 if(SEMANTIC_PROXIMITY > 1.0 || SEMANTIC_PROXIMITY < 0.0) {
   logError("SEMANTIC_PROXIMITY must be a float between 0.0 and 1.0", null);
   throw new Error("Invalid SEMANTIC_PROXIMITY");
@@ -61,7 +61,9 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 const TRAKT_CLIENT_ID = String(Deno.env.get("TRAKT_CLIENT_ID"));
 const TRAKT_CLIENT_SECRET = String(Deno.env.get("TRAKT_CLIENT_SECRET"));
-const NGROK_URL = String(Deno.env.get("NGROK_URL")) || "";
+const NGROK_URL = DEV_MODE === "true" 
+  ? new TextDecoder().decode(Deno.readFileSync("./.ngrok.env")).trim() 
+  : "";
 
 const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
 const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");

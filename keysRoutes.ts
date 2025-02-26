@@ -69,16 +69,4 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
   }
 );
 
-router.get("/api/email-verification", rateLimitMiddleware, (ctx: Context) => {
-
-  // currently not storing emails anywhere... this may be tricky. I guess I would need a long term db?
-  // shit I was trying not to store anything about the user.. but I need a way to link the user to their key..
-  // generate token;
-  // send email
-
-  ctx.response.body = 'nothing to see here';
-  return;
-
-});
-
-export { router as KeysRoutes };
+export { router as keysRoutes };
