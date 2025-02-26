@@ -2,6 +2,7 @@ export {
   Application,
   Context,
   helpers,
+  send,
   type RouteParams,
   Router,
   type RouterContext,

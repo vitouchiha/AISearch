@@ -1,4 +1,4 @@
-import { Context, Router } from "./config/deps.ts";
+import { Context, Router, send } from "./config/deps.ts";
 import { ROOT_URL, DEV_MODE, NO_CACHE } from "./config/env.ts";
 import { log } from "./utils/utils.ts";
 import { createManifest } from "./config/manifest.ts";
@@ -244,6 +244,12 @@ router.get("/images/background.webp", (ctx) => {
   ctx.response.headers.set("Content-Type", "image/webp");
   ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = Deno.readFileSync("./views/images/fw-background.webp");
+});
+router.get("/images/icons/:filename", async (ctx) => {
+  const filename = ctx.params.filename;
+  await send(ctx, filename, {
+    root: `${Deno.cwd()}/views/images/icons`,
+  });
 });
 
 export default router;
