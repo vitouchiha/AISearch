@@ -18,7 +18,7 @@ export async function fetchNewDataInBackground(
   try {
     const updated: Meta = await fetchTmdbData(movieName, lang, type, tmdbKey, omdbKey);
     if (shouldCache(updated) && redis) {
-      await cacheResult(redisKey, type, updated);
+      await cacheResult(redisKey, type, lang, updated);
       log(`Background updated cache for ${type}: ${movieName}`);
     }
   } catch (err) {

@@ -32,11 +32,12 @@ export async function getTmdbDetailsByName(
   
   let cacheSet = false;
   if (useCache && shouldCache(result) && redis) {
-    cacheSet = await cacheResult(redisKey, type, result);
+    cacheSet = await cacheResult(redisKey, type, lang, result);
   }
   
   return { data: result, fromCache: false, cacheSet };
 }
+
 
 
 export async function tmdbHealthCheck(tmdbKey = TMDB_API_KEY){

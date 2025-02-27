@@ -13,7 +13,7 @@ router.options("/api/store-keys", oakCors({
   origin: "https://ai.filmwhisper.dev",
 }));
 
-router.get("/api/generate-token", tokenRateLimitMiddleware, async (ctx) => {
+router.get("/api/generate-token", tokenRateLimitMiddleware, async (ctx: Context) => {
   const payload = {
     iss: "filmwhisper",
     exp: getNumericDate(60 * 60),

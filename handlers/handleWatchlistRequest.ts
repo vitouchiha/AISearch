@@ -2,7 +2,7 @@ import type { Context } from "../config/deps.ts";
 import type { Meta } from "../config/types/meta.ts";
 import type { BackgroundTaskParams } from "../config/types/types.ts";
 import { redis } from "../config/redisCache.ts";
-import { formatPreviewMetas, log } from "../utils/utils.ts";
+import { formatMetas, log } from "../utils/utils.ts";
 import { getTraktMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import { getTraktRecentWatches } from "../services/trakt.ts";
@@ -30,8 +30,9 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     if (rpdbKey) {
       await updateRpdbPosters(cache, rpdbKey);
     }
-    ctx.response.headers.set("Cache-Control", "public, max-age=3600");
-    ctx.response.body = { metas: cache };
+    //ctx.response.headers.set("Cache-Control", "public, max-age=3600");
+    const metas = formatMetas(cache);
+    ctx.response.body = { metas };
     return;
   }
 
@@ -82,9 +83,9 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     await pushBatchToQstash(backgroundUpdateBatch);
   }
 
-  metas = formatPreviewMetas(metas);
+  metas = formatMetas(metas);
 
-  ctx.response.headers.set("Cache-Control", "public, max-age=3600");
+  //ctx.response.headers.set("Cache-Control", "public, max-age=3600");
   ctx.response.body = { metas };
 
 }

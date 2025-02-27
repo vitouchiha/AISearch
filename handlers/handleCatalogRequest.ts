@@ -2,10 +2,10 @@ import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
 import {type Context } from "../config/deps.ts";
 import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
-import { log, logError, formatPreviewMetas } from "../utils/utils.ts";
+import { log, logError, formatMetas } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
-import type { MetaPreview } from "../config/types/meta.ts";
+import type { Meta } from "../config/types/meta.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
 import { pushBatchToQstash } from "../config/qstash.ts";
@@ -32,7 +32,7 @@ export const handleCatalogRequest = async (
   }
 
   const cacheKey = `${type}:${searchQuery}`;
-  let metas = [] as MetaPreview[];
+  let metas = [] as Meta[];
   const backgroundUpdateBatch: BackgroundTaskParams[] = [];
 
   try {
@@ -43,7 +43,8 @@ export const handleCatalogRequest = async (
           metas = JSON.parse(cachedResult);
           log(`Cache hit for query: (${type}) ${searchQuery}`);
           if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
-          metas = formatPreviewMetas(metas);
+          metas = formatMetas(metas) as Meta[];
+          ctx.response.headers.set("Content-Type", "application/json");
           ctx.response.body = { metas };
           return;
         }
@@ -78,12 +79,12 @@ export const handleCatalogRequest = async (
         stats.fromTmdb += fromCache ? 0 : 1;
         stats.cacheSet += cacheSet ? 1 : 0;
 
-        return tmdbData as MetaPreview;
+        return tmdbData as Meta;
       })
     );
 
     metas = metaResults
-    .filter((result): result is PromiseFulfilledResult<MetaPreview> => result.status === "fulfilled" && result.value !== null)
+    .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
     .map(result => result.value)
     .filter(meta => meta.id && meta.name);
 
@@ -113,13 +114,7 @@ export const handleCatalogRequest = async (
       await pushBatchToQstash(backgroundUpdateBatch);
     }
 
-    // strip all the shit and just return the goods.
-    metas = formatPreviewMetas(metas);
-
-    // playing with browser caching within stremio.. not sure if this will work, but if it does, we shall see..
-    ctx.response.headers.set("Cache-Control", "public, max-age=2592000");
-    const expireDate = new Date(Date.now() + 2592000 * 1000); 
-    ctx.response.headers.set("Expires", expireDate.toUTCString());
+    metas = formatMetas(metas);
 
     ctx.response.body = { query: searchQuery, metas };
   } catch (error: unknown) {
