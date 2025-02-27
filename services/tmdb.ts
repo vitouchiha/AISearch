@@ -39,9 +39,9 @@ export async function getTmdbDetailsByName(
 }
 
 
-export async function tmdbHealthCheck(){
+export async function tmdbHealthCheck(tmdbKey = TMDB_API_KEY){
   try {
-    const tmdbResponse = await fetch(`https://api.themoviedb.org/3/configuration?api_key=${TMDB_API_KEY}`, { method: "HEAD" });
+    const tmdbResponse = await fetch(`https://api.themoviedb.org/3/configuration?api_key=${tmdbKey}`, { method: "HEAD" });
     return tmdbResponse.ok; 
   } catch (error) {
     console.error("TMDB health check failed:", error);

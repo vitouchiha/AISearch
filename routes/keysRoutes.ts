@@ -4,7 +4,8 @@ import { encryptKeys } from "../utils/encryptDecrypt.ts";
 import { redis } from "../config/redisCache.ts";
 import { JWT_SECRET } from "../config/env.ts";
 import { verifyToken } from "../middleware/apiAuth.ts";
-import { rateLimitMiddleware, tokenRateLimitMiddleware } from "../middleware/ratelimitMiddleware.ts";
+import { tokenRateLimitMiddleware } from "../middleware/ratelimitMiddleware.ts";
+import { tmdbHealthCheck } from "../services/tmdb.ts";
 
 const router = new Router();
 
@@ -29,7 +30,7 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
 
     try {
       const body = await ctx.request.body().value;
-      const {
+      let {
         userId,
         omdbKey,
         openaiKey,
@@ -44,6 +45,13 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
       } = body;
       
       if (!userId) throw new Error("User ID required");
+
+      // check the tmdb key;
+
+      const tmdbResponse = await tmdbHealthCheck(tmdbKey);
+      if(!tmdbResponse) tmdbKey = "default";
+
+      // Probably need to check all keys here, except trakt, we check that using oAuth.
 
       const keys: Keys = {
         claudeKey: claudeKey || "",
