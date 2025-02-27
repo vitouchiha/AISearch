@@ -81,8 +81,17 @@ export const googleKeyMiddleware = async <
       }
 
       keys = decryptKeys(encryptedKeys) as Keys;
-
+      if(keys){
       keys.userId = userId || '';
+      } else {
+        console.error("Decryption failed, using default keys.");
+        keys = parseKeysParam(undefined);
+        ctx.state.googleKey = keys.googleKey;
+        ctx.state.tmdbKey = keys.tmdbKey;
+        ctx.state.omdbKey = keys.omdbKey;
+        await next();
+        return;
+      }
 
       if (keys.traktExpiresAt && Date.now() > new Date(keys.traktExpiresAt).getTime()) {
         console.log(`[googleKeyMiddleware] Refreshing expired Trakt token for user:${userId}`);
