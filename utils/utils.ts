@@ -1,5 +1,5 @@
 import { DEV_MODE } from "../config/env.ts";
-import type { Meta } from "../config/types/meta.ts";
+import type { MetaPreview } from "../config/types/meta.ts";
 
 export const timestamp = () => new Date().toISOString();
 
@@ -40,6 +40,7 @@ type FormatRuntimeOptions = {
   fallback?: string;
 };
 
+
 export function formatRuntime(
   raw: number | string | undefined,
   options: FormatRuntimeOptions = {}
@@ -66,11 +67,11 @@ export function formatRuntime(
   return `${hrs} ${hourLabel}, ${mins} ${minLabel}`;
 }
 
-export function formatPreviewMetas(metas: Meta[]) {
+export function formatPreviewMetas(metas: MetaPreview[]) {
   return metas.map(meta => ({
     id: meta.id,
     name: meta.name,
-    releaseInfo: meta.releaseInfo || meta.released || undefined,
+    releaseInfo: meta.releaseInfo || undefined,
     poster: meta.poster,
     posterShape: meta.posterShape,
     type: meta.type

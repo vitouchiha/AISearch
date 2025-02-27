@@ -5,7 +5,7 @@ import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
 import { log, logError, formatPreviewMetas } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import { getTmdbDetailsByName } from "../services/tmdb.ts";
-import type { Meta } from "../config/types/meta.ts";
+import type { MetaPreview } from "../config/types/meta.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
 import { pushBatchToQstash } from "../config/qstash.ts";
@@ -32,7 +32,7 @@ export const handleCatalogRequest = async (
   }
 
   const cacheKey = `${type}:${searchQuery}`;
-  let metas = [] as Meta[];
+  let metas = [] as MetaPreview[];
   const backgroundUpdateBatch: BackgroundTaskParams[] = [];
 
   try {
@@ -78,12 +78,12 @@ export const handleCatalogRequest = async (
         stats.fromTmdb += fromCache ? 0 : 1;
         stats.cacheSet += cacheSet ? 1 : 0;
 
-        return tmdbData as Meta;
+        return tmdbData as MetaPreview;
       })
     );
 
     metas = metaResults
-    .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
+    .filter((result): result is PromiseFulfilledResult<MetaPreview> => result.status === "fulfilled" && result.value !== null)
     .map(result => result.value)
     .filter(meta => meta.id && meta.name);
 

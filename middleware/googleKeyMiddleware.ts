@@ -32,11 +32,10 @@ function parseKeysParam(keysParam: string | undefined): Keys {
     const parsed = JSON.parse(decodedBase64);
 
     if (typeof parsed !== "object" || parsed === null) {
-      throw new Error("Parsed keys must be an object");
-
+      return defaultKeys;
     }
 
-    let googleKey = parsed.googleKey;
+    let googleKey = parsed.googleKey || GEMINI_API_KEY;
     const openAiKey = parsed.openAiKey;
     const claudeKey = parsed.claudeKey;
     const deepseekKey = parsed.deepseekKey;
@@ -51,7 +50,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
     if (tmdbKey === "default") tmdbKey = TMDB_API_KEY;
 
     return { omdbKey, googleKey, claudeKey, openAiKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
-  } catch (error) {
+  } catch (error: unknown) {
     //console.error("[parseKeysParam] Error parsing keys:", error);
     return defaultKeys;
   }
@@ -67,19 +66,23 @@ export const googleKeyMiddleware = async <
     const pathParts = ctx.request.url.pathname.split("/");
 
     if (pathParts[1]?.startsWith("user:")) {
-      const userId = pathParts[1].replace("user:", "");
+      const userId: string = pathParts[1].replace("user:", "");
       const encryptedKeys = await redis?.get(`user:${userId}`) as string;
 
       if (!encryptedKeys) {
         console.error(`[googleKeyMiddleware] No keys found for user:${userId}`);
-        ctx.response.status = 404;
-        ctx.response.body = { error: "User keys not found" };
+        console.error(`[googleKeyMiddleware] Using Default keys`);
+        keys = parseKeysParam(undefined);
+        ctx.state.googleKey = keys.googleKey;
+        ctx.state.tmdbKey = keys.tmdbKey;
+        ctx.state.omdbKey = keys.omdbKey;
+        await next();
         return;
       }
 
       keys = decryptKeys(encryptedKeys) as Keys;
 
-      keys.userId = userId;
+      keys.userId = userId || '';
 
       if (keys.traktExpiresAt && Date.now() > new Date(keys.traktExpiresAt).getTime()) {
         console.log(`[googleKeyMiddleware] Refreshing expired Trakt token for user:${userId}`);
@@ -92,9 +95,12 @@ export const googleKeyMiddleware = async <
       keys = parseKeysParam(keysParam);
     }
 
-    const finalGoogleKey = !keys.openAiKey || !keys.claudeKey || !keys.deepseekKey
-      ? (isValidGeminiApiKey(keys.googleKey) ? keys.googleKey : GEMINI_API_KEY)
-      : undefined;
+    let finalGoogleKey: string;
+    if (isValidGeminiApiKey(keys.googleKey) && !keys.openAiKey || !keys.claudeKey || !keys.deepseekKey) {
+      finalGoogleKey = keys.googleKey;
+    } else {
+      finalGoogleKey = ""; // Or handle it based on your preference
+    }
     
     const finalTmdbKey = keys.tmdbKey === 'default' ? TMDB_API_KEY : keys.tmdbKey;
 
@@ -111,7 +117,9 @@ export const googleKeyMiddleware = async <
     await next();
   } catch (error) {
     console.error("[googleKeyMiddleware] Error encountered:", error);
-    ctx.response.status = 500;
-    ctx.response.body = { error: "Internal server error." };
+    ctx.state.googleKey = String(GEMINI_API_KEY);
+    ctx.state.tmdbKey = String(TMDB_API_KEY);
+    ctx.state.omdbKey = String(OMDB_API_KEY);
+    await next();
   }
 };

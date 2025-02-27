@@ -1,5 +1,5 @@
 import { redis } from "../config/redisCache.ts";
-import type { Meta } from "../config/types/meta.ts";
+import type { MetaPreview } from "../config/types/meta.ts";
 import { logError } from "./utils.ts";
 import { formatPreviewMetas } from "./utils.ts";
 
@@ -9,12 +9,12 @@ const TRENDING_SERIES_LIST = "trendingseries";
 const TRENDING_MOVIES_LIST = "trendingmovies";
 
 interface TrendingResponse {
-  metas: Meta[];
+  metas: MetaPreview[];
 }
 
-const parseMeta = (item: unknown, context: string): Meta | null => {
+const parseMeta = (item: unknown, context: string): MetaPreview | null => {
   try {
-    return item as Meta;
+    return item as MetaPreview;
   } catch (error) {
     console.error(`Error parsing ${context} item:`, item, error);
     return null;
@@ -24,13 +24,13 @@ const parseMeta = (item: unknown, context: string): Meta | null => {
 const getTrendingList = async (
   listKey: string,
   context: string,
-): Promise<Meta[]> => {
+): Promise<MetaPreview[]> => {
   try {
     const rawList = await redis?.lrange(listKey, 0, -1);
     if (!rawList) return [];
     return rawList
-      .map((item) => parseMeta(item, context))
-      .filter((meta): meta is Meta => meta !== null);
+      .map((item: MetaPreview) => parseMeta(item, context))
+      .filter((meta: MetaPreview): meta is MetaPreview => meta !== null);
   } catch (error) {
     logError(`Error fetching ${context} from Redis:`, error);
     return [];

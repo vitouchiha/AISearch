@@ -19,6 +19,7 @@ export interface Catalog {
   id: string;
   name: string;
   extra?: Extra[];
+  extraSupported?: string[];
 }
 
 export type ConfigType = "text" | "number" | "password" | "checkbox" | "select";
@@ -35,7 +36,6 @@ export interface Config {
 export interface BehaviorHints {
   adult?: boolean;
   p2p?: boolean;
-  searchable?: boolean; // I don't think this is valid.. but lets try!
   configurable?: boolean;
   configurationRequired?: boolean;
 }
