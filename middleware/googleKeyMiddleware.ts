@@ -111,6 +111,8 @@ export const googleKeyMiddleware = async <P extends Record<string, string | unde
     }
 
     // Set final keys in context
+    if(keys.googleKey === 'default') keys.googleKey = String(GEMINI_API_KEY);
+  
     ctx.state.googleKey = isValidGeminiApiKey(keys.googleKey) && 
       (!keys.openAiKey || !keys.claudeKey || !keys.deepseekKey) ? 
       keys.googleKey : "";
