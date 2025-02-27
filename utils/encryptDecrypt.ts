@@ -15,7 +15,7 @@ export function encryptKeys(keys: Keys): string {
   }
   
   // Decrypt keys from Redis
-  export function decryptKeys(encrypted: string) {
+  export function decryptKeys(encrypted: string): Keys | undefined {
     if (!encrypted.includes(":")) {
       throw new Error("Invalid encrypted string format");
     }

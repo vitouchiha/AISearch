@@ -6,24 +6,23 @@ import { encryptKeys, decryptKeys } from "../utils/encryptDecrypt.ts";
 import { redis } from "../config/redisCache.ts";
 import { refreshTraktToken } from "../services/trakt.ts";
 
-// Parse old-style keysParam
-function parseKeysParam(keysParam: string | undefined): Keys {
-  const defaultKeys: Keys = {
-    googleKey: String(GEMINI_API_KEY),
-    openAiKey: "",
-    claudeKey: "",
-    deepseekKey: "",
-    tmdbKey: String(TMDB_API_KEY),
-    rpdbKey: "",
-    traktKey: "",
-    traktRefresh: "",
-    traktExpiresAt: "",
-    userId: "",
-    omdbKey: String(OMDB_API_KEY),
-  };
+const DEFAULT_KEYS: Keys = {
+  googleKey: String(GEMINI_API_KEY),
+  openAiKey: "",
+  claudeKey: "",
+  deepseekKey: "",
+  tmdbKey: String(TMDB_API_KEY),
+  rpdbKey: "",
+  traktKey: "",
+  traktRefresh: "",
+  traktExpiresAt: "",
+  userId: "",
+  omdbKey: String(OMDB_API_KEY),
+};
 
+function parseKeysParam(keysParam: string | undefined): Keys {
   if (!keysParam) {
-    return defaultKeys;
+    return { ...DEFAULT_KEYS };
   }
 
   try {
@@ -32,92 +31,94 @@ function parseKeysParam(keysParam: string | undefined): Keys {
     const parsed = JSON.parse(decodedBase64);
 
     if (typeof parsed !== "object" || parsed === null) {
-      return defaultKeys;
+      return { ...DEFAULT_KEYS };
     }
 
-    let googleKey = parsed.googleKey || GEMINI_API_KEY;
-    const openAiKey = parsed.openAiKey;
-    const claudeKey = parsed.claudeKey;
-    const deepseekKey = parsed.deepseekKey;
-    let tmdbKey = parsed.tmdbKey || TMDB_API_KEY;
-    const omdbKey = parsed.omdbKey || OMDB_API_KEY;
-    const rpdbKey = parsed.rpdbKey || "";
-    const traktKey = parsed.traktKey || "";
-    const traktRefresh = parsed.traktRefresh || "";
-    const traktExpiresAt = parsed.traktExpiresAt || "";
-
-    if (googleKey === "default") googleKey = GEMINI_API_KEY;
-    if (tmdbKey === "default") tmdbKey = TMDB_API_KEY;
-
-    return { omdbKey, googleKey, claudeKey, openAiKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
+    return {
+      ...DEFAULT_KEYS,
+      ...parsed,
+      googleKey: parsed.googleKey === "default" ? GEMINI_API_KEY : (parsed.googleKey || GEMINI_API_KEY),
+      tmdbKey: parsed.tmdbKey === "default" ? TMDB_API_KEY : (parsed.tmdbKey || TMDB_API_KEY),
+      omdbKey: parsed.omdbKey || OMDB_API_KEY,
+    };
   } catch (error: unknown) {
-    //console.error("[parseKeysParam] Error parsing keys:", error);
-    return defaultKeys;
+    // console.error("[parseKeysParam] Error parsing keys:", error);
+    return { ...DEFAULT_KEYS };
   }
 }
 
+async function getUserKeys(userId: string): Promise<Keys> {
+  try {
+    const encryptedKeys = await redis?.get(`user:${userId}`) as string;
+    
+    if (!encryptedKeys) {
+      console.error(`[keyMiddleware] No keys found for user:${userId}`);
+      return { ...DEFAULT_KEYS };
+    }
+    
+    const keys = decryptKeys(encryptedKeys) as Keys;
+    if (!keys) {
+      console.error("Decryption failed, using default keys.");
+      return { ...DEFAULT_KEYS };
+    }
+    
+    return {
+      ...keys,
+      userId
+    };
+  } catch (error) {
+    console.error(`[keyMiddleware] Error retrieving keys for user:${userId}:`, error);
+    return { ...DEFAULT_KEYS };
+  }
+}
 
-export const googleKeyMiddleware = async <
-  P extends Record<string, string | undefined>,
->(ctx: AppContext<P>, next: () => Promise<unknown>) => {
+async function refreshExpiredTraktToken(keys: Keys): Promise<Keys> {
+  if (keys.traktExpiresAt && Date.now() > new Date(keys.traktExpiresAt).getTime()) {
+    console.log(`[keyMiddleware] Refreshing expired Trakt token for user:${keys.userId}`);
+    try {
+      const newTokens = await refreshTraktToken(keys.traktRefresh);
+      const updatedKeys = { ...keys, ...newTokens };
+      
+      if (keys.userId) {
+        await redis?.set(`user:${keys.userId}`, encryptKeys(updatedKeys));
+      }
+      
+      return updatedKeys;
+    } catch (error) {
+      console.error("[keyMiddleware] Failed to refresh Trakt token:", error);
+      return keys;
+    }
+  }
+  
+  return keys;
+}
 
+export const googleKeyMiddleware = async <P extends Record<string, string | undefined>>(
+  ctx: AppContext<P>, 
+  next: () => Promise<unknown>
+) => {
   try {
     let keys: Keys;
     const pathParts = ctx.request.url.pathname.split("/");
-
-    if (pathParts[1]?.startsWith("user:")) {
-      const userId: string = pathParts[1].replace("user:", "");
-      const encryptedKeys = await redis?.get(`user:${userId}`) as string;
-
-      if (!encryptedKeys) {
-        console.error(`[googleKeyMiddleware] No keys found for user:${userId}`);
-        console.error(`[googleKeyMiddleware] Using Default keys`);
-        keys = parseKeysParam(undefined);
-        ctx.state.googleKey = keys.googleKey;
-        ctx.state.tmdbKey = keys.tmdbKey;
-        ctx.state.omdbKey = keys.omdbKey;
-        await next();
-        return;
-      }
-
-      keys = decryptKeys(encryptedKeys) as Keys;
-      if(keys){
-      keys.userId = userId || '';
-      } else {
-        console.error("Decryption failed, using default keys.");
-        keys = parseKeysParam(undefined);
-        ctx.state.googleKey = keys.googleKey;
-        ctx.state.tmdbKey = keys.tmdbKey;
-        ctx.state.omdbKey = keys.omdbKey;
-        await next();
-        return;
-      }
-
-      if (keys.traktExpiresAt && Date.now() > new Date(keys.traktExpiresAt).getTime()) {
-        console.log(`[googleKeyMiddleware] Refreshing expired Trakt token for user:${userId}`);
-        const newKeys = await refreshTraktToken(keys.traktRefresh);
-        keys = { ...keys, ...newKeys };
-        await redis?.set(`user:${userId}`, encryptKeys(keys));
-      }
-    } else {
-      const keysParam = ctx.params.keys;
-      keys = parseKeysParam(keysParam);
-    }
-
-    let finalGoogleKey: string;
-    if (isValidGeminiApiKey(keys.googleKey) && !keys.openAiKey || !keys.claudeKey || !keys.deepseekKey) {
-      finalGoogleKey = keys.googleKey;
-    } else {
-      finalGoogleKey = ""; // Or handle it based on your preference
-    }
+    const isUserRequest = pathParts[1]?.startsWith("user:");
     
-    const finalTmdbKey = keys.tmdbKey === 'default' ? TMDB_API_KEY : keys.tmdbKey;
+    if (isUserRequest) {
+      const userId = pathParts[1].replace("user:", "");
+      keys = await getUserKeys(userId);
+      keys = await refreshExpiredTraktToken(keys);
+    } else {
+      keys = parseKeysParam(ctx.params.keys);
+    }
 
-    ctx.state.googleKey = finalGoogleKey;
+    // Set final keys in context
+    ctx.state.googleKey = isValidGeminiApiKey(keys.googleKey) && 
+      (!keys.openAiKey || !keys.claudeKey || !keys.deepseekKey) ? 
+      keys.googleKey : "";
+    
     ctx.state.openAiKey = keys.openAiKey;
     ctx.state.claudeKey = keys.claudeKey;
     ctx.state.deepseekKey = keys.deepseekKey;
-    ctx.state.tmdbKey = finalTmdbKey;
+    ctx.state.tmdbKey = keys.tmdbKey === 'default' ? TMDB_API_KEY : keys.tmdbKey;
     ctx.state.rpdbKey = keys.rpdbKey;
     ctx.state.traktKey = keys.traktKey;
     ctx.state.userId = keys.userId;
@@ -125,7 +126,8 @@ export const googleKeyMiddleware = async <
 
     await next();
   } catch (error) {
-    console.error("[googleKeyMiddleware] Error encountered:", error);
+    console.error("[keyMiddleware] Unhandled error:", error);
+    // Fallback to default keys
     ctx.state.googleKey = String(GEMINI_API_KEY);
     ctx.state.tmdbKey = String(TMDB_API_KEY);
     ctx.state.omdbKey = String(OMDB_API_KEY);
