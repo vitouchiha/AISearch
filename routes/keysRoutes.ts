@@ -1,10 +1,10 @@
-import { Context, Router, oakCors, create, getNumericDate } from "./config/deps.ts";
-import type { Keys } from "./config/types/types.ts";
-import { encryptKeys } from "./utils/encryptDecrypt.ts";
-import { redis } from "./config/redisCache.ts";
-import { JWT_SECRET } from "./config/env.ts";
-import { verifyToken } from "./middleware/apiAuth.ts";
-import { rateLimitMiddleware, tokenRateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
+import { Context, Router, oakCors, create, getNumericDate } from "../config/deps.ts";
+import type { Keys } from "../config/types/types.ts";
+import { encryptKeys } from "../utils/encryptDecrypt.ts";
+import { redis } from "../config/redisCache.ts";
+import { JWT_SECRET } from "../config/env.ts";
+import { verifyToken } from "../middleware/apiAuth.ts";
+import { rateLimitMiddleware, tokenRateLimitMiddleware } from "../middleware/ratelimitMiddleware.ts";
 
 const router = new Router();
 

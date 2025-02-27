@@ -1,60 +1,55 @@
-import { Application, Context, oakCors } from "./config/deps.ts";
+import { Application, type Context, oakCors } from "./config/deps.ts";
 import { PORT, DEV_MODE, NGROK_URL } from "./config/env.ts";
+
 import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
-import router from "./routes.ts";
-import { cacheRoute } from "./stashRoute.ts";
-import { traktRouter } from "./services/trakt.ts";
-import { keysRoutes } from "./keysRoutes.ts";
+
+import { setupRoutes, routes,traktRoutes, keysRoutes, cacheRoute } from "./routes/setup.ts";
+
 import { responseLog } from "./middleware/ResponseLog.ts";
-import { log, logError } from "./utils/utils.ts";
+import { handleServerError } from "./handlers/handleServerError.ts";
 
-const app = new Application();
+/**
+ * Setup and start Deno Oak server
+ */
+async function startServer() {
+  const app = new Application();
 
-app.use(async (ctx: Context, next) => {
-  ctx.response.headers.set("X-Content-Type-Options", "nosniff");
-  ctx.response.headers.set("X-Frame-Options", "DENY");
-  ctx.response.headers.set("X-XSS-Protection", "1; mode=block");
-  await next();
-});
+  app.use(async (ctx: Context, next) => {
+    ctx.response.headers.set("X-Content-Type-Options", "nosniff");
+    ctx.response.headers.set("X-Frame-Options", "DENY");
+    ctx.response.headers.set("X-XSS-Protection", "1; mode=block");
+    await next();
+  });
 
-app.use(oakCors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"], 
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+  app.use(oakCors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }));
 
-app.use(responseLog);
-app.use(rateLimitMiddleware);
+  app.use(responseLog);
+  app.use(rateLimitMiddleware);
 
-app.use(router.routes());
-app.use(router.allowedMethods());
+  setupRoutes(app, [
+    { router: routes },
+    { router: traktRoutes },
+    { router: keysRoutes },
+    { router: cacheRoute },
+  ]);
 
-app.use(traktRouter.routes());
-app.use(traktRouter.allowedMethods());
+  app.use((ctx: Context) => {
+    ctx.response.status = 404;
+    ctx.response.body = { error: "Endpoint not found" };
+  });
 
-app.use(keysRoutes.routes());
-app.use(keysRoutes.allowedMethods());
+  app.addEventListener("error", handleServerError);
 
-app.use(cacheRoute.routes());
-app.use(cacheRoute.allowedMethods());
+  app.addEventListener("listen", ({ port }) => {
+    console.log(`Stremio AI Addon running on port ${port}`);
+    if (DEV_MODE) console.log(`Ngrok running on ${NGROK_URL}`);
+  });
 
-app.use((ctx: Context) => {
-  ctx.response.status = 404;
-  ctx.response.body = { error: "Endpoint not found" };
-});
+  await app.listen({ hostname: "0.0.0.0", port: PORT });
+}
 
-app.addEventListener("error", (evt) => {
-  const error = evt.error;
-  if (error instanceof Deno.errors.BrokenPipe || error.message.includes("broken pipe")) {
-    log("Client disconnected early (broken pipe). Ignoring...");
-    return;
-  }
-  logError(`Unhandled error:`, error);
-});
-
-app.addEventListener("listen", ({ port }) => {
-  console.log(`Stremio AI Addon running on port ${port}`);
-  DEV_MODE ? console.log(`Ngrok running on ${NGROK_URL}`) : null;
-});
-
-await app.listen({ hostname: "0.0.0.0", port: PORT });
+await startServer();

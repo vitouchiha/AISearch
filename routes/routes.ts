@@ -1,12 +1,12 @@
-import { Context, Router, send } from "./config/deps.ts";
-import { ROOT_URL, DEV_MODE, NO_CACHE } from "./config/env.ts";
-import { log } from "./utils/utils.ts";
-import { createManifest } from "./config/manifest.ts";
-import { handleTrendingRequest } from "./handlers/handleTrendingMoviesRequest.ts";
-import { handleCatalogRequest } from "./handlers/handleCatalogRequest.ts";
-import { googleKeyMiddleware } from "./middleware/googleKeyMiddleware.ts";
-import { searchParamMiddleware } from "./middleware/searchParamMiddleware.ts";
-import { setMovieType, setSeriesType } from "./middleware/setTypeMiddleware.ts";
+import { Context, Router, send } from "../config/deps.ts";
+import { ROOT_URL, DEV_MODE, NO_CACHE } from "../config/env.ts";
+import { log } from "../utils/utils.ts";
+import { createManifest } from "../config/manifest.ts";
+import { handleTrendingRequest } from "../handlers/handleTrendingMoviesRequest.ts";
+import { handleCatalogRequest } from "../handlers/handleCatalogRequest.ts";
+import { googleKeyMiddleware } from "../middleware/googleKeyMiddleware.ts";
+import { searchParamMiddleware } from "../middleware/searchParamMiddleware.ts";
+import { setMovieType, setSeriesType } from "../middleware/setTypeMiddleware.ts";
 import type {
   AppContext,
   CatalogContext,
@@ -15,14 +15,14 @@ import type {
   MovieCatalogParams,
   TrendingParams,
   ManifestParams,
-} from "./config/types/types.ts";
+} from "../config/types/types.ts";
 
-import { redis } from "./config/redisCache.ts";
-import { index } from "./config/semanticCache.ts";
-import { tmdbHealthCheck } from "./services/tmdb.ts";
-import { cinemetaHealthCheck } from "./services/cinemeta.ts";
-import { rpdbHealthCheck } from "./services/rpdb.ts";
-import { handleTraktWatchlistRequest } from "./handlers/handleWatchlistRequest.ts";
+import { redis } from "../config/redisCache.ts";
+import { index } from "../config/semanticCache.ts";
+import { tmdbHealthCheck } from "../services/tmdb.ts";
+import { cinemetaHealthCheck } from "../services/cinemeta.ts";
+import { rpdbHealthCheck } from "../services/rpdb.ts";
+import { handleTraktWatchlistRequest } from "../handlers/handleWatchlistRequest.ts";
 
 const useCache = NO_CACHE !== "true";
 const STATIC_MANIFEST = createManifest();

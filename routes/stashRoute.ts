@@ -1,6 +1,6 @@
-import { type Context, Router, Receiver } from "./config/deps.ts";
-import { fetchNewDataInBackground } from "./services/tmdbHelpers/fetchNewDataInBackground.ts";
-import { QSTASH_SECRET, QSTASH_CURRENT_SIGNING_KEY, QSTASH_NEXT_SIGNING_KEY, ROOT_URL, DEV_MODE, NGROK_URL } from "./config/env.ts";
+import { type Context, Router, Receiver } from "../config/deps.ts";
+import { fetchNewDataInBackground } from "../services/tmdbHelpers/fetchNewDataInBackground.ts";
+import { QSTASH_SECRET, QSTASH_CURRENT_SIGNING_KEY, QSTASH_NEXT_SIGNING_KEY, ROOT_URL, DEV_MODE, NGROK_URL } from "../config/env.ts";
 
 interface BackgroundTask {
   type: "movie" | "series";
