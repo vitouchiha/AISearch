@@ -56,7 +56,7 @@ export async function getTraktMovieRecommendations(movies: string, type: string,
   const prompt = `
     You are an expert ${recommendationType} recommendation system.
     Based on the list provided, return exactly ${SEARCH_COUNT} unique ${recommendationType} recommendations as a raw JSON object.
-    Have the content complement eachother. For example, The Office and Superstore. Or The Equalizer and Nobody.
+    Have the content complement each other.
     The object must have a single property "recommendations" which is an array of ${type === 'series' ? 'TV series names' : 'movie names'}.
     Do not include any additional text or explanation. Give your responses in the language of the search query.
     
