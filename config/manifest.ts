@@ -46,7 +46,7 @@ export function createManifest(trending: boolean = true, trakt: boolean = false)
     version: "1.4.0",
     logo: ROOT_URL + "/images/logo.webp",
     background: ROOT_URL + "/images/background.webp",
-    name: "FilmWhisper: AISearch" + DEV_MODE ? " DEV MODE" : "",
+    name: "FilmWhisper: AISearch" + (DEV_MODE ? " DEV MODE" : ""),
     description:
       "Find movies and TV using natural language queries powered by AI. Currently supports OpenAI, Gemini, Claude and DeepSeek!",
     resources: ["catalog"],
