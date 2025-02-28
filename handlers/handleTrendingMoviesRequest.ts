@@ -32,7 +32,6 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
 
   try {
     const trendingResponse: any = await getTrending();
-    //ctx.response.headers.set("Cache-Control", "public, max-age=3600");
     ctx.response.body = trendingResponse;
   } catch (error) {
     console.error("Error handling trending request:", error);

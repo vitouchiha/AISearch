@@ -18,6 +18,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   // We might not need to depending on how trakt sends it's data..
 
   if (!traktKey || !type || !userId || !tmdbKey || (!googleKey && !openAiKey)) {
+    console.log("keys are messed.")
     ctx.response.body = { metas: [] };
     return;
   }
@@ -32,10 +33,9 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     }
     //ctx.response.headers.set("Cache-Control", "public, max-age=3600");
     const metas = formatMetas(cache);
-    ctx.response.body = { metas: metas };
+    ctx.response.body = { metas };
     return;
   }
-
 
   const recentWatches = await getTraktRecentWatches(type, traktKey, SEARCH_COUNT);
   const titles = recentWatches
