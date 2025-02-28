@@ -18,7 +18,6 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   // We might not need to depending on how trakt sends it's data..
 
   if (!traktKey || !type || !userId || !tmdbKey || (!googleKey && !openAiKey)) {
-    console.log("keys are messed.")
     ctx.response.body = { metas: [] };
     return;
   }
@@ -75,13 +74,9 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     .map(result => result.value)
     .filter(meta => meta.id && meta.name);
 
-  await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
-  if (rpdbKey) {
-    await updateRpdbPosters(metas, rpdbKey);
-  }
-  if (backgroundUpdateBatch.length > 0) {
-    await pushBatchToQstash(backgroundUpdateBatch);
-  }
+  if (metas.length > 0) await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
+  if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
+  if (backgroundUpdateBatch.length > 0) await pushBatchToQstash(backgroundUpdateBatch);
 
   metas = formatMetas(metas);
 
