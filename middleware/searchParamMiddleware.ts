@@ -9,23 +9,18 @@ export const searchParamMiddleware = async (
   try {
     const searchQuery = extractSearchQuery(ctx.params.searchParam);
     if (!searchQuery) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: "Invalid search parameter format." };
+      ctx.response.body = { metas: [] };
       return;
     }
     if (badWordsFilter(searchQuery)) {
-      ctx.response.status = 400;
-      ctx.response.body = {
-        error: "Search query contains inappropriate words.",
-      };
+      ctx.response.body = { metas: [] };
       return;
     }
     ctx.state.searchQuery = searchQuery;
     await next();
   } catch (error) {
     logError("Error in searchParamMiddleware:", error);
-    ctx.response.status = 500;
-    ctx.response.body = { error: "Internal server error." };
+    ctx.response.body = { metas: [] };
   }
 };
 
