@@ -20,14 +20,7 @@ export const handleCatalogRequest = async (
   const { searchQuery, type, googleKey, openAiKey, tmdbKey, rpdbKey, omdbKey } = ctx.state;
 
   if (!searchQuery || !type || (!googleKey && !openAiKey)) {
-    ctx.response.status = 400;
-    ctx.response.body = {
-      error: !searchQuery
-        ? "Search query is required"
-        : !type
-        ? "Type is required"
-        : "Either Google API key or OpenAI API key is required",
-    };
+    ctx.response.body = { metas: [] };
     return;
   }
 
@@ -123,10 +116,6 @@ export const handleCatalogRequest = async (
       `Error processing ${type} catalog request for "${searchQuery}": ${errorMessage}`,
       error
     );
-    ctx.response.status = 500;
-    ctx.response.body = {
-      error: "Failed to generate recommendations",
-      details: errorMessage,
-    };
+    ctx.response.body = { metas: [] };
   }
 };

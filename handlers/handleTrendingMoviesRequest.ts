@@ -12,8 +12,7 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
   }
   
   if (!type) {
-    ctx.response.status = 400;
-    ctx.response.body = { error: "Trending type is required." };
+    ctx.response.body = { metas: [] };
     return;
   }
 
@@ -25,8 +24,7 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
   const getTrending = trendingHandlers[type];
 
   if (!getTrending) {
-    ctx.response.status = 400;
-    ctx.response.body = { error: `Invalid trending type: ${type}` };
+    ctx.response.body = { metas: [] };
     return;
   }
 
@@ -35,7 +33,6 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
     ctx.response.body = trendingResponse;
   } catch (error) {
     console.error("Error handling trending request:", error);
-    ctx.response.status = 500;
-    ctx.response.body = { error: `Failed to fetch trending ${type}` };
+    ctx.response.body = { metas: [] };
   }
 };
