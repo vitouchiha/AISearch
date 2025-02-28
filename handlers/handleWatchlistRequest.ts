@@ -86,6 +86,6 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   metas = formatMetas(metas);
 
   //ctx.response.headers.set("Cache-Control", "public, max-age=3600");
-  ctx.response.body = { metas: metas };
+  ctx.response.body = { metas };
 
 }
