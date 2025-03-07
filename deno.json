@@ -2,5 +2,7 @@
   "tasks": {
     "dev": "deno run --allow-net --allow-env --allow-read --allow-run --unstable-cron --watch main.ts",
     "start": "deno run --quiet --allow-net --allow-env --allow-read=. --unstable-cron main.ts"
+  },
+  "imports": {
   }
 }

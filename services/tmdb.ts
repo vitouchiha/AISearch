@@ -1,41 +1,21 @@
-import { TMDB_API_KEY, NO_CACHE } from "../config/env.ts";
-import { redis } from "../config/redisCache.ts";
-import { convertOldToNewStructure, isOldCacheStructure } from "./tmdbHelpers/fixOldCache.ts";
+import { TMDB_API_KEY } from "../config/env.ts";
 
-import type { BackgroundTaskParams } from "../config/types/types.ts";
 import type { Meta } from "../config/types/meta.ts";
-import { fetchTmdbData, createRedisKey, tryGetFromCache, shouldCache, cacheResult } from "./tmdbHelpers/tmdbCommon.ts";
-
-const useCache = NO_CACHE !== "true";
+import { fetchTmdbData } from "./tmdbHelpers/tmdbCommon.ts";
 
 export async function getTmdbDetailsByName(
   movieName: string,
   lang: string,
   type: "movie" | "series",
   tmdbKey: string,
-  omdbKey: string,
-  backgroundBatch?: BackgroundTaskParams[]
-): Promise<{ data: Meta; fromCache: boolean; cacheSet: boolean }> {
-  const redisKey = createRedisKey(movieName, lang, type);
+  omdbKey: string
+): Promise<{ data: Meta; fromCache: boolean; }> {
 
-  if (useCache && redis) {
-    const cached = await tryGetFromCache(redisKey, type, movieName);
-    if (cached) {
-      if (isOldCacheStructure(cached)) {
-        backgroundBatch?.push({ movieName, lang, type, tmdbKey, omdbKey, redisKey });
-        return { data: convertOldToNewStructure(cached, type), fromCache: true, cacheSet: false };
-      }
-      return { data: cached, fromCache: true, cacheSet: false };
-    }
-  }
+  // this is now a left over function from before.. will get rid it out but not right now 
+
   const result = await fetchTmdbData(movieName, lang, type, tmdbKey, omdbKey);
   
-  let cacheSet = false;
-  if (useCache && shouldCache(result) && redis) {
-    cacheSet = await cacheResult(redisKey, type, lang, result);
-  }
-  
-  return { data: result, fromCache: false, cacheSet };
+  return { data: result, fromCache: false };
 }
 
 

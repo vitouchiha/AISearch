@@ -1,6 +1,6 @@
 import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
-import {type Context } from "../config/deps.ts";
+import { type Context } from "../config/deps.ts";
 import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
 import { log, logError, formatMetas } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
@@ -10,13 +10,12 @@ import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
 import { pushBatchToQstash } from "../config/qstash.ts";
 import type { BackgroundTaskParams } from "../config/types/types.ts";
+import { createRedisKey } from "../services/tmdbHelpers/tmdbCommon.ts";
+import { isOldCacheStructure, convertOldToNewStructure } from "../services/tmdbHelpers/fixOldCache.ts";
 
 const useCache = NO_CACHE !== "true";
 
-
-export const handleCatalogRequest = async (
-  ctx: Context
-): Promise<void> => {
+export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
   const { searchQuery, type, googleKey, openAiKey, tmdbKey, rpdbKey, omdbKey } = ctx.state;
 
   if (!searchQuery || !type || (!googleKey && !openAiKey)) {
@@ -25,10 +24,11 @@ export const handleCatalogRequest = async (
   }
 
   const cacheKey = `${type}:${searchQuery}`;
-  let metas = [] as Meta[];
+  let metas: Meta[] = [];
   const backgroundUpdateBatch: BackgroundTaskParams[] = [];
 
   try {
+    // Check semantic cache first
     if (useCache && semanticCache) {
       try {
         const cachedResult = await semanticCache.get(cacheKey);
@@ -46,8 +46,8 @@ export const handleCatalogRequest = async (
       }
     }
 
+    // Get recommendations and language info
     const { provider, apiKey } = getProviderInfoFromState(ctx.state);
-
     const { recommendations: movieNames, lang } = await getMovieRecommendations(
       searchQuery,
       type,
@@ -59,33 +59,72 @@ export const handleCatalogRequest = async (
       return;
     }
 
+    // Initialize stats
     const stats = { fromCache: 0, fromTmdb: 0, cacheSet: 0 };
 
-    const metaResults = await Promise.allSettled(
+    // Build Redis keys for all movie recommendations
+    const redisKeys = movieNames.map(movieName => createRedisKey(movieName, lang, type));
+    // Fetch all cached entries at once
+    const cachedResults = await redis?.mget(redisKeys);
+    const keysToSet: Record<string, string> = {};
+
+    const metaResults = await Promise.all(
       movieNames.map(async (movieName, index) => {
         log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
+        const redisKey = redisKeys[index];
+        let tmdbData: Meta | null = null;
+        let usedCache = false;
+        let fetchedFromTmdb = false;
+    
+        const cached = cachedResults[index];
+        if (cached) {
+          try {
+            const parsed = cached;
+            if (isOldCacheStructure(parsed)) {
+              // Schedule a background update if the cache is in the old format
+              backgroundUpdateBatch.push({ movieName, lang, type, tmdbKey, omdbKey, redisKey });
+              tmdbData = convertOldToNewStructure(parsed, type);
+            } else {
+              tmdbData = parsed;
+            }
+            usedCache = true;
+          } catch (err) {
+            logError(`Error parsing cache for key ${redisKey}:`, err);
+          }
+        }
+    
+        // If no valid cache is found, fetch from TMDB
+        if (!tmdbData) {
+          const result = await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey);
+          tmdbData = result.data;
+          fetchedFromTmdb = true;
+          keysToSet[redisKey] = JSON.stringify(tmdbData);
+        }
+    
+        stats.fromCache += usedCache ? 1 : 0;
+        stats.fromTmdb += fetchedFromTmdb ? 1 : 0;
 
-        const { data: tmdbData, fromCache, cacheSet } =
-          await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey, backgroundUpdateBatch);
-
-        stats.fromCache += fromCache ? 1 : 0;
-        stats.fromTmdb += fromCache ? 0 : 1;
-        stats.cacheSet += cacheSet ? 1 : 0;
-
-        return tmdbData as Meta;
+        return tmdbData;
       })
     );
 
-    metas = metaResults
-    .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
-    .map(result => result.value)
-    .filter(meta => meta.id && meta.name);
+    const numKeysToSet = Object.keys(keysToSet).length;
+    if (numKeysToSet > 0) {
+      await redis.mset(keysToSet);
+      stats.cacheSet = numKeysToSet;
+    }
+
+    metas = metaResults.filter(meta => meta && meta.id && meta.name);
 
     if (useCache && redis && semanticCache && metas.length > 0) {
-      
-      const trendingKey = lang && lang !== 'en'
-  ? (type === "movie" ? `trendingmovies:${lang}` : `trendingseries:${lang}`)
-  : (type === "movie" ? "trendingmovies" : "trendingseries");
+      const trendingKey =
+        lang && lang !== "en"
+          ? type === "movie"
+            ? `trendingmovies:${lang}`
+            : `trendingseries:${lang}`
+          : type === "movie"
+          ? "trendingmovies"
+          : "trendingseries";
 
       const topMetaJson = JSON.stringify(metas[0]);
       const semanticJson = JSON.stringify(metas);
@@ -103,19 +142,15 @@ export const handleCatalogRequest = async (
 
     if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
 
-    if(backgroundUpdateBatch.length > 0){
+    if (backgroundUpdateBatch.length > 0) {
       await pushBatchToQstash(backgroundUpdateBatch);
     }
 
     metas = formatMetas(metas);
-
     ctx.response.body = { query: searchQuery, metas };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    logError(
-      `Error processing ${type} catalog request for "${searchQuery}": ${errorMessage}`,
-      error
-    );
+    logError(`Error processing ${type} catalog request for "${searchQuery}": ${errorMessage}`, error);
     ctx.response.body = { metas: [] };
   }
 };
