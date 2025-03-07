@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
 
 ### Added
+- Stremio 5 allows me to get the users language from the headers, now trending movies will be based on language. Cool!
 - Added Ngrok to the Devcontainer directly.
 - Ngrok will start when the dev container is started
 - NGROK_TOKEN is needed in dev mode.
@@ -26,6 +27,7 @@ This version doesn't have any breaking changes but introduces the ability to add
 - Added OMDB fallback for Movies. Doesn't do so good with TV and don't want to waste a request. -- I'll add the ability for users to use their own key later, we are going to hit limits I'm sure !
 
 ## Changed
+- More effecient key retreval. Do a single request for all keys and a single set for all keys. This will fix the issue of 2MILLION requests within 5 days! Ooops that's an expensive mistake!
 - Added a check of the tmdbKey supplied by the user, if it fails, set to default.
 - Changed some language settings based on TMDB documentation.
 - Reduced repeating code in the tmdb module.

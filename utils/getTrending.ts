@@ -38,9 +38,11 @@ const getTrendingList = async (
 };
 
 export const getTrendingSeries = async (
-  rpdbKey?: string,
+  rpdbKey?: string | null,
+  lang?: string | null,
 ): Promise<TrendingResponse> => {
-  let metas: Meta[] = await getTrendingList(TRENDING_SERIES_LIST, "trending series");
+  const trendingKey = lang ? `${TRENDING_SERIES_LIST}:${lang}` : TRENDING_SERIES_LIST;
+  let metas: Meta[] = await getTrendingList(trendingKey, "trending series");
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
@@ -50,9 +52,11 @@ export const getTrendingSeries = async (
 };
 
 export const getTrendingMovies = async (
-  rpdbKey?: string,
+  rpdbKey?: string | null,
+  lang?: string | null,
 ): Promise<TrendingResponse> => {
-  let metas = await getTrendingList(TRENDING_MOVIES_LIST, "trending movies");
+  const trendingKey = lang ? `${TRENDING_MOVIES_LIST}:${lang}` : TRENDING_MOVIES_LIST;
+  let metas = await getTrendingList(trendingKey, "trending movies");
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
