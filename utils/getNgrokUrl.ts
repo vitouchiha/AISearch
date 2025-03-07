@@ -1,4 +1,4 @@
-import { DEV_MODE } from "../config/env.ts";
+import { NGROK_TOKEN } from "../config/env.ts";
 
 async function getNgrokPublicUrl(): Promise<string> {
     try {
@@ -22,7 +22,7 @@ async function getNgrokPublicUrl(): Promise<string> {
   }
 
 export async function getNgrokUrl(): Promise<string> {
-    if (DEV_MODE !== "true") return "";
+  if(!NGROK_TOKEN) return "";
     
     let url = "";
     try {

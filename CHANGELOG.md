@@ -39,6 +39,7 @@ This version doesn't have any breaking changes but introduces the ability to add
 - Changed the way the AI requests are made by creating a helper function to cut down on repeating code.
 
 ## Fixed
+- Fixed issues with the docker container. Should now run properly for everyone.
 - Fixed error with metadata handling. Responses are much better now. Removed useless checks.
 - Fixed the broken pipe. Shoved a favicon in. Now we won't flood.
 - Fixed issue with caching new responses from tmdb.

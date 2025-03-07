@@ -62,6 +62,7 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 const TRAKT_CLIENT_ID = String(Deno.env.get("TRAKT_CLIENT_ID"));
 const TRAKT_CLIENT_SECRET = String(Deno.env.get("TRAKT_CLIENT_SECRET"));
+const NGROK_TOKEN = String(Deno.env.get("NGROK_TOKEN"));
 const NGROK_URL = await getNgrokUrl();
 
 const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
@@ -121,6 +122,7 @@ export {
   QSTASH_CURRENT_SIGNING_KEY,
   QSTASH_NEXT_SIGNING_KEY,
   NGROK_URL,
+  NGROK_TOKEN,
   RESET_VECTOR_CRON,
   SEMANTIC_PROXIMITY,
 
