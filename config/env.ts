@@ -1,6 +1,7 @@
 import { load } from "jsr:@std/dotenv";
 import { log, logError } from "../utils/utils.ts";
 import { Buffer } from "./deps.ts";
+import { getNgrokUrl } from "../utils/getNgrokUrl.ts";
 
 // Load .env file in development mode.
 const DEV_MODE = Deno.env.get("DEV_MODE");
@@ -61,9 +62,7 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 const TRAKT_CLIENT_ID = String(Deno.env.get("TRAKT_CLIENT_ID"));
 const TRAKT_CLIENT_SECRET = String(Deno.env.get("TRAKT_CLIENT_SECRET"));
-const NGROK_URL = DEV_MODE === "true" 
-  ? new TextDecoder().decode(Deno.readFileSync("./.ngrok.env")).trim() 
-  : "";
+const NGROK_URL = await getNgrokUrl();
 
 const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
 const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");

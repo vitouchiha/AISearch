@@ -1,12 +1,14 @@
 services:
   ai-stremio-search:
-    image: ghcr.io/mkcfdc/aisearch:latest
+    image: aisearch:latest
     container_name: ai-stremio-search
     ports:
       - "${PORT}:${PORT}"
     env_file:
       - .env
     restart: always
+    depends_on: 
+      - ngrok   
     command: [
       "deno",
       "run",
@@ -21,6 +23,20 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - secure_net
+  ngrok:
+    container_name: ngrok
+    image: ngrok/ngrok:latest
+    env_file:
+      - .env
+    command:
+      - "http"
+      - "http://host.docker.internal:3004"
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_TOKEN}
+    ports:
+      - 4040:4040
     networks:
       - secure_net
 
