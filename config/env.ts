@@ -64,7 +64,7 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 const TRAKT_CLIENT_ID = Deno.env.get("TRAKT_CLIENT_ID");
 const TRAKT_CLIENT_SECRET = Deno.env.get("TRAKT_CLIENT_SECRET");
 const NGROK_TOKEN = Deno.env.get("NGROK_TOKEN");
-const NGROK_URL = await getNgrokUrl();
+const NGROK_URL = !NGROK_TOKEN ? null : await getNgrokUrl();
 
 const ENCRYPTION_KEY = Deno.env.get("ENCRYPTION_KEY");
 if(!ENCRYPTION_KEY) throw new Error('Encryption key must be set!');
@@ -80,18 +80,16 @@ if (
   !ENCRYPTION_KEY ||
   !TRAKT_CLIENT_ID ||
   !TRAKT_CLIENT_SECRET ||
-  !tmdbKey ||
-  (NO_CACHE !== "true" && (!upstashRedisUrl || !upstashRedisToken))
+  !upstashRedisToken ||
+  !upstashRedisUrl ||
+  !tmdbKey
 ) {
   logError(
-    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TRAKT_API_KEY, TRAKT_CLIENT_SECRET, TMDB_API_KEY, AI_MODEL, and (if caching is enabled) UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_VECTOR_REST_URL, and UPSTASH_VECTOR_REST_TOKEN are set in the environment. If in dev, use DEV_MODE.",
+    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TRAKT_API_KEY, TRAKT_CLIENT_SECRET, TMDB_API_KEY, AI_MODEL, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, are set in the environment. If in dev, use DEV_MODE.",
     null,
   );
   throw new Error("Missing required environment variables");
 }
-
-const UPSTASH_REDIS_URL_FINAL = NO_CACHE === "true" ? "" : upstashRedisUrl!;
-const UPSTASH_REDIS_TOKEN_FINAL = NO_CACHE === "true" ? "" : upstashRedisToken!;
 
 export {
   ROOT_URL,
@@ -108,8 +106,8 @@ export {
   OMDB_API_KEY,
   SEARCH_COUNT,
   tmdbKey as TMDB_API_KEY,
-  UPSTASH_REDIS_TOKEN_FINAL as UPSTASH_REDIS_TOKEN,
-  UPSTASH_REDIS_URL_FINAL as UPSTASH_REDIS_URL,
+  upstashRedisToken as UPSTASH_REDIS_TOKEN,
+  upstashRedisUrl as UPSTASH_REDIS_URL,
   upstashVectorToken as UPSTASH_VECTOR_TOKEN,
   upstashVectorUrl as UPSTASH_VECTOR_URL,
   QSTASH_URL,

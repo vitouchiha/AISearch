@@ -8,7 +8,9 @@ services:
       - .env.local
     restart: always
     depends_on: 
-      - ngrok  
+      - ngrok 
+      - redis
+      - serverless-redis-http 
     command: [
       "deno",
       "run",
