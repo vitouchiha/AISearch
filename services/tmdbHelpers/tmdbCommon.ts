@@ -1,6 +1,5 @@
 // tmdbCommon.ts
 import { fetchJson, formatRuntime, log, logError } from "../../utils/utils.ts";
-import { redis } from "../../config/redisCache.ts";
 import { fetchCinemeta } from "../cinemeta.ts";
 import { getOMDBMovieDetails } from "../omdb.ts";
 
@@ -30,54 +29,7 @@ export function createRedisIdKey(
     : `${type}:id:${normalizedId}`;
 }
 
-export async function tryGetFromCache(
-  redisKey: string,
-  type: "movie" | "series",
-  movieName: string
-): Promise<Meta | null> {
-  if (!redis) return null;
-  try {
-    const cachedRaw = await redis.get(redisKey);
-    if (cachedRaw) {
-      let cached: any;
-      try {
-        cached = cachedRaw;
-      } catch (parseErr) {
-        logError("Cache parse error", parseErr);
-      }
-      if (cached) {
-        log(`Returning cached details for ${type}: ${movieName}`);
-          return cached;
-      }
-    }
-  } catch (err) {
-    logError(`Redis cache error for ${type}: ${movieName}`, err);
-  }
-  return null;
-}
-
 export const shouldCache = (result: Meta): boolean => !!(result.poster && result.name);
-
-export async function cacheResult(
-  redisKey: string,
-  type: "movie" | "series",
-  lang: string,
-  result: Meta
-): Promise<boolean> {
-  if (!redis) return false;
-  try {
-    const jsonResult = JSON.stringify(result);
-    await Promise.all([
-      redis.set(redisKey, jsonResult),
-      result.id && lang === 'en' ? redis.set(`${type}:${result.id}`, jsonResult) : redis.set(`${type}:${lang}:${result.id}`, jsonResult),
-    ]);
-    log(`Cached details for ${type}: ${result.name}`);
-    return true;
-  } catch (err) {
-    logError(`Error setting cache for ${type}: ${result.name}`, err);
-    return false;
-  }
-}
 
 export async function fetchTmdbData(
   movieName: string,

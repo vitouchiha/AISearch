@@ -41,7 +41,7 @@ function parseKeysParam(keysParam: string | undefined): Keys {
       tmdbKey: parsed.tmdbKey === "default" ? TMDB_API_KEY : (parsed.tmdbKey || TMDB_API_KEY),
       omdbKey: parsed.omdbKey || OMDB_API_KEY,
     };
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
     // console.error("[parseKeysParam] Error parsing keys:", error);
     return { ...DEFAULT_KEYS };
   }
