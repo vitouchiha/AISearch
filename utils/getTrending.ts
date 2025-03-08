@@ -31,7 +31,7 @@ export const getTrendingSeries = async (
   rpdbKey?: string | null,
   lang?: string | null,
 ): Promise<TrendingResponse> => {
-  const trendingKey = lang ? `${TRENDING_SERIES_LIST}:${lang}` : TRENDING_SERIES_LIST;
+  const trendingKey = lang && lang !== 'en' ? `${TRENDING_SERIES_LIST}:${lang}` : TRENDING_SERIES_LIST;
   let metas = await getTrendingList(trendingKey, "trending series");
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
@@ -45,7 +45,7 @@ export const getTrendingMovies = async (
   rpdbKey?: string | null,
   lang?: string | null,
 ): Promise<TrendingResponse> => {
-  const trendingKey = lang ? `${TRENDING_MOVIES_LIST}:${lang}` : TRENDING_MOVIES_LIST;
+  const trendingKey = lang && lang !== 'en' ? `${TRENDING_MOVIES_LIST}:${lang}` : TRENDING_MOVIES_LIST;
   let metas = await getTrendingList(trendingKey, "trending movies");
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);

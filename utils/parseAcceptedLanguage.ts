@@ -6,7 +6,8 @@ export function parseAcceptLanguage(header: string): string | null {
       const parts = entry.trim().split(";");
   
       // The language code is the first part
-      const code = parts[0].trim();
+      const rawCode = parts[0].trim();
+      const code = rawCode.split("-")[0];
   
       // Parse the quality factor if provided, otherwise default to 1.0
       let quality = 1.0;
