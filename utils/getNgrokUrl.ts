@@ -22,7 +22,7 @@ async function getNgrokPublicUrl(): Promise<string> {
   }
 
 export async function getNgrokUrl(): Promise<string> {
-  if(!NGROK_TOKEN) return "";
+  if(!NGROK_TOKEN || NGROK_TOKEN.length === 0) return "";
     
     let url = "";
     try {
