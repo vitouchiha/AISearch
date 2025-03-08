@@ -18,7 +18,7 @@ const getBaseHeaders = (accessToken?: string) => ({
 export const getTraktRecentWatches = async (
   type: "movie" | "series",
   traktKey: string,
-  limit: number = 10
+  limit: number = 25
 ) => {
   const endpoint = type === "movie" ? "movies" : "shows";
   const url = `https://api.trakt.tv/sync/history/${endpoint}?limit=${limit}`;
@@ -32,7 +32,23 @@ export const getTraktRecentWatches = async (
       throw new Error(`Error fetching recent watches: ${response.statusText}`);
     }
     const data = await response.json();
-    return data;
+
+    // Remove duplicate entries based on the unique identifier
+    const seenIds = new Set<number | string>();
+    const uniqueData = [];
+    for (const event of data) {
+      let id: number | string | undefined;
+      if (type === "movie" && event.movie && event.movie.ids) {
+        id = event.movie.ids.trakt;
+      } else if (type === "series" && event.show && event.show.ids) {
+        id = event.show.ids.trakt;
+      }
+      if (id && !seenIds.has(id)) {
+        seenIds.add(id);
+        uniqueData.push(event);
+      }
+    }
+    return uniqueData;
   } catch (error) {
     console.error("Error fetching recent watches", error);
     return [];

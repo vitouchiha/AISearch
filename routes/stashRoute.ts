@@ -1,4 +1,5 @@
 import { type Context, Router, Receiver } from "../config/deps.ts";
+import { redis } from "../config/redisCache.ts";
 import { fetchNewDataInBackground } from "../services/tmdbHelpers/fetchNewDataInBackground.ts";
 import { QSTASH_SECRET, QSTASH_CURRENT_SIGNING_KEY, QSTASH_NEXT_SIGNING_KEY, ROOT_URL, DEV_MODE, NGROK_URL } from "../config/env.ts";
 
@@ -33,7 +34,7 @@ const handleCacheUpdateBatch = async (ctx: Context): Promise<void> => {
       body: rawBody,
       url: `${DOMAIN}/api/cache-update`,
     });
-  } catch (err) {
+  } catch (_err) {
     ctx.response.status = 401;
     ctx.response.body = { error: "Invalid signature" };
     return;
@@ -50,7 +51,7 @@ const handleCacheUpdateBatch = async (ctx: Context): Promise<void> => {
   let parsedBody: Record<string,string>;
   try {
     parsedBody = JSON.parse(rawBody);
-  } catch (err) {
+  } catch (_err) {
     ctx.response.status = 400;
     ctx.response.body = { error: "Invalid JSON body" };
     return;
@@ -64,7 +65,7 @@ const handleCacheUpdateBatch = async (ctx: Context): Promise<void> => {
   }
 
   // Process each task concurrently.
-  await Promise.all(
+  const results = await Promise.all(
     tasks.map((task: BackgroundTask) =>
       fetchNewDataInBackground(
         task.type,
@@ -76,6 +77,13 @@ const handleCacheUpdateBatch = async (ctx: Context): Promise<void> => {
       )
     )
   );
+
+  const msetObj = results.reduce((acc: Record<string, string>, cur) => {
+    if (cur) return { ...acc, ...cur };
+    return acc;
+  }, {});
+
+  if (Object.keys(msetObj).length > 0 && redis) await redis.mset(msetObj);
 
   console.log("!!! Used Qstash Success !!!");
   console.log(`Processed ${tasks.length} tasks!`);

@@ -1,5 +1,5 @@
 // tmdbBackground.ts
-import { fetchTmdbData, cacheResult, shouldCache } from "../tmdbHelpers/tmdbCommon.ts"
+import { fetchTmdbData, shouldCache } from "../tmdbHelpers/tmdbCommon.ts"
 import { redis } from "../../config/redisCache.ts";
 import { log, logError } from "../../utils/utils.ts";
 import type { Meta } from "../../config/types/meta.ts";
@@ -14,14 +14,24 @@ export async function fetchNewDataInBackground(
   tmdbKey: string,
   omdbKey: string,
   redisKey: string,
-): Promise<void> {
+): Promise<Record<string, string> | null> {
   try {
     const updated: Meta = await fetchTmdbData(movieName, lang, type, tmdbKey, omdbKey);
     if (shouldCache(updated) && redis) {
-      await cacheResult(redisKey, type, lang, updated);
+      const jsonResult = JSON.stringify(updated);
+      // Use different key schemas if needed.
+      const secondKey =
+        updated.id && lang === "en"
+          ? `${type}:${updated.id}`
+          : `${type}:${lang}:${updated.id}`;
       log(`Background updated cache for ${type}: ${movieName}`);
+      return {
+        [redisKey]: jsonResult,
+        [secondKey]: jsonResult,
+      };
     }
   } catch (err) {
     logError(`Background fetch error for ${type}: ${movieName}`, err);
   }
+  return null;
 }

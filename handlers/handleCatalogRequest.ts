@@ -4,13 +4,12 @@ import { type Context } from "../config/deps.ts";
 import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
 import { log, logError, formatMetas } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
-import { getTmdbDetailsByName } from "../services/tmdb.ts";
 import type { Meta } from "../config/types/meta.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
 import { pushBatchToQstash } from "../config/qstash.ts";
 import type { BackgroundTaskParams } from "../config/types/types.ts";
-import { createRedisKey } from "../services/tmdbHelpers/tmdbCommon.ts";
+import { createRedisKey, fetchTmdbData } from "../services/tmdbHelpers/tmdbCommon.ts";
 import { isOldCacheStructure, convertOldToNewStructure } from "../services/tmdbHelpers/fixOldCache.ts";
 
 const useCache = NO_CACHE !== "true";
@@ -62,9 +61,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
     // Initialize stats
     const stats = { fromCache: 0, fromTmdb: 0, cacheSet: 0 };
 
-    // Build Redis keys for all movie recommendations
     const redisKeys = movieNames.map(movieName => createRedisKey(movieName, lang, type));
-    // Fetch all cached entries at once
     const cachedResults = await redis?.mget(redisKeys) || [];
     const keysToSet: Record<string, string> = {};
 
@@ -81,7 +78,6 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
           try {
             const parsed = cached;
             if (isOldCacheStructure(parsed)) {
-              // Schedule a background update if the cache is in the old format
               backgroundUpdateBatch.push({ movieName, lang, type, tmdbKey, omdbKey, redisKey });
               tmdbData = convertOldToNewStructure(parsed, type);
             } else {
@@ -94,8 +90,8 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
         }
 
         if (!tmdbData) {
-          const result = await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey);
-          tmdbData = result.data;
+          const result = await fetchTmdbData(movieName, lang, type, tmdbKey, omdbKey);
+          tmdbData = result;
           fetchedFromTmdb = true;
           keysToSet[redisKey] = JSON.stringify(tmdbData);
         }

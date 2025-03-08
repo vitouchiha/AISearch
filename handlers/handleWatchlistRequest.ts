@@ -2,85 +2,137 @@ import type { Context } from "../config/deps.ts";
 import type { Meta } from "../config/types/meta.ts";
 import type { BackgroundTaskParams } from "../config/types/types.ts";
 import { redis } from "../config/redisCache.ts";
-import { formatMetas, log } from "../utils/utils.ts";
+import { formatMetas, log, logError } from "../utils/utils.ts";
 import { getTraktMovieRecommendations } from "../services/ai.ts";
-import { getTmdbDetailsByName } from "../services/tmdb.ts";
+import { fetchTmdbData } from "../services/tmdbHelpers/tmdbCommon.ts";
 import { getTraktRecentWatches } from "../services/trakt.ts";
 import { SEARCH_COUNT } from "../config/env.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
 import { pushBatchToQstash } from "../config/qstash.ts";
+import { createRedisKey } from "../services/tmdbHelpers/tmdbCommon.ts";
+import { isOldCacheStructure, convertOldToNewStructure } from "../services/tmdbHelpers/fixOldCache.ts";
 
 export const handleTraktWatchlistRequest = async (ctx: Context) => {
   const { tmdbKey, googleKey, openAiKey, traktKey, rpdbKey, omdbKey, userId, type } = ctx.state;
-  // TODO: Add users language to the state!!
-  //const lang = 'en'; // everyone is english for now.
-  // We might not need to depending on how trakt sends it's data..
-
+  
+  // Validate required parameters
   if (!traktKey || !type || !userId || !tmdbKey || (!googleKey && !openAiKey)) {
     ctx.response.body = { metas: [] };
     return;
   }
 
   const cacheKey = `user:${userId}:recent-${type}`;
+  let metas: Meta[] = [];
   const backgroundUpdateBatch: BackgroundTaskParams[] = [];
-  const cache = await redis?.get(cacheKey) as Meta[];
-  if (cache) {
-    if (cache.showName) { await redis?.del(cacheKey) }
-    if (rpdbKey) {
-      await updateRpdbPosters(cache, rpdbKey);
-    }
-    //ctx.response.headers.set("Cache-Control", "public, max-age=3600");
-    const metas = formatMetas(cache);
-    ctx.response.body = { metas };
-    return;
-  }
 
-  const recentWatches = await getTraktRecentWatches(type, traktKey, SEARCH_COUNT);
-  const titles = recentWatches
-    .map((event: any) => {
-      if (type === "movie") {
-        return event.movie?.title;
-      } else {
-        return event.show?.title;
+  try {
+    // Check if semantic cache already exists
+    const cachedResult = await redis?.get(cacheKey);
+    if (cachedResult) {
+      let parsedCache: any;
+      try {
+        parsedCache = cachedResult;
+      } catch (error) {
+        logError(`Error parsing cache for key ${cacheKey}:`, error);
       }
-    })
-    .filter(Boolean);
+      if (parsedCache) {
+        // Check for old cache structure
+        if (isOldCacheStructure(parsedCache)) {
+          backgroundUpdateBatch.push({
+            type,
+            movieName: parsedCache.name,
+            lang: parsedCache.lang,
+            tmdbKey,
+            omdbKey,
+            redisKey: cacheKey,
+          });
+          metas = convertOldToNewStructure(parsedCache, type);
+        } else {
+          metas = parsedCache;
+        }
+        if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
+        metas = formatMetas(metas);
+        ctx.response.body = { metas };
+        return;
+      }
+    }
 
-  const titleString = titles.join(", ");
+    // Get recent watch history and extract titles
+    const recentWatches = await getTraktRecentWatches(type, traktKey, SEARCH_COUNT);
+    const titles = recentWatches
+      .map((event: any) => type === "movie" ? event.movie?.title : event.show?.title)
+      .filter(Boolean);
+    const titleString = titles.join(", ");
 
-  const { provider, apiKey } = getProviderInfoFromState(ctx.state);
+    // Retrieve movie recommendations based on recent watch titles
+    const { provider, apiKey } = getProviderInfoFromState(ctx.state);
+    const { recommendations: movieNames, lang } = await getTraktMovieRecommendations(titleString, type, { provider, apiKey });
+    if (!movieNames?.length) {
+      ctx.response.body = { metas: [] };
+      return;
+    }
 
-  const { recommendations: movieNames, lang } = await getTraktMovieRecommendations(titleString, type, { provider, apiKey });
-  const stats = { fromCache: 0, fromTmdb: 0, cacheSet: 0 };
+    // Prepare redis keys for individual movie data
+    const redisKeys = movieNames.map(movieName => createRedisKey(movieName, lang, type));
+    const cachedResults = await redis?.mget(redisKeys) || [];
+    const keysToSet: Record<string, string> = {};
 
-  const metaResults = await Promise.allSettled(
-    movieNames.map(async (movieName, index) => {
-      log(`Fetching recommendation ${index + 1} for ${type}: ${movieName}`);
+    const stats = { fromCache: 0, fromTmdb: 0, cacheSet: 0 };
 
-      const { data: tmdbData, fromCache, cacheSet } =
-        await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey, backgroundUpdateBatch);
+    // For each movie, try retrieving TMDB data from cache first
+    const metaResults = await Promise.all(
+      movieNames.map(async (movieName, index) => {
+        const redisKey = redisKeys[index];
+        let tmdbData: Meta | null = null;
+        const cached = cachedResults[index];
+        if (cached) {
+          try {
+            const parsed = cached;
+            if (isOldCacheStructure(parsed)) {
+              backgroundUpdateBatch.push({ movieName, lang, type, tmdbKey, omdbKey, redisKey });
+              tmdbData = convertOldToNewStructure(parsed, type);
+            } else {
+              tmdbData = parsed;
+            }
+            stats.fromCache++;
+          } catch (err) {
+            logError(`Error parsing cache for key ${redisKey}:`, err);
+          }
+        }
+        if (!tmdbData) {
+          tmdbData = await fetchTmdbData(movieName, lang, type, tmdbKey, omdbKey);
+          stats.fromTmdb++;
+          keysToSet[redisKey] = JSON.stringify(tmdbData);
+        }
+        return tmdbData;
+      })
+    );
 
-      stats.fromCache += fromCache ? 1 : 0;
-      stats.fromTmdb += fromCache ? 0 : 1;
-      stats.cacheSet += cacheSet ? 1 : 0;
+    // Set any new TMDB data into cache
+    if (Object.keys(keysToSet).length > 0) {
+      await redis?.mset(keysToSet);
+      stats.cacheSet = Object.keys(keysToSet).length;
+    }
 
-      return tmdbData;
-    })
-  );
+    // Filter out any invalid data and cache aggregated result
+    metas = metaResults.filter(meta => meta && meta.id && meta.name);
+    if (metas.length > 0) {
+      await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
+    }
+    if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
+    if (backgroundUpdateBatch.length > 0) await pushBatchToQstash(backgroundUpdateBatch);
 
-  let metas = metaResults
-    .filter((result): result is PromiseFulfilledResult<Meta> => result.status === "fulfilled" && result.value !== null)
-    .map(result => result.value)
-    .filter(meta => meta.id && meta.name);
+    metas = formatMetas(metas);
+    ctx.response.body = { metas };
 
-  if (metas.length > 0) await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
-  if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
-  if (backgroundUpdateBatch.length > 0) await pushBatchToQstash(backgroundUpdateBatch);
-
-  metas = formatMetas(metas);
-
-  //ctx.response.headers.set("Cache-Control", "public, max-age=3600");
-  ctx.response.body = { metas };
-
-}
+    // Optionally, log stats for monitoring
+    log(`${stats.fromCache} ${type}(s) returned from cache.`);
+    log(`${stats.fromTmdb} ${type}(s) fetched from TMDB.`);
+    log(`${stats.cacheSet} ${type}(s) added to cache.`);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    logError(`Error processing ${type} watchlist request for user ${userId}: ${errorMessage}`, error);
+    ctx.response.body = { metas: [] };
+  }
+};
