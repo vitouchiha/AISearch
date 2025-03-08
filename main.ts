@@ -46,7 +46,7 @@ async function startServer() {
 
   app.addEventListener("listen", ({ port }) => {
     console.log(`Stremio AI Addon running on port ${port}`);
-    if (DEV_MODE) console.log(`Ngrok running on ${NGROK_URL}`);
+    if (DEV_MODE === "true" && NGROK_URL.length > 0) console.log(`Ngrok running on ${NGROK_URL}`);
   });
 
   await app.listen({ hostname: "0.0.0.0", port: PORT });
