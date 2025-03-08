@@ -63,7 +63,7 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 const TRAKT_CLIENT_ID = String(Deno.env.get("TRAKT_CLIENT_ID"));
 const TRAKT_CLIENT_SECRET = String(Deno.env.get("TRAKT_CLIENT_SECRET"));
 const NGROK_TOKEN = String(Deno.env.get("NGROK_TOKEN"));
-const NGROK_URL = await getNgrokUrl();
+const NGROK_URL = NGROK_TOKEN.length > 0 ? await getNgrokUrl() : "";
 
 const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
 const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");
