@@ -12,15 +12,6 @@ interface TrendingResponse {
   metas: Meta[];
 }
 
-const parseMeta = (item: unknown, context: string): Meta | null => {
-  try {
-    return item as Meta;
-  } catch (error) {
-    console.error(`Error parsing ${context} item:`, item, error);
-    return null;
-  }
-};
-
 const getTrendingList = async (
   listKey: string,
   context: string,
@@ -29,7 +20,6 @@ const getTrendingList = async (
     const rawList = await redis?.lrange(listKey, 0, -1);
     if (!rawList) return [];
     return rawList
-      .map((item: Meta) => parseMeta(item, context))
       .filter((meta: Meta): meta is Meta => meta !== null);
   } catch (error) {
     logError(`Error fetching ${context} from Redis:`, error);
@@ -42,7 +32,7 @@ export const getTrendingSeries = async (
   lang?: string | null,
 ): Promise<TrendingResponse> => {
   const trendingKey = lang ? `${TRENDING_SERIES_LIST}:${lang}` : TRENDING_SERIES_LIST;
-  let metas: Meta[] = await getTrendingList(trendingKey, "trending series");
+  let metas = await getTrendingList(trendingKey, "trending series");
   if (rpdbKey) {
     await updateRpdbPosters(metas, rpdbKey);
   }
