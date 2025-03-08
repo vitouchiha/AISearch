@@ -62,35 +62,41 @@ const handleManifest = async (ctx: ManifestContext) => {
 
 const handleConfigure = async (ctx: ConfigureContext) => {
   try {
+    // Kick off file reading concurrently with other tasks.
     const filePromise = Deno.readTextFile("./views/configure.html");
 
-    let installs: string = "NO CACHE";
-    let dbSize: string = "NO CACHE";
-    let vectorCount: string = "NO CACHE";
+    // Build an array of tasks with fallbacks.
+    const tasks = [
+      redis ? redis.get<string>("manifest_requests") : Promise.resolve(null),
+      redis ? redis.dbsize() : Promise.resolve(null),
+      index ? index.info() : Promise.resolve(null)
+    ];
 
-    if (useCache && redis && index) {
-      const [installsVal, dbSizeVal, indexInfo] = await Promise.all([
-        redis.get("manifest_requests"),
-        redis.dbsize(),
-        index.info()
-      ]);
-      installs = String(installsVal) || "0";
-      dbSize = String(dbSizeVal) || "0";
-      vectorCount = String(indexInfo.vectorCount) || "0";
-    }
+    // Await all tasks concurrently.
+    const [installsVal, dbSizeVal, indexInfo] = await Promise.all(tasks);
 
+    // Use fallbacks if any values are null/undefined.
+    const installs = installsVal || "0";
+    const dbSize = (dbSizeVal !== null && dbSizeVal !== undefined)
+      ? String(dbSizeVal)
+      : "0";
+    const vectorCount = indexInfo?.vectorCount !== undefined
+      ? String(indexInfo.vectorCount)
+      : "NO CACHE";
+
+    // Wait for the HTML template to load.
     const htmlContent = await filePromise;
 
+    // Replace placeholders with actual values.
     const html = htmlContent
       .replace("{{ROOT_URL}}", ROOT_URL)
       .replace("{{VERSION}}", STATIC_MANIFEST.version)
-      .replace("{{INSTALLS}}", installs)
+      .replace("{{INSTALLS}}", String(installs))
       .replace("{{DB_SIZE}}", dbSize)
       .replace("{{VECTOR_COUNT}}", vectorCount)
       .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
 
     ctx.response.headers.set("Content-Type", "text/html");
-    //ctx.response.headers.set("Cache-Control", "public, max-age=86400");
     ctx.response.body = html;
   } catch (error) {
     console.error("Error serving configure page:", error);
@@ -98,6 +104,7 @@ const handleConfigure = async (ctx: ConfigureContext) => {
     ctx.response.body = "Internal Server Error";
   }
 };
+
 
 
 const router = new Router();
