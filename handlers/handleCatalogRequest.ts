@@ -16,9 +16,9 @@ import { isOldCacheStructure, convertOldToNewStructure } from "../services/tmdbH
 const useCache = NO_CACHE !== "true";
 
 export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
-  const { searchQuery, type, googleKey, openAiKey, tmdbKey, rpdbKey, omdbKey } = ctx.state;
+  const { searchQuery, type, tmdbKey, rpdbKey, omdbKey } = ctx.state;
 
-  if (!searchQuery || !type || (!googleKey && !openAiKey)) {
+  if (!searchQuery || !type) {
     ctx.response.body = { metas: [] };
     return;
   }
@@ -65,7 +65,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
     // Build Redis keys for all movie recommendations
     const redisKeys = movieNames.map(movieName => createRedisKey(movieName, lang, type));
     // Fetch all cached entries at once
-    const cachedResults = await redis?.mget(redisKeys);
+    const cachedResults = await redis?.mget(redisKeys) || [];
     const keysToSet: Record<string, string> = {};
 
     const metaResults = await Promise.all(
@@ -76,7 +76,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
         let usedCache = false;
         let fetchedFromTmdb = false;
     
-        const cached = cachedResults[index];
+        const cached = cachedResults[index] as Meta;
         if (cached) {
           try {
             const parsed = cached;
@@ -92,8 +92,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
             logError(`Error parsing cache for key ${redisKey}:`, err);
           }
         }
-    
-        // If no valid cache is found, fetch from TMDB
+
         if (!tmdbData) {
           const result = await getTmdbDetailsByName(movieName, lang, type, tmdbKey, omdbKey);
           tmdbData = result.data;
@@ -110,7 +109,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
 
     const numKeysToSet = Object.keys(keysToSet).length;
     if (numKeysToSet > 0) {
-      await redis.mset(keysToSet);
+      await redis?.mset(keysToSet);
       stats.cacheSet = numKeysToSet;
     }
 
@@ -128,8 +127,8 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
 
       const topMetaJson = JSON.stringify(metas[0]);
       const semanticJson = JSON.stringify(metas);
-
-      await Promise.all([
+ 
+      Promise.all([
         redis.lpush(trendingKey, topMetaJson),
         redis.ltrim(trendingKey, 0, SEARCH_COUNT - 1),
         semanticCache.set(cacheKey, semanticJson),

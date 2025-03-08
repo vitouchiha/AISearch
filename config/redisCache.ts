@@ -6,7 +6,10 @@ export const redis = NO_CACHE === "true"
   : new Redis({
     url: UPSTASH_REDIS_URL!,
     token: UPSTASH_REDIS_TOKEN!,
+    enableAutoPipelining: true,
   });
+
+export const pipeline = redis.pipeline();
 
 const ratelimit = NO_CACHE === "true" || !redis
   ? null
