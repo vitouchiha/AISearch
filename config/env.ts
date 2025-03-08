@@ -60,12 +60,13 @@ const portStr = Deno.env.get("PORT") || "3000";
 const PORT = parseInt(portStr, 10);
 const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
-const TRAKT_CLIENT_ID = String(Deno.env.get("TRAKT_CLIENT_ID"));
-const TRAKT_CLIENT_SECRET = String(Deno.env.get("TRAKT_CLIENT_SECRET"));
-const NGROK_TOKEN = String(Deno.env.get("NGROK_TOKEN"));
-const NGROK_URL = NGROK_TOKEN.length > 0 ? await getNgrokUrl() : "";
+const TRAKT_CLIENT_ID = Deno.env.get("TRAKT_CLIENT_ID");
+const TRAKT_CLIENT_SECRET = Deno.env.get("TRAKT_CLIENT_SECRET");
+const NGROK_TOKEN = Deno.env.get("NGROK_TOKEN");
+const NGROK_URL = await getNgrokUrl();
 
-const ENCRYPTION_KEY = String(Deno.env.get("ENCRYPTION_KEY"));
+const ENCRYPTION_KEY = Deno.env.get("ENCRYPTION_KEY");
+if(!ENCRYPTION_KEY) throw new Error('Encryption key must be set!');
 const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");
 if (keyBuffer.length !== 32) {
   throw new Error(`Invalid ENCRYPTION_KEY length: ${keyBuffer.length} bytes, expected 32 bytes for AES-256. Must be a 64-char hex string.`);
