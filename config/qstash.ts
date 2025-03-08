@@ -3,7 +3,7 @@ import { log, logError } from "../utils/utils.ts";
 import type { BackgroundTaskParams } from "./types/types.ts";
 import { QSTASH_TOKEN, ROOT_URL, QSTASH_SECRET, NGROK_URL, NGROK_TOKEN } from "./env.ts";
 
-const client = new QstashClient({
+const client = !QSTASH_TOKEN ? null : new QstashClient({
   token: QSTASH_TOKEN,
 });
 
@@ -12,6 +12,8 @@ const DOMAIN = NGROK_TOKEN ? NGROK_URL : ROOT_URL;
 export async function pushBatchToQstash(
     tasks: BackgroundTaskParams[]
   ): Promise<void> {
+    if(!client) return;
+    
     try {
       await client.publish({
         url: `${DOMAIN}/api/cache-update`,

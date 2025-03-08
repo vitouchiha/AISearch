@@ -1,14 +1,18 @@
 services:
   ai-stremio-search:
-    image: ghcr.io/mkcfdc/aisearch:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: ai-stremio-search
     ports:
       - "${PORT}:${PORT}"
     env_file:
-      - .env.local
+      - .env
     restart: always
     depends_on: 
       - ngrok  
+      - redis
+      - serverless-redis-http 
     command: [
       "deno",
       "run",
@@ -25,12 +29,11 @@ services:
       retries: 3
     networks:
       - secure_net
-
   ngrok:
     container_name: ngrok
     image: ngrok/ngrok:latest
     env_file:
-      - .env.local
+      - .env
     command:
       - "http"
       - "http://host.docker.internal:${PORT}"
@@ -40,17 +43,15 @@ services:
       - 4040:4040
     networks:
       - secure_net
-
   redis:
     image: redis
     ports:
       - '6379:6379'
     networks:
       - secure_net
-
   serverless-redis-http:
     env_file:
-      - .env.local
+      - .env
     ports:
       - '8079:80'
     depends_on:

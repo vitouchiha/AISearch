@@ -44,6 +44,7 @@ const upstashRedisUrl = Deno.env.get("UPSTASH_REDIS_REST_URL");
 const upstashRedisToken = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
 const upstashVectorUrl = Deno.env.get("UPSTASH_VECTOR_REST_URL");
 const upstashVectorToken = Deno.env.get("UPSTASH_VECTOR_REST_TOKEN");
+const NO_SEMANTIC_SEARCH = Deno.env.get("DISABLE_SEMANTIC_SEARCH");
 const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
@@ -79,13 +80,8 @@ if (
   !ENCRYPTION_KEY ||
   !TRAKT_CLIENT_ID ||
   !TRAKT_CLIENT_SECRET ||
-  !QSTASH_URL ||
-  !QSTASH_TOKEN ||
-  !QSTASH_SECRET ||
-  !QSTASH_CURRENT_SIGNING_KEY ||
-  !QSTASH_NEXT_SIGNING_KEY ||
   !tmdbKey ||
-  (NO_CACHE !== "true" && (!upstashRedisUrl || !upstashRedisToken || !upstashVectorUrl || !upstashVectorToken))
+  (NO_CACHE !== "true" && (!upstashRedisUrl || !upstashRedisToken))
 ) {
   logError(
     "Missing API keys or configuration: Ensure GEMINI_API_KEY, TRAKT_API_KEY, TRAKT_CLIENT_SECRET, TMDB_API_KEY, AI_MODEL, and (if caching is enabled) UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_VECTOR_REST_URL, and UPSTASH_VECTOR_REST_TOKEN are set in the environment. If in dev, use DEV_MODE.",
@@ -96,8 +92,6 @@ if (
 
 const UPSTASH_REDIS_URL_FINAL = NO_CACHE === "true" ? "" : upstashRedisUrl!;
 const UPSTASH_REDIS_TOKEN_FINAL = NO_CACHE === "true" ? "" : upstashRedisToken!;
-const UPSTASH_VECTOR_URL_FINAL = NO_CACHE === "true" ? "" : upstashVectorUrl!;
-const UPSTASH_VECTOR_TOKEN_FINAL = NO_CACHE === "true" ? "" : upstashVectorToken!;
 
 export {
   ROOT_URL,
@@ -105,6 +99,7 @@ export {
   ENCRYPTION_KEY,
   DEV_MODE,
   NO_CACHE,
+  NO_SEMANTIC_SEARCH,
   TRAKT_CLIENT_ID,
   TRAKT_CLIENT_SECRET,
   geminiKey as GEMINI_API_KEY,
@@ -115,8 +110,8 @@ export {
   tmdbKey as TMDB_API_KEY,
   UPSTASH_REDIS_TOKEN_FINAL as UPSTASH_REDIS_TOKEN,
   UPSTASH_REDIS_URL_FINAL as UPSTASH_REDIS_URL,
-  UPSTASH_VECTOR_TOKEN_FINAL as UPSTASH_VECTOR_TOKEN,
-  UPSTASH_VECTOR_URL_FINAL as UPSTASH_VECTOR_URL,
+  upstashVectorToken as UPSTASH_VECTOR_TOKEN,
+  upstashVectorUrl as UPSTASH_VECTOR_URL,
   QSTASH_URL,
   QSTASH_TOKEN,
   QSTASH_SECRET,

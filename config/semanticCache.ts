@@ -1,17 +1,13 @@
 import { Index, SemanticCache } from "./deps.ts";
-import { UPSTASH_VECTOR_TOKEN, UPSTASH_VECTOR_URL, NO_CACHE, RESET_VECTOR_CRON, SEMANTIC_PROXIMITY } from "./env.ts";
+import { UPSTASH_VECTOR_TOKEN, UPSTASH_VECTOR_URL, RESET_VECTOR_CRON, SEMANTIC_PROXIMITY } from "./env.ts";
 import { log, logError } from "../utils/utils.ts";
 
-export const index = NO_CACHE === "true"
-  ? null
-  : new Index({
+export const index = !UPSTASH_VECTOR_URL && !UPSTASH_VECTOR_TOKEN ? null : new Index({
       url: UPSTASH_VECTOR_URL,
       token: UPSTASH_VECTOR_TOKEN,
     });
 
-export const semanticCache = NO_CACHE === "true" || !index
-  ? null
-  : new SemanticCache({ index, minProximity: SEMANTIC_PROXIMITY });
+export const semanticCache = !index ? null : new SemanticCache({ index, minProximity: SEMANTIC_PROXIMITY });
 
   Deno.cron("Reset semantic cache", RESET_VECTOR_CRON, async () => {
     if (!index) {

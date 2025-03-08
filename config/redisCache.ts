@@ -9,7 +9,7 @@ export const redis = NO_CACHE === "true"
     enableAutoPipelining: true,
   });
 
-export const pipeline = redis.pipeline();
+export const pipeline = redis?.pipeline();
 
 const ratelimit = NO_CACHE === "true" || !redis
   ? null

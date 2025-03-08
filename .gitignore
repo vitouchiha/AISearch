@@ -1,4 +1,5 @@
 .env
+.env.local
 cloudflared/
 node_modules/
 logs/

@@ -48,8 +48,8 @@ deno task dev
 
 To run the project locally, you need the following services and API keys:
 
-- **Upstash Redis**: Required for caching and fast data access.
-- **Upstash Vector Database**: For vector-based search and storage.
+- **Upstash Redis**: Required for caching and fast data access. (optional -- you can now self host this using redis.)
+- **Upstash Vector Database**: For vector-based search and storage. (optional)
 - **TMDB API Key**: Get yours from [TMDB](https://www.themoviedb.org/).
 - **AI Studio API Key**: Obtain your API key from AI Studio.
 - **Trakt Client ID and Secret**: Obtain client ID and Secret from trakt.tv
@@ -78,7 +78,7 @@ Your `.env` file should contain the following keys:
 
 ### Generate Encryption Key
 
-Use the command below to generate a secure 32-byte encryption key using Node.js:
+Use the command below to generate a secure 32-byte encryption key, tokens and secrets using Node.js:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
@@ -86,33 +86,33 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ```dotenv
 ROOT_URL="http://localhost:3003" # USED FOR CONFIGURATION PAGE
-JWT_SECRET="can-be-anything-you-want"
-ENCRYPTION_KEY=""
+PORT=3003
+JWT_SECRET="can-be-anything-you-want" # GENERATE WITH THE SUPPLIED COMMAND.
+ENCRYPTION_KEY="" # GENERATE WITH THE SUPPLIED COMMAND.
 GEMINI_API_KEY=""
 TMDB_API_KEY=""
 OMDB_API_KEY=""
 RPDB_FREE_API_KEY=""
 TRAKT_CLIENT_ID=
 TRAKT_CLIENT_SECRET=
-UPSTASH_REDIS_REST_URL=""
-UPSTASH_REDIS_REST_TOKEN=""
-UPSTASH_VECTOR_REST_URL=""
-UPSTASH_VECTOR_REST_TOKEN=""
+UPSTASH_REDIS_REST_URL="" # LOCAL HOSTING: THIS IS: http://serverless-redis-http
+UPSTASH_REDIS_REST_TOKEN="" # LOCAL HOSTING: GENERATE WITH THE ABOVE COMMAND.
+
+NGROK_TOKEN="" # Required for local hosting.
+
+## EVERYTHING BELOW THIS LINE IS OPTIONAL.
+GOOGLE_MODEL="gemini-2.0-pro-exp-02-05"
+OPENAI_MODEL="o4-mini"
+SEARCH_COUNT=20
+DEV_MODE=false 
+UPSTASH_VECTOR_REST_URL="" # LEAVE OUT IF NOT USING VECTOR CACHING
+UPSTASH_VECTOR_REST_TOKEN="" # LEAVE OUT IF NOT USING VECTOR CACHING
 QSTASH_URL=""
 QSTASH_TOKEN=""
 
 QSTASH_CURRENT_SIGNING_KEY=""
 QSTASH_NEXT_SIGNING_KEY=""
 QSTASH_SECRET=""
-NGROK_TOKEN="" # This is required for local hosting.
-
-## EVERYTHING BELOW THIS LINE IS OPTIONAL.
-GOOGLE_MODEL="gemini-2.0-pro-exp-02-05"
-OPENAI_MODEL="o4-mini"
-SEARCH_COUNT=20
-PORT=3003
-CLOUDFLARED_TOKEN=""
-DEV_MODE=false 
 SEMANTIC_PROXIMITY=0.95 # Defaults to 0.95 max value of 1.00
 RESET_VECTOR_CRON="0 0 1 * *"
 ```

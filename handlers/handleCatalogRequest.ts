@@ -28,7 +28,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
 
   try {
     // Check semantic cache first
-    if (useCache && semanticCache) {
+    if (semanticCache) {
       try {
         const cachedResult = await semanticCache.get(cacheKey);
         if (cachedResult) {
@@ -111,7 +111,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
 
     metas = metaResults.filter(meta => meta && meta.id && meta.name);
 
-    if (useCache && redis && semanticCache && metas.length > 0) {
+    if (useCache && redis && metas.length > 0) {
       const trendingKey =
         lang && lang !== "en"
           ? type === "movie"
@@ -127,7 +127,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
       Promise.all([
         redis.lpush(trendingKey, topMetaJson),
         redis.ltrim(trendingKey, 0, SEARCH_COUNT - 1),
-        semanticCache.set(cacheKey, semanticJson),
+        semanticCache ? semanticCache.set(cacheKey, semanticJson) : null,
       ]);
 
       log(`${stats.fromCache} ${type}(s) returned from cache.`);

@@ -1,5 +1,5 @@
-FROM denoland/deno:alpine-2.1.10
-RUN apk update && apk upgrade --no-cache
+FROM denoland/deno:alpine-2.2.3
+RUN apk update && apk upgrade --no-cache && apk add curl
 
 WORKDIR /app
 

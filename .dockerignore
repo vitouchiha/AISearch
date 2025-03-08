@@ -1,4 +1,6 @@
 .env
+.env.local
+.ngrok.env
 .git
 .gitignore
 .github/
