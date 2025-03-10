@@ -168,34 +168,10 @@ router.get("/", (ctx: Context) => ctx.response.redirect("/configure"));
 
 router.get("/health", async (ctx: Context) => {
   const health = {
-    redis: true,
-    vector: true,
     tmdb: true,
     cinemeta: true,
     ratePosters: true,
   };
-
-  // Internal checks: Redis and Vector index
-  if (redis && index) {
-    const [redisResult, indexResult] = await Promise.allSettled([
-      redis.ping(),
-      index.info(),
-    ]);
-
-    if (redisResult.status === "fulfilled") {
-      health.redis = redisResult.value === "PONG";
-    } else {
-      console.error("Redis health check failed:", redisResult.reason);
-      health.redis = false;
-    }
-
-    if (indexResult.status === "fulfilled") {
-      health.vector = indexResult.value.vectorCount !== null;
-    } else {
-      console.error("Vector index health check failed:", indexResult.reason);
-      health.vector = false;
-    }
-  }
 
   // External checks run concurrently
   const [tmdbResult, cinemetaResult, ratePostersResult] = await Promise.allSettled([
@@ -231,8 +207,6 @@ router.get("/health", async (ctx: Context) => {
     ctx.response.headers.set("Content-Type", "application/json");
     ctx.response.body = JSON.stringify({
       status: "unhealthy",
-      redis: health.redis ? "ok" : "failed",
-      vector: health.vector ? "ok" : "failed",
       tmdb: health.tmdb ? "ok" : "failed",
       cinemeta: health.cinemeta ? "ok" : "failed",
       ratePosters: health.ratePosters ? "ok" : "failed",
