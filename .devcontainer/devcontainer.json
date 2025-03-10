@@ -6,9 +6,14 @@
   "containerEnv": {
     "DEV_MODE": "true"
   },
-  "forwardPorts": [4040],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "forwardPorts": [
+    4040
+  ],
   "postCreateCommand": "chmod +x postStart.sh",
-  "postStartCommand": "nohup bash -c './postStart.sh &'",
+  "postStartCommand": "bash -c 'nohup ./postStart.sh &'",
   "customizations": {
     "vscode": {
       "extensions": [

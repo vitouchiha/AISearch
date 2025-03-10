@@ -1,5 +1,5 @@
 import { Application, type Context, oakCors } from "./config/deps.ts";
-import { PORT, DEV_MODE, NGROK_URL, UPSTASH_VECTOR_URL, UPSTASH_VECTOR_TOKEN } from "./config/env.ts";
+import { PORT, DEV_MODE, NGROK_URL, NO_SEMANTIC_SEARCH } from "./config/env.ts";
 
 import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 
@@ -46,8 +46,8 @@ async function startServer() {
 
   app.addEventListener("listen", ({ port }) => {
     console.log(`Stremio AI Addon running on port ${port}`);
-    if (DEV_MODE && NGROK_URL.length > 0) console.log(`Ngrok running on ${NGROK_URL}`);
-    if (DEV_MODE && !UPSTASH_VECTOR_URL && !UPSTASH_VECTOR_TOKEN) console.log('!! Semantic Caching disabled !!');
+    if (DEV_MODE && NGROK_URL && NGROK_URL.length > 0) console.log(`Ngrok running on ${NGROK_URL}`);
+    if (DEV_MODE && NO_SEMANTIC_SEARCH) console.log('!! Semantic Caching disabled !!');
   });
 
   await app.listen({ hostname: "0.0.0.0", port: PORT });

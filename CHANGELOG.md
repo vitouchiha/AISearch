@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
 
 ### Added
+- Updated local docker-compose file.
+- Reduced more required ENV's. No external databasing is now required. You are now able to fully local host this biiiittch.
 - Stremio 5 allows me to get the users language from the headers, now trending movies will be based on language. Cool!
 - Added Ngrok to the Devcontainer directly.
 - Ngrok will start when the dev container is started

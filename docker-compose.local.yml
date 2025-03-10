@@ -8,7 +8,7 @@ services:
       - .env.local
     restart: always
     depends_on: 
-      - ngrok 
+     # - ngrok # Only if you plan to use it. 
       - redis
       - serverless-redis-http 
     command: [
@@ -28,20 +28,21 @@ services:
     networks:
       - secure_net
 
-  ngrok:
-    container_name: ngrok
-    image: ngrok/ngrok:latest
-    env_file:
-      - .env.local
-    command:
-      - "http"
-      - "http://host.docker.internal:${PORT}"
-    environment:
-      NGROK_AUTHTOKEN: ${NGROK_TOKEN}
-    ports:
-      - 4040:4040
-    networks:
-      - secure_net
+  ## Uncomment if you plan to use it.
+  # ngrok:
+  #   container_name: ngrok
+  #   image: ngrok/ngrok:latest
+  #   env_file:
+  #     - .env.local
+  #   command:
+  #     - "http"
+  #     - "http://host.docker.internal:${PORT}"
+  #   environment:
+  #     NGROK_AUTHTOKEN: ${NGROK_TOKEN}
+  #   ports:
+  #     - 4040:4040
+  #   networks:
+  #     - secure_net
 
   redis:
     image: redis

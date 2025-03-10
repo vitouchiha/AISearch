@@ -10,11 +10,6 @@ if (DEV_MODE === "true") {
   log("Development mode: .env file loaded.");
 }
 
-const NO_CACHE = Deno.env.get("DISABLE_CACHE") ?? "false";
-if (NO_CACHE === "true") {
-  log("!!! Caching disabled !!!");
-}
-
 // Load environment variables.
 
 const secret = String(Deno.env.get("JWT_SECRET"));
@@ -40,12 +35,14 @@ const QSTASH_SECRET = Deno.env.get("QSTASH_SECRET");
 
 const geminiKey = Deno.env.get("GEMINI_API_KEY");
 const tmdbKey = Deno.env.get("TMDB_API_KEY");
+
 const upstashRedisUrl = Deno.env.get("UPSTASH_REDIS_REST_URL");
 const upstashRedisToken = Deno.env.get("UPSTASH_REDIS_REST_TOKEN");
+
 const upstashVectorUrl = Deno.env.get("UPSTASH_VECTOR_REST_URL");
 const upstashVectorToken = Deno.env.get("UPSTASH_VECTOR_REST_TOKEN");
-const NO_SEMANTIC_SEARCH = Deno.env.get("DISABLE_SEMANTIC_SEARCH");
-const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
+const disableSemanticEnv = Deno.env.get("DISABLE_SEMANTIC_SEARCH") === 'true';
+const NO_SEMANTIC_SEARCH = disableSemanticEnv || !(upstashVectorUrl && upstashVectorToken);
 
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
 
@@ -55,6 +52,8 @@ if(SEMANTIC_PROXIMITY > 1.0 || SEMANTIC_PROXIMITY < 0.0) {
   throw new Error("Invalid SEMANTIC_PROXIMITY");
 }
 
+const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
+
 const SEARCH_COUNT_STR = Deno.env.get("SEARCH_COUNT") || "20";
 const SEARCH_COUNT = parseInt(SEARCH_COUNT_STR, 10);
 const portStr = Deno.env.get("PORT") || "3000";
@@ -63,8 +62,10 @@ const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 const TRAKT_CLIENT_ID = Deno.env.get("TRAKT_CLIENT_ID");
 const TRAKT_CLIENT_SECRET = Deno.env.get("TRAKT_CLIENT_SECRET");
+
 const NGROK_TOKEN = Deno.env.get("NGROK_TOKEN");
-const NGROK_URL = !NGROK_TOKEN ? null : await getNgrokUrl();
+const hasNgrokToken = NGROK_TOKEN !== undefined && NGROK_TOKEN !== "";
+const NGROK_URL = !hasNgrokToken ? undefined : await getNgrokUrl();
 
 const ENCRYPTION_KEY = Deno.env.get("ENCRYPTION_KEY");
 if(!ENCRYPTION_KEY) throw new Error('Encryption key must be set!');
@@ -96,7 +97,6 @@ export {
   JWT_SECRET,
   ENCRYPTION_KEY,
   DEV_MODE,
-  NO_CACHE,
   NO_SEMANTIC_SEARCH,
   TRAKT_CLIENT_ID,
   TRAKT_CLIENT_SECRET,

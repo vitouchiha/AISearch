@@ -1,5 +1,5 @@
 import { Context, Router, send } from "../config/deps.ts";
-import { ROOT_URL, DEV_MODE, NO_CACHE } from "../config/env.ts";
+import { ROOT_URL, DEV_MODE } from "../config/env.ts";
 import { log } from "../utils/utils.ts";
 import { createManifest } from "../config/manifest.ts";
 import { handleTrendingRequest } from "../handlers/handleTrendingMoviesRequest.ts";
@@ -24,7 +24,6 @@ import { cinemetaHealthCheck } from "../services/cinemeta.ts";
 import { rpdbHealthCheck } from "../services/rpdb.ts";
 import { handleTraktWatchlistRequest } from "../handlers/handleWatchlistRequest.ts";
 
-const useCache = NO_CACHE !== "true";
 const STATIC_MANIFEST = createManifest();
 
 
@@ -50,7 +49,7 @@ const handleManifest = async (ctx: ManifestContext) => {
   const trendingParam = ctx.request.url.searchParams.get("trending");
   const trending = trendingParam === null ? true : trendingParam === "true";
 
-  if (useCache && redis) {
+  if (redis) {
     await redis.incr("manifest_requests");
   }
   
@@ -150,7 +149,7 @@ router.get(
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 
 
-router.get("/configure.js", async (ctx) => {
+router.get("/configure.js", async (ctx: Context) => {
   try {
     const jsContent = await Deno.readTextFile("./views/script.js");
     const js = jsContent.replace("{{ROOT_URL}}", ROOT_URL);
@@ -165,9 +164,9 @@ router.get("/configure.js", async (ctx) => {
   }
 });
 router.get("/:keys?/configure", handleConfigure);
-router.get("/", (ctx) => ctx.response.redirect("/configure"));
+router.get("/", (ctx: Context) => ctx.response.redirect("/configure"));
 
-router.get("/health", async (ctx) => {
+router.get("/health", async (ctx: Context) => {
   const health = {
     redis: true,
     vector: true,
@@ -177,7 +176,7 @@ router.get("/health", async (ctx) => {
   };
 
   // Internal checks: Redis and Vector index
-  if (useCache && redis && index) {
+  if (redis && index) {
     const [redisResult, indexResult] = await Promise.allSettled([
       redis.ping(),
       index.info(),
@@ -240,20 +239,21 @@ router.get("/health", async (ctx) => {
     });
   }
 });
-router.get("/images/logo.webp", (ctx) => {
+router.get("/images/logo.webp", (ctx: Context) => {
   ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "image/webp");
   ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = Deno.readFileSync("./views/images/filmwhisper.webp");
 });
-router.get("/images/background.webp", (ctx) => {
+router.get("/images/background.webp", (ctx: Context) => {
   ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "image/webp");
   ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = Deno.readFileSync("./views/images/fw-background.webp");
 });
-router.get("/images/icons/:filename", async (ctx) => {
+router.get("/images/icons/:filename", async (ctx: Context) => {
   const filename = ctx.params.filename;
+  ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   await send(ctx, filename, {
     root: `${Deno.cwd()}/views/images/icons`,
   });

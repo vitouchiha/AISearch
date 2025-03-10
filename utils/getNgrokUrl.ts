@@ -13,7 +13,6 @@ async function getNgrokPublicUrl(): Promise<string> {
         return "";
       }
       const data = await response.json();
-      // Assumes the first tunnel has the public_url property.
       return data.tunnels[0]?.public_url || "";
     } catch (error) {
       console.error("Error fetching ngrok URL:", error);
@@ -21,19 +20,18 @@ async function getNgrokPublicUrl(): Promise<string> {
     }
   }
 
-export async function getNgrokUrl(): Promise<string> {
-  if(!NGROK_TOKEN || NGROK_TOKEN.length === 0) return '';
-    
+  export async function getNgrokUrl(): Promise<string | undefined> {
+    if (!NGROK_TOKEN || NGROK_TOKEN.length === 0) return undefined;
+  
     let url = "";
     try {
-      url = new TextDecoder().decode(Deno.readFileSync("./.ngrok.env")).trim();
+      const data = await Deno.readFile("./.ngrok.env");
+      url = new TextDecoder().decode(data).trim();
     } catch (_error) {
       console.error("Error reading .ngrok.env: IGNORE THIS IF RUNNING DEV_MODE IN A CONTAINER OUTSIDE OF VSCODE.");
     }
-    // If no URL in file, fallback to using the fetch API.
-    if (!url) {
-      url = await getNgrokPublicUrl();
-    }
-    return url;
-  }
 
+    if (!url) url = await getNgrokPublicUrl();
+
+    return url || undefined;
+  }

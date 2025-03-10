@@ -1,5 +1,5 @@
 import type { Context } from "../config/deps.ts";
-import { NO_CACHE } from "../config/env.ts";
+import { redis } from "../config/redisCache.ts";
 import { getTrendingMovies, getTrendingSeries } from "../utils/getTrending.ts";
 import { parseAcceptLanguage } from "../utils/parseAcceptedLanguage.ts";
 
@@ -8,9 +8,7 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
   const headerLang = ctx.request.headers.get("Accept-Language")!; // attempting to get language like this....
   const lang = parseAcceptLanguage(headerLang);
 
-  if(NO_CACHE === "true") {
-    return;
-  }
+  if(!redis) return;
   
   if (!type) {
     ctx.response.body = { metas: [] };

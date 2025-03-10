@@ -1,5 +1,5 @@
 # Use Deno image to get the deno binary
-FROM denoland/deno:bin-2.1.10 AS deno
+FROM denoland/deno:bin-2.2.3 AS deno
 
 # Use your Node dev container as the final image
 FROM mcr.microsoft.com/devcontainers/typescript-node:20

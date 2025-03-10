@@ -1,8 +1,9 @@
 import type { Manifest } from "./types/manifest.ts";
-import { NO_CACHE, ROOT_URL, DEV_MODE } from "./env.ts";
+import { ROOT_URL, DEV_MODE } from "./env.ts";
+import { redis } from "./redisCache.ts";
 
 function getTrendingCatalogs(getTrending: boolean) {
-  if (NO_CACHE !== "true" && getTrending) {
+  if (redis && getTrending) {
     return [
       {
         id: "ai-trending-movies",
@@ -20,7 +21,7 @@ function getTrendingCatalogs(getTrending: boolean) {
 }
 
 function getTraktCatalogs(getTrakt: boolean) {
-  if (NO_CACHE !== "true" && getTrakt) {
+  if (redis && getTrakt) {
     return [
       {
         id: "ai-trakt-recent-tv",
@@ -67,7 +68,7 @@ export function createManifest(trending: boolean = true, trakt: boolean = false)
         extra: [{ name: "search", isRequired: true }],
         extraSupported: ["search"],
       },
-      ...(NO_CACHE !== "true"
+      ...(redis
         ? [
             ...getTrendingCatalogs(trending),
             ...getTraktCatalogs(trakt),

@@ -1,7 +1,7 @@
 import { Context, Ratelimit, Redis } from "./deps.ts";
-import { UPSTASH_REDIS_TOKEN, UPSTASH_REDIS_URL, NO_CACHE } from "./env.ts";
+import { UPSTASH_REDIS_TOKEN, UPSTASH_REDIS_URL } from "./env.ts";
 
-export const redis = NO_CACHE === "true"
+export const redis = !UPSTASH_REDIS_URL && !UPSTASH_REDIS_TOKEN
   ? null
   : new Redis({
     url: UPSTASH_REDIS_URL!,
@@ -11,7 +11,7 @@ export const redis = NO_CACHE === "true"
 
 export const pipeline = redis?.pipeline();
 
-const ratelimit = NO_CACHE === "true" || !redis
+const ratelimit = !redis
   ? null
   : new Ratelimit({
     redis,
@@ -20,7 +20,7 @@ const ratelimit = NO_CACHE === "true" || !redis
     prefix: "@upstash/ratelimit",
   });
 
-export const tokenRatelimit = NO_CACHE === "true" || !redis
+export const tokenRatelimit = !redis
   ? null
   : new Ratelimit({
     redis,
@@ -30,9 +30,7 @@ export const tokenRatelimit = NO_CACHE === "true" || !redis
   });
 
 export async function applyRateLimit(ctx: Context, identifier: string, limiter = ratelimit) {
-  if (NO_CACHE === "true" || !limiter) {
-    return true;
-  }
+  if (!limiter) return true;
 
   const { success, limit, remaining, reset } = await limiter.limit(identifier);
 

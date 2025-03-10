@@ -1,7 +1,7 @@
 import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
 import { type Context } from "../config/deps.ts";
-import { SEARCH_COUNT, NO_CACHE } from "../config/env.ts";
+import { SEARCH_COUNT } from "../config/env.ts";
 import { log, logError, formatMetas } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import type { Meta } from "../config/types/meta.ts";
@@ -11,8 +11,6 @@ import { pushBatchToQstash } from "../config/qstash.ts";
 import type { BackgroundTaskParams } from "../config/types/types.ts";
 import { createRedisKey, fetchTmdbData } from "../services/tmdbHelpers/tmdbCommon.ts";
 import { isOldCacheStructure, convertOldToNewStructure } from "../services/tmdbHelpers/fixOldCache.ts";
-
-const useCache = NO_CACHE !== "true";
 
 export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
   const { searchQuery, type, tmdbKey, rpdbKey, omdbKey } = ctx.state;
@@ -104,14 +102,14 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
     );
 
     const numKeysToSet = Object.keys(keysToSet).length;
-    if (numKeysToSet > 0) {
-      await redis?.mset(keysToSet);
+    if (numKeysToSet > 0 && redis) {
+      await redis.mset(keysToSet);
       stats.cacheSet = numKeysToSet;
     }
 
     metas = metaResults.filter(meta => meta && meta.id && meta.name);
 
-    if (useCache && redis && metas.length > 0) {
+    if (redis && metas.length > 0) {
       const trendingKey =
         lang && lang !== "en"
           ? type === "movie"
