@@ -25,14 +25,24 @@ function getTraktCatalogs(getTrakt: boolean) {
     return [
       {
         id: "ai-trakt-recent-tv",
-        name: "AI Trakt TV Recommendations",
+        name: "AI Trakt Watched TV Recommendations",
         type: "series",
       },
       {
         id: "ai-trakt-recent-movie",
-        name: "AI Trakt Movie Recommendations",
+        name: "AI Trakt Watched Movie Recommendations",
         type: "movie",
       },
+      {
+        id: "ai-trakt-favorite-movie",
+        name: "AI Trakt Favorite Movie Recommendations",
+        type: "movie",
+      },
+      {
+        id: "ai-trakt-favorite-tv",
+        name: "AI Trakt Favorite Movie Recommenations",
+        type: "series",
+      }
     ];
   }
   return [];

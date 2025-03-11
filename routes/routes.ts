@@ -22,7 +22,9 @@ import { index } from "../config/semanticCache.ts";
 import { tmdbHealthCheck } from "../services/tmdb.ts";
 import { cinemetaHealthCheck } from "../services/cinemeta.ts";
 import { rpdbHealthCheck } from "../services/rpdb.ts";
+
 import { handleTraktWatchlistRequest } from "../handlers/handleWatchlistRequest.ts";
+import { handleTraktFavoritesRequest } from "../handlers/handleTraktFavoritesRequest.ts";
 
 const STATIC_MANIFEST = createManifest();
 
@@ -40,6 +42,8 @@ const handleSearch = async (ctx: CatalogContext) => {
 
 const handleTrending = (ctx: AppContext<TrendingParams>) => handleTrendingRequest(ctx);
 const handleTraktRecent = (ctx: Context) => handleTraktWatchlistRequest(ctx);
+const handleTraktFavorite = (ctx: Context) => handleTraktFavoritesRequest(ctx);
+
 
 const handleManifest = async (ctx: ManifestContext) => {
   const { traktKey } = ctx.state;
@@ -141,6 +145,18 @@ router.get(
     setSeriesType,
     googleKeyMiddleware,
     handleTraktRecent);
+
+    router.get(
+      "/:keys?/catalog/movie/ai-trakt-favorite-movie.json",
+      setMovieType,
+      googleKeyMiddleware,
+      handleTraktFavorite);
+    
+      router.get(
+        "/:keys?/catalog/series/ai-trakt-favorite-tv.json",
+        setSeriesType,
+        googleKeyMiddleware,
+        handleTraktFavorite);
 
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 

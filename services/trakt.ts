@@ -55,6 +55,50 @@ export const getTraktRecentWatches = async (
   }
 };
 
+export const getTraktFavorites = async (
+  type: "movie" | "series",
+  traktKey: string,
+  limit: number = 25
+) => {
+  const endpoint = type === "movie" ? "movies" : "shows";
+  const url = `https://api.trakt.tv/users/me/favorites/${endpoint}?limit=${limit}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getBaseHeaders(traktKey),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching favorites: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // Remove duplicate entries based on the unique identifier
+    const seenIds = new Set<number | string>();
+    const uniqueData = [];
+    for (const item of data) {
+      let id: number | string | undefined;
+      if (type === "movie" && item.movie && item.movie.ids) {
+        id = item.movie.ids.trakt;
+      } else if (type === "series" && item.show && item.show.ids) {
+        id = item.show.ids.trakt;
+      }
+      if (id && !seenIds.has(id)) {
+        seenIds.add(id);
+        uniqueData.push(item);
+      }
+    }
+
+    return uniqueData;
+  } catch (error) {
+    console.error("Error fetching favorites", error);
+    return [];
+  }
+};
+
+
 export async function refreshTraktToken(refreshToken: string): Promise<Partial<Keys>> {
   try {
     const response = await fetch("https://api.trakt.tv/oauth/token", {
