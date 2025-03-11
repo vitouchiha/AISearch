@@ -49,9 +49,7 @@ const handleManifest = async (ctx: ManifestContext) => {
   const trendingParam = ctx.request.url.searchParams.get("trending");
   const trending = trendingParam === null ? true : trendingParam === "true";
 
-  if (redis) {
-    await redis.incr("manifest_requests");
-  }
+  if (redis) await redis.incr("manifest_requests");
   
   const manifest = createManifest(trending, !!traktKey);
   
@@ -61,41 +59,39 @@ const handleManifest = async (ctx: ManifestContext) => {
 
 const handleConfigure = async (ctx: ConfigureContext) => {
   try {
-    // Kick off file reading concurrently with other tasks.
     const filePromise = Deno.readTextFile("./views/configure.html");
 
-    // Build an array of tasks with fallbacks.
-    const tasks = [
+    const [
+      installsVal,
+      dbSizeVal,
+      indexInfo,
+    ] = await Promise.all([
       redis ? redis.get<string>("manifest_requests") : Promise.resolve(null),
       redis ? redis.dbsize() : Promise.resolve(null),
-      index ? index.info() : Promise.resolve(null)
-    ];
+      index ? index.info() : Promise.resolve(null),
+    ]);
 
-    // Await all tasks concurrently.
-    const [installsVal, dbSizeVal, indexInfo] = await Promise.all(tasks);
-
-    // Use fallbacks if any values are null/undefined.
     const installs = installsVal || "0";
     const dbSize = (dbSizeVal !== null && dbSizeVal !== undefined)
       ? String(dbSizeVal)
       : "0";
-    const vectorCount = indexInfo?.vectorCount !== undefined
-      ? String(indexInfo.vectorCount)
-      : "NO CACHE";
 
-    // Wait for the HTML template to load.
+    const vectorCountNumber = indexInfo?.vectorCount ?? 0;
+    const vectorCount = vectorCountNumber ? String(vectorCountNumber) : "NO CACHE";
+
+    if (vectorCountNumber > 58000 && index) await index.reset();
+
     const htmlContent = await filePromise;
-
-    // Replace placeholders with actual values.
     const html = htmlContent
       .replace("{{ROOT_URL}}", ROOT_URL)
       .replace("{{VERSION}}", STATIC_MANIFEST.version)
-      .replace("{{INSTALLS}}", String(installs))
+      .replace("{{INSTALLS}}", installs)
       .replace("{{DB_SIZE}}", dbSize)
       .replace("{{VECTOR_COUNT}}", vectorCount)
       .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
 
     ctx.response.headers.set("Content-Type", "text/html");
+    ctx.response.headers.set("Cache-Control", "public, max-age=18000"); // Cache for 5 hours
     ctx.response.body = html;
   } catch (error) {
     console.error("Error serving configure page:", error);
@@ -225,8 +221,8 @@ router.get("/images/background.webp", (ctx: Context) => {
   ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = Deno.readFileSync("./views/images/fw-background.webp");
 });
-router.get("/images/icons/:filename", async (ctx: Context) => {
-  const filename = ctx.params.filename;
+router.get("/images/icons/:filename", async (ctx) => {
+  const { filename } = ctx.params;
   ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   await send(ctx, filename, {
     root: `${Deno.cwd()}/views/images/icons`,
