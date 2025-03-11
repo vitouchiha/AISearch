@@ -62,6 +62,12 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
             posterShape: "poster",
           }
         ];
+        
+        if(String(error).includes("Invalid JSON response")){
+          ctx.response.body = { metas: [] };
+          return;
+        }
+
       const metas = formatMetas(rawMeta);
       ctx.response.body = { metas };
       return;

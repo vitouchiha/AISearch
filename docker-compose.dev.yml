@@ -44,7 +44,7 @@ services:
     networks:
       - secure_net
   redis:
-    image: redis
+    image: redis:8.0-M03
     ports:
       - '6379:6379'
     networks:
@@ -79,6 +79,6 @@ services:
 networks:
   secure_net:
     driver: bridge
-    
+
 volumes:
   redis-insight:
