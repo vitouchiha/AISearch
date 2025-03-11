@@ -61,7 +61,7 @@ export const getTraktFavorites = async (
   limit: number = 25
 ) => {
   const endpoint = type === "movie" ? "movies" : "shows";
-  const url = `https://api.trakt.tv/users/me/favorites/${endpoint}?limit=${limit}`;
+  const url = `https://api.trakt.tv/sync/favorites/${endpoint}?limit=${limit}`;
 
   try {
     const response = await fetch(url, {
