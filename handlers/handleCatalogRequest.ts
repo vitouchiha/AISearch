@@ -1,7 +1,7 @@
 import { semanticCache } from "../config/semanticCache.ts";
 import { redis } from "../config/redisCache.ts";
 import { type Context } from "../config/deps.ts";
-import { SEARCH_COUNT } from "../config/env.ts";
+import { ROOT_URL, SEARCH_COUNT } from "../config/env.ts";
 import { log, logError, formatMetas } from "../utils/utils.ts";
 import { getMovieRecommendations } from "../services/ai.ts";
 import type { Meta } from "../config/types/meta.ts";
@@ -45,11 +45,27 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
 
     // Get recommendations and language info
     const { provider, apiKey } = getProviderInfoFromState(ctx.state);
-    const { recommendations: movieNames, lang } = await getMovieRecommendations(
+    const { recommendations: movieNames, lang, error } = await getMovieRecommendations(
       searchQuery,
       type,
       { provider, apiKey }
     );
+
+    if (error) {
+      ctx.response.headers.set("Content-Type", "application/json");
+      const rawMeta: Meta[] = [
+          {
+            id: 'tt0000000',
+            type,
+            name: `Error! ${error}`,
+            poster: ROOT_URL + '/images/bad_apikey.webp',
+            posterShape: "poster",
+          }
+        ];
+      const metas = formatMetas(rawMeta);
+      ctx.response.body = { metas };
+      return;
+    }
 
     if (!movieNames?.length) {
       ctx.response.body = { metas: [] };

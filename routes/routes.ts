@@ -221,6 +221,12 @@ router.get("/images/background.webp", (ctx: Context) => {
   ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = Deno.readFileSync("./views/images/fw-background.webp");
 });
+router.get("/images/bad_apikey.webp", (ctx: Context) => {
+  ctx.response.status = 200;
+  ctx.response.headers.set("Content-Type", "image/webp");
+  ctx.response.headers.set("Cache-Control", "public, max-age=86400");
+  ctx.response.body = Deno.readFileSync("./views/images/bad_apikey.webp");
+});
 router.get("/images/icons/:filename", async (ctx) => {
   const { filename } = ctx.params;
   ctx.response.headers.set("Cache-Control", "public, max-age=86400");

@@ -6,6 +6,7 @@ import { getAIModel, ProviderType } from './aiProvider.ts';
 interface RecommendationsResult {
   recommendations: string[];
   lang: string;
+  error?: string | unknown;
 }
 
 async function getRecommendationsHelper(
@@ -42,7 +43,7 @@ async function getRecommendationsHelper(
     return result;
   } catch (error) {
     logError(`Error with provider ${providerInfo.provider}:`, error);
-    return { recommendations: [], lang: '' };
+    return { recommendations: [], lang: '', error: error || 'Error unknown.' };
   }
 }
 
