@@ -1,5 +1,6 @@
 import { createGoogleGenerativeAI, createOpenAI, createDeepSeek, createAnthropic } from "../config/deps.ts";
-import { GOOGLE_MODEL, OPENAI_MODEL } from "../config/env.ts";
+import { GEMINI_API_KEY, GOOGLE_MODEL, OPENAI_MODEL } from "../config/env.ts";
+import { logError } from "../utils/utils.ts";
 
 export type ProviderType = 'google' | 'openai' | 'deepseek' | 'claude'; // this is everything before Key (lowercase)
 
@@ -40,6 +41,7 @@ export function getAIModel(provider: ProviderType, apiKey: string, structuredOut
 
 
 export function getProviderInfoFromState(state: Record<string, any>): ProviderInfo {
+  
   for (const key of aiKeyNames) {
     const value = state[key];
     if (value && typeof value === "string" && value.trim() !== "") {
@@ -47,5 +49,7 @@ export function getProviderInfoFromState(state: Record<string, any>): ProviderIn
       return { provider, apiKey: value };
     }
   }
-  throw new Error("No valid AI provider key found");
+
+  logError('No valid AI Provider found. Using Google default.', null);
+  return { provider: 'google', apiKey: GEMINI_API_KEY as string }
 }
