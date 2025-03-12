@@ -54,7 +54,7 @@ export function createManifest(trending: boolean = true, trakt: boolean = false)
       configurable: true,
     },
     id: "org.ai-search",
-    version: "1.4.0",
+    version: "1.4.1",
     logo: ROOT_URL + "/images/logo.webp",
     background: ROOT_URL + "/images/background.webp",
     name: "FilmWhisper: AISearch" + (DEV_MODE ? " DEV MODE" : ""),

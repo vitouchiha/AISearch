@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.\
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.1]
+
+Addon will create special lists within your trakt account so you can use these recommendations in other places! Updates every 3 hours~ish
+
+## Added
+- The addon now creates 4 custom lists in your trakt account, -watched, and -favorites which holds the recommendations. This allows you to use our recommendations in other apps easily.
+- List creation is optional and by default is false. So we won't create any lists if you dont want to.
+
 ## [1.4.0]
 
 This version doesn't have any breaking changes but introduces the ability to add new AI models.

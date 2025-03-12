@@ -39,7 +39,7 @@ async function getRecommendationsHelper(
 
     log(`Parsed ${recommendations.length} ${recommendationType} names`);
     log(`Recommendations: ${recommendations.join(', ')}`);
-    log(`Raw result from AI:\n${JSON.stringify(result)}`);
+    log(`Raw result from AI:\n${JSON.stringify(result) || result }`);
     return result;
   } catch (error) {
     logError(`Error with provider ${providerInfo.provider}:`, error);

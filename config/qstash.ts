@@ -27,3 +27,29 @@ export async function pushBatchToQstash(
       logError("Error pushing background update batch to Qstash", error);
     }
   }
+
+  export interface ListTaskParams {
+    listName: string;
+    metas: { id: string }[];
+    type: "movie" | "series";
+    traktKey: string;
+  }
+
+  export async function pushListToQstash(
+    tasks: ListTaskParams[]
+  ): Promise<void> {
+    if(!client) return;
+    
+    try {
+      await client.publish({
+        url: `${DOMAIN}/api/update-trakt-list`,
+        body: JSON.stringify({ tasks }),
+        headers: {
+            "Authorization": `Bearer ${QSTASH_SECRET}`,
+          },
+    });
+      log(`Pushed ${tasks.length} background trakt list update tasks to Qstash.`);
+    } catch (error) {
+      logError("Error pushing background trakt list update batch to Qstash", error);
+    }
+  }

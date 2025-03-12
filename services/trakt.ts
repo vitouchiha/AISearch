@@ -6,6 +6,7 @@ import { logError } from "../utils/utils.ts";
 const router = new Router();
 const API_URL = "https://api.trakt.tv";
 const REDIRECT_URI = `${ROOT_URL}/auth/callback`;
+let lastRequestTime = 0;
 
 // Base headers
 const getBaseHeaders = (accessToken?: string) => ({
@@ -14,6 +15,189 @@ const getBaseHeaders = (accessToken?: string) => ({
   "trakt-api-version": "2",
   ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
 });
+
+interface FetchTraktParams {
+  path: string;
+  method?: "GET" | "POST" | "DELETE" | "PUT";
+  body?: object;
+  traktKey: string;
+}
+
+async function delayIfNeeded(method: string) {
+  const now = Date.now();
+
+  if (["POST", "PUT", "DELETE"].includes(method)) {
+    const timeSinceLastRequest = now - lastRequestTime;
+    const waitTime = Math.max(3000 - timeSinceLastRequest, 0);
+
+    if (waitTime > 0) {
+      console.log(`Rate limit: Waiting ${waitTime / 1000} seconds before next request...`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
+
+    lastRequestTime = Date.now();
+  }
+}
+
+async function fetchTrakt({ path, method = "GET", body, traktKey }: FetchTraktParams) {
+  await delayIfNeeded(method);
+
+  let retries = 5;
+
+  while (retries > 0) {
+    const response = await fetch(`${API_URL}${path}`, {
+      method,
+      headers: getBaseHeaders(traktKey),
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    const text = await response.text(); // Get raw response before parsing
+
+    if (response.ok) {
+      try {
+        return JSON.parse(text);
+      } catch (_err) {
+        console.error(`JSON Parse Error for ${method} ${path}:`, text);
+        return null;
+      }
+    }
+
+    console.error(`Failed to ${method} ${path}: ${text}`);
+
+    if (text.includes("AUTHED_API_POST_LIMIT")) {
+      console.log("Rate limit exceeded. Waiting 3 seconds before retrying...");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      retries--;
+    } else {
+      return null;
+    }
+  }
+
+  console.error(`Failed to ${method} ${path} after multiple retries.`);
+  return null;
+}
+
+
+interface ListOptions {
+  name: string;
+  description?: string;
+  privacy?: "private" | "friends" | "public";
+  display_numbers?: boolean;
+  allow_comments?: boolean;
+  traktKey: string;
+}
+
+export async function createList({ name, description = "", privacy = "private", display_numbers = true, allow_comments = false, traktUserId, traktKey }: ListOptions & { traktUserId: string }) {
+  console.log(`Creating new list: ${name}`);
+  return await fetchTrakt({
+    path: `/users/${traktUserId}/lists`,
+    method: "POST",
+    body: { name, description, privacy, display_numbers, allow_comments },
+    traktKey,
+  });
+}
+
+export async function addMoviesToList(slug: string, type: "movie" | "series", movies: { id?: string; imdb?: string; trakt?: number; tmdb?: number }[], traktUserId: string, traktKey: string) {
+  console.log(`Adding ${type} to list: ${slug}`);
+
+  // Validate input and determine correct payload structure
+  const validItems = movies
+    .filter(movie => movie.id || movie.imdb || movie.trakt || movie.tmdb) // Ensure at least one valid ID is present
+    .map(movie => ({
+      ids: {
+        imdb: movie.imdb || movie.id || undefined,
+        trakt: movie.trakt || undefined,
+        tmdb: movie.tmdb || undefined,
+      }
+    }));
+
+  if (validItems.length === 0) {
+    console.error("No valid items found with proper IDs.");
+    return;
+  }
+
+  // Trakt requires different request body structures for movies vs. shows
+  const body = type === "movie"
+    ? { movies: validItems }  // Use "movies" for movies
+    : { shows: validItems };  // Use "shows" for TV series
+
+  return await fetchTrakt({
+    path: `/users/${traktUserId}/lists/${slug}/items`,
+    method: "POST",
+    body,
+    traktKey,
+  });
+}
+
+export async function deleteList(slug: string, traktUserId: string, traktKey: string) {
+  console.log(`Deleting list: ${slug}`);
+  await fetchTrakt({ path: `/users/${traktUserId}/lists/${slug}`, method: "DELETE", traktKey });
+}
+
+export async function checkList(slug: string, traktUserId: string, traktKey: string) {
+  console.log(`Checking if list '${slug}' exists...`);
+  const existingLists = await fetchTrakt({ path: `/users/${traktUserId}/lists`, traktKey });
+
+  if (!existingLists) {
+    console.error("Failed to fetch lists.");
+    return false;
+  }
+
+  return !!existingLists.find((list: any) => list.name === slug);
+}
+
+export async function getTraktUserId(traktKey: string): Promise<string | null> {
+  console.log("Fetching Trakt user ID...");
+  const userSettings = await fetchTrakt({ path: "/users/settings", traktKey });
+
+  if (!userSettings || !userSettings.user || !userSettings.user.username) {
+    console.error("Failed to fetch Trakt user ID.");
+    return null;
+  }
+
+  return userSettings.user.username;
+}
+
+export async function updateTraktList(metas: { id: string }[], listName: string, type: "movie" | "series", traktKey: string) {
+  if (metas.length === 0) {
+    console.warn(`No ${type} provided. Skipping list update.`);
+    return;
+  }
+
+  const traktUserId = await getTraktUserId(traktKey);
+  if (!traktUserId) {
+    console.error("Failed to retrieve Trakt user ID.");
+    return;
+  }
+
+  const formatListName = `fw-${listName}-${type}`;
+
+  // Check if the list exists
+  const listExists = await checkList(formatListName, traktUserId, traktKey);
+
+  if (listExists) {
+    console.log(`List '${formatListName}' exists. Deleting it first.`);
+    await deleteList(formatListName, traktUserId,traktKey);
+  }
+
+  const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
+  
+  await createList({
+    name: formatListName,
+    description: `${formattedType} recommended by FilmWhisper AI`,
+    privacy: "private",
+    traktKey: traktKey,
+    traktUserId: traktUserId,
+  });
+
+  // Convert `metas` into Trakt's expected format
+  const movies = metas.map((meta) => ({ imdb: meta.id }));
+
+  // Add movies to the new list
+  await addMoviesToList(formatListName, type, movies, traktUserId, traktKey);
+
+  console.log(`List '${formatListName}' updated successfully with ${movies.length} ${type}`);
+}
 
 export const getTraktRecentWatches = async (
   type: "movie" | "series",

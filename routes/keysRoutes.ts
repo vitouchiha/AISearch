@@ -42,11 +42,10 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
         traktKey,
         traktRefresh,
         traktExpiresAt,
+        traktCreateLists, // displays true being sent from frontend.
       } = body;
       
       if (!userId) throw new Error("User ID required");
-
-      // check the tmdb key;
 
       const tmdbResponse = await tmdbHealthCheck(tmdbKey);
       if(!tmdbResponse) tmdbKey = "default";
@@ -63,6 +62,7 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
         traktKey: traktKey || "",
         traktRefresh: traktRefresh || "",
         traktExpiresAt: traktExpiresAt || "",
+        traktCreateList: traktCreateLists || false, // shows false here..
         omdbKey: omdbKey || "",
       };
 

@@ -15,6 +15,7 @@ const elements = {
   traktAuthButton: document.getElementById("trakt-auth-button"),
   traktStatus: document.getElementById("trakt-status"),
   optOutTrending: document.getElementById("optOutTrending"),
+  optOutTraktLists: document.getElementById("optOutTraktLists"), //defaults to checked. which is false.
 };
 
 // Default provider is Google
@@ -157,7 +158,9 @@ function getKeys() {
   const traktKey = traktTokens["access_token"];
   const traktRefresh = traktTokens["refresh_token"];
   const traktExpiresAt = traktTokens["expires_at"];
-  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktRefresh, traktExpiresAt };
+  const traktCreateLists = !elements.optOutTraktLists.checked;
+
+  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt };
 }
 
 function generateManifestUrl(userId) {
@@ -257,6 +260,10 @@ elements.defaultGoogleKeyCheckbox.addEventListener("change", () => {
   storeApiKeys(getKeys());
 });
 elements.defaultTmdbKeyCheckbox.addEventListener("change", () => {
+  updateUI();
+  storeApiKeys(getKeys());
+});
+elements.optOutTraktLists.addEventListener("change", () => {
   updateUI();
   storeApiKeys(getKeys());
 });

@@ -32,6 +32,7 @@ export interface AppContext<
     userId?: string;
     openAiKey?: string;
     deepseekKey?: string;
+    traktCreateList?: boolean;
   };
 }
 
@@ -62,6 +63,7 @@ export type Keys = {
   claudeKey: string;
   deepseekKey: string;
   userId?: string;
+  traktCreateList?: boolean;
 }
 
 export type CatalogContext = AppContext<MovieCatalogParams>;

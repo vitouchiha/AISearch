@@ -168,6 +168,11 @@
           <input type="text" id="tmdbKey" name="tmdbKey" placeholder="Enter your TMDB API key"
             class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300 text-sm sm:text-base" />
         </div>
+        <div class="flex items-center space-x-2">
+          <input id="defaultTmdbKey" name="defaultTmdbKey" type="checkbox"
+            class="text-purple-500 focus:ring-purple-500 rounded transition duration-300" />
+          <label for="defaultTmdbKey" class="text-sm text-gray-300">Use default TMDB key</label>
+        </div>
         <div class="space-y-2">
           <p>
             <a href="https://ratingposterdb.com/api-key/" target="_blank" rel="noopener noreferrer"
@@ -193,14 +198,14 @@
         </div>
         <div class="space-y-2">
           <div class="flex items-center space-x-2">
-            <input id="defaultTmdbKey" name="defaultTmdbKey" type="checkbox"
-              class="text-purple-500 focus:ring-purple-500 rounded transition duration-300" />
-            <label for="defaultTmdbKey" class="text-sm text-gray-300">Use default TMDB key</label>
-          </div>
-          <div class="flex items-center space-x-2">
             <input id="optOutTrending" name="optOutTrending" type="checkbox"
               class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
             <label for="optOutTrending" class="text-sm text-gray-300">Opt out of trending catalog</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input id="optOutTraktLists" name="optOutTraktLists" type="checkbox" checked
+              class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
+            <label for="optOutTraktLists" class="text-sm text-gray-300">Opt out of auto-create Trakt Lists</label>
           </div>
         </div>
         <!-- URL Display Box (shown only after storing keys) -->

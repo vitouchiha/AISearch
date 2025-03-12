@@ -9,12 +9,12 @@ import { getTraktFavorites } from "../services/trakt.ts";
 import { SEARCH_COUNT } from "../config/env.ts";
 import { updateRpdbPosters } from "../services/rpdb.ts";
 import { getProviderInfoFromState } from "../services/aiProvider.ts";
-import { pushBatchToQstash } from "../config/qstash.ts";
+import { ListTaskParams, pushBatchToQstash, pushListToQstash } from "../config/qstash.ts";
 import { createRedisKey } from "../services/tmdbHelpers/tmdbCommon.ts";
 import { isOldCacheStructure, convertOldToNewStructure } from "../services/tmdbHelpers/fixOldCache.ts";
 
 export const handleTraktFavoritesRequest = async (ctx: Context) => {
-  const { tmdbKey, googleKey, openAiKey, claudeKey, deepseekKey, traktKey, rpdbKey, omdbKey, userId, type } = ctx.state;
+  const { tmdbKey, googleKey, openAiKey, claudeKey, deepseekKey, traktKey, rpdbKey, omdbKey, userId, type, traktCreateList } = ctx.state;
   
   // Validate required parameters
   if (!traktKey || !type || !userId || !tmdbKey || (!googleKey && !openAiKey && !claudeKey && !deepseekKey)) {
@@ -119,8 +119,21 @@ export const handleTraktFavoritesRequest = async (ctx: Context) => {
     // Filter out any invalid data and cache aggregated result
     metas = metaResults.filter(meta => meta && meta.id && meta.name);
     if (metas.length > 0) {
-      await redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 });
+      const tasks: ListTaskParams[] = [
+        {
+          listName: 'favorites',
+          metas,
+          type,
+          traktKey,
+        },
+      ];
+
+      await Promise.all([
+        redis?.set(cacheKey, JSON.stringify(metas), { ex: 3600 }),
+        traktCreateList ? pushListToQstash(tasks) : Promise.resolve(null)
+      ]);
     }
+
     if (rpdbKey) await updateRpdbPosters(metas, rpdbKey);
     if (backgroundUpdateBatch.length > 0) await pushBatchToQstash(backgroundUpdateBatch);
 
@@ -133,7 +146,7 @@ export const handleTraktFavoritesRequest = async (ctx: Context) => {
     log(`${stats.cacheSet} ${type}(s) added to cache.`);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    logError(`Error processing ${type} watchlist request for user ${userId}: ${errorMessage}`, error);
+    logError(`Error processing ${type} favoritesRequest for user ${userId}: ${errorMessage}`, error);
     ctx.response.body = { metas: [] };
   }
 };
