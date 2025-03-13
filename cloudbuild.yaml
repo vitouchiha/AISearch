@@ -1,0 +1,100 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - '--no-cache'
+      - '-t'
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${REPO_NAME}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '.'
+      - '-f'
+      - 'Dockerfile'
+    id: Build
+
+  # Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${REPO_NAME}/${_SERVICE_NAME}:${COMMIT_SHA}'
+    id: Push
+
+  # Deploy to US Central 1
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - run
+      - deploy
+      - '${_SERVICE_NAME}'
+      - '--platform=managed'
+      - '--image=${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${REPO_NAME}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '--region=us-central1'
+      - '--allow-unauthenticated'
+      - '--update-secrets=ROOT_URL=ROOT_URL:latest,ENCRYPTION_KEY=ENCRYPTION_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,JWT_SECRET=JWT_SECRET:latest,OMDB_API_KEY=OMDB_API_KEY:latest,QSTASH_CURRENT_SIGNING_KEY=QSTASH_CURRENT_SIGNING_KEY:latest,QSTASH_NEXT_SIGNING_KEY=QSTASH_NEXT_SIGNING_KEY:latest,QSTASH_SECRET=QSTASH_SECRET:latest,QSTASH_TOKEN=QSTASH_TOKEN:latest,QSTASH_URL=QSTASH_URL:latest,RPDB_FREE_API_KEY=RPDB_FREE_API_KEY:latest,TMDB_API_KEY=TMDB_API_KEY:latest,TRAKT_CLIENT_ID=TRAKT_CLIENT_ID:latest,TRAKT_CLIENT_SECRET=TRAKT_CLIENT_SECRET:latest,UPSTASH_REDIS_REST_TOKEN=UPSTASH_REDIS_REST_TOKEN:latest,UPSTASH_REDIS_REST_URL=UPSTASH_REDIS_REST_URL:latest,UPSTASH_VECTOR_REST_TOKEN=UPSTASH_VECTOR_REST_TOKEN:latest,UPSTASH_VECTOR_REST_URL=UPSTASH_VECTOR_REST_URL:latest'
+      - '--async'
+    id: Deploy_US_Central1
+    entrypoint: gcloud
+
+  # Deploy to US West 1
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - run
+      - deploy
+      - '${_SERVICE_NAME}'
+      - '--platform=managed'
+      - '--image=${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${REPO_NAME}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '--region=us-west1'
+      - '--allow-unauthenticated'
+      - '--update-secrets=ROOT_URL=ROOT_URL:latest,ENCRYPTION_KEY=ENCRYPTION_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,JWT_SECRET=JWT_SECRET:latest,OMDB_API_KEY=OMDB_API_KEY:latest,QSTASH_CURRENT_SIGNING_KEY=QSTASH_CURRENT_SIGNING_KEY:latest,QSTASH_NEXT_SIGNING_KEY=QSTASH_NEXT_SIGNING_KEY:latest,QSTASH_SECRET=QSTASH_SECRET:latest,QSTASH_TOKEN=QSTASH_TOKEN:latest,QSTASH_URL=QSTASH_URL:latest,RPDB_FREE_API_KEY=RPDB_FREE_API_KEY:latest,TMDB_API_KEY=TMDB_API_KEY:latest,TRAKT_CLIENT_ID=TRAKT_CLIENT_ID:latest,TRAKT_CLIENT_SECRET=TRAKT_CLIENT_SECRET:latest,UPSTASH_REDIS_REST_TOKEN=UPSTASH_REDIS_REST_TOKEN:latest,UPSTASH_REDIS_REST_URL=UPSTASH_REDIS_REST_URL:latest,UPSTASH_VECTOR_REST_TOKEN=UPSTASH_VECTOR_REST_TOKEN:latest,UPSTASH_VECTOR_REST_URL=UPSTASH_VECTOR_REST_URL:latest'
+      - '--async'
+    id: Deploy_US_West1
+    entrypoint: gcloud
+
+  # Deploy to Asia South 1 (India)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - run
+      - deploy
+      - '${_SERVICE_NAME}'
+      - '--platform=managed'
+      - '--image=${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${REPO_NAME}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '--region=asia-south1'
+      - '--allow-unauthenticated'
+      - '--update-secrets=ROOT_URL=ROOT_URL:latest,ENCRYPTION_KEY=ENCRYPTION_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,JWT_SECRET=JWT_SECRET:latest,OMDB_API_KEY=OMDB_API_KEY:latest,QSTASH_CURRENT_SIGNING_KEY=QSTASH_CURRENT_SIGNING_KEY:latest,QSTASH_NEXT_SIGNING_KEY=QSTASH_NEXT_SIGNING_KEY:latest,QSTASH_SECRET=QSTASH_SECRET:latest,QSTASH_TOKEN=QSTASH_TOKEN:latest,QSTASH_URL=QSTASH_URL:latest,RPDB_FREE_API_KEY=RPDB_FREE_API_KEY:latest,TMDB_API_KEY=TMDB_API_KEY:latest,TRAKT_CLIENT_ID=TRAKT_CLIENT_ID:latest,TRAKT_CLIENT_SECRET=TRAKT_CLIENT_SECRET:latest,UPSTASH_REDIS_REST_TOKEN=UPSTASH_REDIS_REST_TOKEN:latest,UPSTASH_REDIS_REST_URL=UPSTASH_REDIS_REST_URL:latest,UPSTASH_VECTOR_REST_TOKEN=UPSTASH_VECTOR_REST_TOKEN:latest,UPSTASH_VECTOR_REST_URL=UPSTASH_VECTOR_REST_URL:latest'
+      - '--async'
+    id: Deploy_Asia_South1
+    entrypoint: gcloud
+
+  # Deploy to South America East 1 (Brazil)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - run
+      - deploy
+      - '${_SERVICE_NAME}'
+      - '--platform=managed'
+      - '--image=${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${REPO_NAME}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '--region=southamerica-east1'
+      - '--allow-unauthenticated'
+      - '--update-secrets=ROOT_URL=ROOT_URL:latest,ENCRYPTION_KEY=ENCRYPTION_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,JWT_SECRET=JWT_SECRET:latest,OMDB_API_KEY=OMDB_API_KEY:latest,QSTASH_CURRENT_SIGNING_KEY=QSTASH_CURRENT_SIGNING_KEY:latest,QSTASH_NEXT_SIGNING_KEY=QSTASH_NEXT_SIGNING_KEY:latest,QSTASH_SECRET=QSTASH_SECRET:latest,QSTASH_TOKEN=QSTASH_TOKEN:latest,QSTASH_URL=QSTASH_URL:latest,RPDB_FREE_API_KEY=RPDB_FREE_API_KEY:latest,TMDB_API_KEY=TMDB_API_KEY:latest,TRAKT_CLIENT_ID=TRAKT_CLIENT_ID:latest,TRAKT_CLIENT_SECRET=TRAKT_CLIENT_SECRET:latest,UPSTASH_REDIS_REST_TOKEN=UPSTASH_REDIS_REST_TOKEN:latest,UPSTASH_REDIS_REST_URL=UPSTASH_REDIS_REST_URL:latest,UPSTASH_VECTOR_REST_TOKEN=UPSTASH_VECTOR_REST_TOKEN:latest,UPSTASH_VECTOR_REST_URL=UPSTASH_VECTOR_REST_URL:latest'
+      - '--async'
+    id: Deploy_SouthAmerica_East1
+    entrypoint: gcloud
+
+images:
+  - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${REPO_NAME}/${_SERVICE_NAME}:${COMMIT_SHA}'
+
+options:
+  substitutionOption: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  REPO_NAME: 'aisearch'
+  _SERVICE_NAME: 'aisearch'
+  _AR_HOSTNAME: 'us-central1-docker.pkg.dev'
+  _AR_PROJECT_ID: 'gen-lang-client-0020107488'
+  _AR_REPOSITORY: 'cloud-run-source-deploy'
+  _TRIGGER_ID: '0ab0d06c-67d0-499f-9715-7385bf747bbf'
+  _DEPLOY_REGION: 'us-central1'
+
+tags:
+  - 'gcp-cloud-build-deploy-cloud-run'
+  - 'gcp-cloud-build-deploy-cloud-run-managed'
+  - 'aisearch'
