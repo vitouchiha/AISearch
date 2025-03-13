@@ -40,7 +40,7 @@ function getTraktCatalogs(getTrakt: boolean) {
       },
       {
         id: "ai-trakt-favorite-tv",
-        name: "AI Trakt Favorite Movie Recommenations",
+        name: "AI Trakt Favorite TV Recommenations",
         type: "series",
       }
     ];

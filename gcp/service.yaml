@@ -1,0 +1,103 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ai-filmwhisper
+  namespace: gen-lang-client-0020107488
+spec:
+  template:
+    spec:
+      containers:
+        - image: ghcr.io/mkcfdc/aisearch:latest
+          env:
+            - name: ROOT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ROOT_URL
+                  key: latest
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ENCRYPTION_KEY
+                  key: latest
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: JWT_SECRET
+                  key: latest
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: GEMINI_API_KEY
+                  key: latest
+            - name: TMDB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: TMDB_API_KEY
+                  key: latest
+            - name: OMDB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: OMDB_API_KEY
+                  key: latest
+            - name: TRAKT_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: TRAKT_CLIENT_ID
+                  key: latest
+            - name: TRAKT_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: TRAKT_CLIENT_SECRET
+                  key: latest
+            - name: UPSTASH_REDIS_REST_URL
+              valueFrom:
+                secretKeyRef:
+                  name: UPSTASH_REDIS_REST_URL
+                  key: latest
+            - name: UPSTASH_REDIS_REST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: UPSTASH_REDIS_REST_TOKEN
+                  key: latest
+            - name: UPSTASH_VECTOR_REST_URL
+              valueFrom:
+                secretKeyRef:
+                  name: UPSTASH_VECTOR_REST_URL
+                  key: latest
+            - name: UPSTASH_VECTOR_REST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: UPSTASH_VECTOR_REST_TOKEN
+                  key: latest
+            - name: QSTASH_URL
+              valueFrom:
+                secretKeyRef:
+                  name: QSTASH_URL
+                  key: latest
+            - name: QSTASH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: QSTASH_TOKEN
+                  key: latest
+            - name: QSTASH_CURRENT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: QSTASH_CURRENT_SIGNING_KEY
+                  key: latest
+            - name: QSTASH_NEXT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: QSTASH_NEXT_SIGNING_KEY
+                  key: latest
+            - name: QSTASH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: QSTASH_SECRET
+                  key: latest
+            - name: RPDB_FREE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: RPDB_FREE_API_KEY
+                  key: latest
+      serviceAccountName: 301259160029-compute@developer.gserviceaccount.com
+      timeoutSeconds: 300
