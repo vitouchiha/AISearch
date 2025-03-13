@@ -7,6 +7,7 @@
   <link rel="icon" type="image/webp" href="{{ROOT_URL}}/images/logo.webp" />
   <title>FilmWhisper: AISearch Configure</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render={{CAPTCHA_SITE_KEY}}"></script>
   <style>
     .animate-bounce-slow {
       animation: bounce 6s infinite ease-in-out;
@@ -31,7 +32,8 @@
     <div class="animate-bounce-slow bg-white bg-opacity-10 rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl"></div>
     <svg class="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
       <path fill="currentColor" fill-opacity="0.1"
-        d="M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,202.7C672,203,768,149,864,144C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
+        d="M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,202.7C672,203,768,149,864,144C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+      </path>
     </svg>
   </div>
 
@@ -46,9 +48,7 @@
 
     <!-- Provider Selection Section -->
     <section class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6">
-      <h2 class="text-xl sm:text-2xl font-bold text-center text-cyan-400">
-        Select AI Provider
-      </h2>
+      <h2 class="text-xl sm:text-2xl font-bold text-center text-cyan-400">Select AI Provider</h2>
       <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 my-4">
         <button type="button" data-provider="openai"
           class="provider-btn w-full sm:w-auto px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none flex items-center justify-center">
@@ -81,112 +81,130 @@
 
     <!-- Provider Configuration Section -->
     <section class="w-full bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 space-y-6">
-      <!-- Google Gemini Configuration -->
-      <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm" data-provider-config="google">
-        <p>
-          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
-            class="text-cyan-400 underline hover:text-cyan-300">
-            Create Google API Key
-          </a>
-        </p>
-        <label for="googleKey" class="block text-sm font-medium text-gray-300 mt-2">
-          Google AI Key:
-        </label>
-        <input type="text" id="googleKey" name="googleKey" placeholder="Enter your Google AI key"
-          class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300 text-sm sm:text-base" />
-        <div class="flex items-center space-x-2 mt-2">
-          <input id="defaultGoogleKey" name="defaultGoogleKey" type="checkbox"
-            class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
-          <label for="defaultGoogleKey" class="text-sm text-gray-300">
-            Use default Google key
+      <!-- Provider API Keys -->
+      <h2 class="text-xl sm:text-2xl font-bold text-center text-cyan-400">
+        Provider API Keys
+      </h2>
+      <div class="space-y-6">
+        <!-- Google Gemini Configuration -->
+        <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm" data-provider-config="google">
+          <p>
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
+              class="text-cyan-400 underline hover:text-cyan-300">
+              Create Google API Key
+            </a>
+          </p>
+          <label for="googleKey" class="block text-sm font-medium text-gray-300 mt-2">
+            Google AI Key:
           </label>
+          <input type="text" id="googleKey" name="googleKey" placeholder="Enter your Google AI key"
+            class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300 text-sm sm:text-base" />
+          <div class="flex items-center space-x-2 mt-2">
+            <input id="defaultGoogleKey" name="defaultGoogleKey" type="checkbox"
+              class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
+            <label for="defaultGoogleKey" class="text-sm text-gray-300">
+              Use default Google key
+            </label>
+          </div>
+        </div>
+
+        <!-- OpenAI Configuration -->
+        <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="openai">
+          <p>
+            <a href="https://platform.openai.com/settings/organization/api-keys" target="_blank" rel="noopener noreferrer"
+              class="text-cyan-400 underline hover:text-cyan-300">
+              Create OpenAI API Key
+            </a>
+          </p>
+          <label for="openaiKey" class="block text-sm font-medium text-gray-300 mt-2">
+            OpenAI API Key:
+          </label>
+          <input type="text" id="openaiKey" name="openaiKey" placeholder="Enter your OpenAI API key"
+            class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
+        </div>
+
+        <!-- Claude Configuration -->
+        <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="claude">
+          <p>
+            <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer"
+              class="text-cyan-400 underline hover:text-cyan-300">
+              Create Claude API Key
+            </a>
+          </p>
+          <label for="claudeKey" class="block text-sm font-medium text-gray-300 mt-2">
+            Claude API Key:
+          </label>
+          <input type="text" id="claudeKey" name="claudeKey" placeholder="Enter your Claude API key"
+            class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
+        </div>
+
+        <!-- DeepSeek Configuration -->
+        <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="deepseek">
+          <p>
+            <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer"
+              class="text-cyan-400 underline hover:text-cyan-300">
+              Create DeepSeek API Key
+            </a>
+          </p>
+          <label for="deepseekKey" class="block text-sm font-medium text-gray-300 mt-2">
+            DeepSeek API Key:
+          </label>
+          <input type="text" id="deepseekKey" name="deepseekKey" placeholder="Enter your DeepSeek API key"
+            class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
         </div>
       </div>
 
-      <!-- OpenAI Configuration -->
-      <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="openai">
-        <p>
-          <a href="https://platform.openai.com/settings/organization/api-keys" target="_blank" rel="noopener noreferrer"
-            class="text-cyan-400 underline hover:text-cyan-300">
-            Create OpenAI API Key
-          </a>
-        </p>
-        <label for="openaiKey" class="block text-sm font-medium text-gray-300 mt-2">
-          OpenAI API Key:
-        </label>
-        <input type="text" id="openaiKey" name="openaiKey" placeholder="Enter your OpenAI API key"
-          class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
-      </div>
-
-      <!-- Claude Configuration -->
-      <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="claude">
-        <p>
-          <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer"
-            class="text-cyan-400 underline hover:text-cyan-300">
-            Create Claude API Key
-          </a>
-        </p>
-        <label for="claudeKey" class="block text-sm font-medium text-gray-300 mt-2">
-          Claude API Key:
-        </label>
-        <input type="text" id="claudeKey" name="claudeKey" placeholder="Enter your Claude API key"
-          class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
-      </div>
-
-      <!-- Deepseek Configuration -->
-      <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="deepseek">
-        <p>
-          <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer"
-            class="text-cyan-400 underline hover:text-cyan-300">
-            Create DeepSeek API Key
-          </a>
-        </p>
-        <label for="deepseekKey" class="block text-sm font-medium text-gray-300 mt-2">
-          DeepSeek API Key:
-        </label>
-        <input type="text" id="deepseekKey" name="deepseekKey" placeholder="Enter your DeepSeek API key"
-          class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
-      </div>
-
-      <!-- Additional Configuration Fields -->
-      <div class="mt-6 space-y-6">
+      <!-- Additional Configuration -->
+      <h2 class="text-xl sm:text-2xl font-bold text-center text-cyan-400 mt-6">
+        Additional Configuration
+      </h2>
+      <div class="space-y-6">
         <div class="bg-gray-700/80 border border-gray-600 text-gray-200 p-4 rounded-lg text-xs">
           <p>
             We use your API keys on your behalf for server-side operations; they are stored using AES256 encryption and are only used for your personal requests.
           </p>
         </div>
-        <div class="space-y-2">
+
+        <!-- TMDB API Key Group -->
+        <fieldset class="border border-gray-600 rounded-lg p-4">
+          <legend class="px-2 text-sm text-gray-300">TMDB API</legend>
           <p>
             <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer"
               class="text-cyan-400 underline hover:text-cyan-300">
               Create TMDB API Key
             </a>
           </p>
-          <label for="tmdbKey" class="block text-sm font-medium text-gray-300">
+          <label for="tmdbKey" class="block text-sm font-medium text-gray-300 mt-2">
             TMDB API Key:
           </label>
           <input type="text" id="tmdbKey" name="tmdbKey" placeholder="Enter your TMDB API key"
             class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300 text-sm sm:text-base" />
-        </div>
-        <div class="flex items-center space-x-2">
-          <input id="defaultTmdbKey" name="defaultTmdbKey" type="checkbox"
-            class="text-purple-500 focus:ring-purple-500 rounded transition duration-300" />
-          <label for="defaultTmdbKey" class="text-sm text-gray-300">Use default TMDB key</label>
-        </div>
-        <div class="space-y-2">
+          <div class="flex items-center space-x-2 mt-2">
+            <input id="defaultTmdbKey" name="defaultTmdbKey" type="checkbox"
+              class="text-purple-500 focus:ring-purple-500 rounded transition duration-300" />
+            <label for="defaultTmdbKey" class="text-sm text-gray-300">Use default TMDB key</label>
+          </div>
+        </fieldset>
+
+        <!-- Ratings Poster API Key Group -->
+        <fieldset class="border border-gray-600 rounded-lg p-4">
+          <legend class="px-2 text-sm text-gray-300">Ratings Poster API</legend>
           <p>
             <a href="https://ratingposterdb.com/api-key/" target="_blank" rel="noopener noreferrer"
               class="text-cyan-400 underline hover:text-cyan-300">
               Create Ratings Poster API Key
             </a>
           </p>
-          <label for="rpdbKey" class="block text-sm font-medium text-gray-300">
+          <label for="rpdbKey" class="block text-sm font-medium text-gray-300 mt-2">
             Ratings Poster API Key:
           </label>
           <input type="text" id="rpdbKey" name="rpdbKey" placeholder="Enter your Ratings Poster API key"
             class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-sm sm:text-base" />
-        </div>
-        <div class="space-y-2">
+        </fieldset>
+
+        <!-- Trakt.tv Group -->
+        <fieldset class="border border-gray-600 rounded-lg p-4">
+          <legend class="px-2 text-sm text-gray-300">Trakt.tv</legend>
           <div class="flex items-center justify-between">
             <label class="block text-sm font-medium text-gray-300">Trakt.tv Account</label>
             <span id="trakt-status" class="text-sm text-gray-400">Not connected</span>
@@ -195,25 +213,34 @@
             class="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
             Connect Trakt.tv
           </button>
-        </div>
-        <div class="space-y-2">
+        </fieldset>
+
+        <!-- Catalog Options Group -->
+        <fieldset class="border border-gray-600 rounded-lg p-4">
+          <legend class="px-2 text-sm text-gray-300">Catalog Settings</legend>
           <div class="flex items-center space-x-2">
             <input id="optOutTrending" name="optOutTrending" type="checkbox"
               class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
             <label for="optOutTrending" class="text-sm text-gray-300">Opt out of trending catalog</label>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 mt-2">
             <input id="optOutTraktLists" name="optOutTraktLists" type="checkbox" checked
               class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
-            <label for="optOutTraktLists" class="text-sm text-gray-300">Opt out of <a href="https://github.com/mkcfdc/AISearch/discussions/32" target="_blank" rel="noopener noreferrer">Auto Create Trakt Lists</a></label>
+            <label for="optOutTraktLists" class="text-sm text-gray-300">
+              Opt out of <a href="https://github.com/mkcfdc/AISearch/discussions/32" target="_blank" rel="noopener noreferrer"
+                class="text-cyan-400 underline hover:text-cyan-300">Auto Create Trakt Lists</a>
+            </label>
           </div>
-        </div>
-        <!-- URL Display Box (shown only after storing keys) -->
+        </fieldset>
+
+        <!-- URL Display Box -->
         <div id="url-display-box" class="hidden bg-gray-700/80 rounded-lg p-4 text-gray-100 break-words shadow-lg">
           <p class="text-xs mb-2">Copy and paste this URL to install via Stremio:</p>
           <code id="url-display" class="block bg-gray-800/80 p-2 rounded text-xs text-gray-200"></code>
         </div>
-        <div class="space-y-2">
+
+        <!-- Final Actions -->
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <button id="install-button"
             class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled>

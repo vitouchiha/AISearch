@@ -7,7 +7,9 @@
     "DEV_MODE": "true"
   },
   "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker": {
+      "composeVersion": "2.33.1"
+    },
     "ghcr.io/dhoeric/features/google-cloud-cli:1": {}
   },
   "forwardPorts": [

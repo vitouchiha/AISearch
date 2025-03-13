@@ -1,4 +1,9 @@
+"use strict";
+
 const manifestBaseUrl = "{{ROOT_URL}}";
+const enableCaptcha = {{ENABLE_CAPTCHA}};
+
+// Cache DOM elements
 const elements = {
   googleKeyInput: document.getElementById("googleKey"),
   openaiKeyInput: document.getElementById("openaiKey"),
@@ -15,49 +20,24 @@ const elements = {
   traktAuthButton: document.getElementById("trakt-auth-button"),
   traktStatus: document.getElementById("trakt-status"),
   optOutTrending: document.getElementById("optOutTrending"),
-  optOutTraktLists: document.getElementById("optOutTraktLists"), //defaults to checked. which is false.
+  optOutTraktLists: document.getElementById("optOutTraktLists"),
 };
 
-// Default provider is Google
 let selectedProvider = "google";
 let traktTokens = getTokens();
 
-// Provider selection buttons
-document.querySelectorAll('.provider-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    selectedProvider = this.getAttribute('data-provider');
-    // Visual feedback: remove active ring from all and add to selected
-    document.querySelectorAll('.provider-btn').forEach(b => {
-      b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-    });
-    this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+/* Utility Functions */
 
-    // Toggle provider-specific configuration panels
-    document.querySelectorAll('.provider-config').forEach(config => {
-      if (config.getAttribute('data-provider-config') === selectedProvider) {
-        config.classList.remove('hidden');
-      } else {
-        config.classList.add('hidden');
-      }
-    });
-    updateUI();
-  });
-});
-
-function generateUserId() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = Math.random() * 16 | 0,
-      v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
+// Validates if a string is a UUID
 function isValidUUID(uuid) {
   const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return regex.test(uuid);
 }
+
+// Retrieves the userId from the URL or localStorage; generates one if missing/invalid.
 function getUserId() {
-  const pathParts = window.location.pathname.split('/').filter(Boolean);
-  if (pathParts.length > 0 && pathParts[0].startsWith("user:")) {
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  if (pathParts.length && pathParts[0].startsWith("user:")) {
     const urlUserId = pathParts[0].slice(5);
     if (isValidUUID(urlUserId)) {
       localStorage.setItem("userId", urlUserId);
@@ -66,17 +46,19 @@ function getUserId() {
       console.warn("Invalid userId in URL:", urlUserId);
     }
   }
-  let userId = localStorage.getItem("userId");
-  if (!userId || !isValidUUID(userId)) {
-    userId = generateUserId();
-    localStorage.setItem("userId", userId);
-  }
+  const userId = localStorage.getItem("userId") || undefined;
+  // if (!userId || !isValidUUID(userId)) {
+  //   userId = generateUserId();
+  //   localStorage.setItem("userId", userId);
+  // }
   return userId;
 }
+
+// Retrieves a JWT token from sessionStorage or fetches one from the API
 async function storeKeys(keys) {
   const userId = getUserId();
-
   let token = sessionStorage.getItem("jwtToken");
+
   if (!token) {
     const tokenResponse = await fetch(`${manifestBaseUrl}/api/generate-token`);
     if (!tokenResponse.ok) throw new Error("Failed to fetch token");
@@ -85,35 +67,60 @@ async function storeKeys(keys) {
     sessionStorage.setItem("jwtToken", token);
   }
 
+  let recaptchaToken;
+  
+  // Wrap the execute call in grecaptcha.ready()
+  if (enableCaptcha) {
+  recaptchaToken = await new Promise((resolve, reject) => {
+    window.grecaptcha.enterprise.ready(() => {
+      window.grecaptcha.enterprise.execute('{{CAPTCHA_SITE_KEY}}', { action: 'store_keys' })
+        .then(resolve)
+        .catch(reject);
+    });
+  });
+}
+
   const response = await fetch(`${manifestBaseUrl}/api/store-keys`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
     },
-    body: JSON.stringify({ userId, ...keys }),
+    body: JSON.stringify({ userId, recaptchaToken, ...keys }),
   });
 
   if (!response.ok) throw new Error("Failed to store keys");
-  return userId;
+
+  return response.json().then((data) => {
+    // Store userId in localStorage only if it doesn't already exist
+    if (!localStorage.getItem("userId")) {
+      localStorage.setItem("userId", data.userId);
+    }
+    return data.userId;
+  });
 }
 
+
+// Trakt token handling
 function storeTokens(tokens) {
   sessionStorage.setItem("traktTokens", JSON.stringify(tokens));
 }
+
 function getTokens() {
   const stored = sessionStorage.getItem("traktTokens");
   return stored ? JSON.parse(stored) : { access_token: null, refresh_token: null, expires_at: null };
 }
+
 function clearTokens() {
   sessionStorage.removeItem("traktTokens");
   traktTokens = { access_token: null, refresh_token: null, expires_at: null };
 }
 
+// API Keys storage in sessionStorage
 function storeApiKeys(apiKeys) {
-  // Save all keys including googleKey and openaiKey
   sessionStorage.setItem("apiKeys", JSON.stringify(apiKeys));
 }
+
 function loadApiKeys() {
   const stored = sessionStorage.getItem("apiKeys");
   if (stored) {
@@ -122,24 +129,25 @@ function loadApiKeys() {
     if (claudeKey) elements.claudeKeyInput.value = claudeKey;
     if (openaiKey) elements.openaiKeyInput.value = openaiKey;
     if (deepseekKey) elements.deepseekKeyInput.value = deepseekKey;
-
     if (tmdbKey) elements.tmdbKeyInput.value = tmdbKey;
     if (rpdbKey) elements.rpdbKeyInput.value = rpdbKey;
   }
 }
 
+// Key validation functions
 function isValidGeminiApiKey(key) {
   return typeof key === "string" && /^AIza[a-zA-Z0-9_-]{35,39}$/.test(key);
 }
+
 function isValidOpenaiKey(key) {
   return typeof key === "string" && key.trim() !== "";
 }
 
+/* Core Functions */
+
+// Retrieves keys from UI based on selected provider and checkboxes
 function getKeys() {
-  let googleKey = "";
-  let openaiKey = "";
-  let claudeKey = "";
-  let deepseekKey = "";
+  let googleKey = "", openaiKey = "", claudeKey = "", deepseekKey = "";
   if (selectedProvider === "google") {
     googleKey = elements.defaultGoogleKeyCheckbox.checked
       ? "default"
@@ -155,28 +163,26 @@ function getKeys() {
     ? "default"
     : elements.tmdbKeyInput.value.trim();
   const rpdbKey = elements.rpdbKeyInput.value.trim();
-  const traktKey = traktTokens["access_token"];
-  const traktRefresh = traktTokens["refresh_token"];
-  const traktExpiresAt = traktTokens["expires_at"];
+  const { access_token: traktKey, refresh_token: traktRefresh, expires_at: traktExpiresAt } = traktTokens;
   const traktCreateLists = !elements.optOutTraktLists.checked;
 
   return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt };
 }
 
+// Builds the manifest URL using the userId and optional parameters
 function generateManifestUrl(userId) {
   let url = `${manifestBaseUrl}/user:${userId}/manifest.json`;
   const params = [];
   if (elements.optOutTrending && elements.optOutTrending.checked) {
     params.push("trending=false");
   }
-  if (params.length > 0) {
-    url += "?" + params.join("&");
-  }
+  if (params.length) url += "?" + params.join("&");
   return url;
 }
 
+// Updates Trakt connection status in the UI
 function updateTraktStatus() {
-  if (traktTokens["access_token"]) {
+  if (traktTokens.access_token) {
     elements.traktStatus.textContent = "Connected";
     elements.traktStatus.classList.add("text-green-400");
     elements.traktAuthButton.textContent = "Disconnect Trakt.tv";
@@ -187,6 +193,7 @@ function updateTraktStatus() {
   }
 }
 
+// Handles authentication callback by parsing URL parameters
 async function handleAuthCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   const access_token = urlParams.get("access_token");
@@ -205,11 +212,11 @@ async function handleAuthCallback() {
   updateUI();
 }
 
+// Updates UI elements based on current state and provider selection
 function updateUI() {
   const keys = getKeys();
-  
+
   if (selectedProvider === "google") {
-    // Enable/disable Google key input based on checkbox
     elements.googleKeyInput.disabled = elements.defaultGoogleKeyCheckbox.checked;
     if (elements.defaultGoogleKeyCheckbox.checked) {
       elements.googleKeyInput.value = "default";
@@ -223,6 +230,7 @@ function updateUI() {
   } else if (selectedProvider === "deepseek") {
     elements.installButton.disabled = !isValidOpenaiKey(keys.deepseekKey);
   }
+
   // TMDB key handling
   elements.tmdbKeyInput.disabled = elements.defaultTmdbKeyCheckbox.checked;
   if (elements.defaultTmdbKeyCheckbox.checked) {
@@ -230,46 +238,124 @@ function updateUI() {
   }
 }
 
-// Input event listeners to update UI and store keys in sessionStorage
-elements.googleKeyInput.addEventListener("input", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.openaiKeyInput.addEventListener("input", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.deepseekKeyInput.addEventListener("input", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.claudeKeyInput.addEventListener("input", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.tmdbKeyInput.addEventListener("input", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.rpdbKeyInput.addEventListener("input", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.defaultGoogleKeyCheckbox.addEventListener("change", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.defaultTmdbKeyCheckbox.addEventListener("change", () => {
-  updateUI();
-  storeApiKeys(getKeys());
-});
-elements.optOutTraktLists.addEventListener("change", () => {
-  updateUI();
-  storeApiKeys(getKeys());
+/* Provider Key Validation Helpers */
+
+function validateProviderKey(provider, keys) {
+  switch (provider) {
+    case "google":
+      return keys.googleKey === "default" || isValidGeminiApiKey(keys.googleKey);
+    case "openai":
+      return isValidOpenaiKey(keys.openaiKey);
+    case "claude":
+      return isValidOpenaiKey(keys.claudeKey);
+    case "deepseek":
+      return isValidOpenaiKey(keys.deepseekKey);
+    default:
+      return false;
+  }
+}
+
+function getProviderErrorMessage(provider) {
+  switch (provider) {
+    case "google":
+      return "Please enter a valid Google API key to install the addon.";
+    case "openai":
+      return "Please enter a valid OpenAI API key to install the addon.";
+    case "claude":
+      return "Please enter a valid Claude API key to install the addon.";
+    case "deepseek":
+      return "Please enter a valid Deepseek API key to install the addon.";
+    default:
+      return "Invalid provider key.";
+  }
+}
+
+// Processes installation: validates key, stores data, and displays the manifest URL.
+async function processInstallation() {
+  const keys = getKeys();
+  if (!validateProviderKey(selectedProvider, keys)) {
+    alert(getProviderErrorMessage(selectedProvider));
+    return;
+  }
+
+  try {
+    const userId = await storeKeys(keys);
+    storeApiKeys(keys);
+    const url = generateManifestUrl(userId);
+    displayUrl(url);
+  } catch (error) {
+    alert("Failed to store keys. Please try again.");
+    console.error(error);
+  }
+}
+
+// Displays the manifest URL and attempts to copy it to the clipboard.
+async function displayUrl(url) {
+  elements.urlDisplay.textContent = url;
+  elements.urlDisplayBox.classList.remove("hidden");
+
+  if (navigator.clipboard) {
+    await navigator.clipboard.writeText(url);
+    alert("Installation URL copied to clipboard!");
+  } else {
+    alert("Installation URL is now visible below.");
+  }
+}
+
+/* Event Listeners */
+
+// Provider selection buttons
+document.querySelectorAll(".provider-btn").forEach((btn) => {
+  btn.addEventListener("click", function () {
+    selectedProvider = this.getAttribute("data-provider");
+
+    // Update active state
+    document.querySelectorAll(".provider-btn").forEach((b) =>
+      b.classList.remove("ring-2", "ring-offset-2", "ring-blue-500")
+    );
+    this.classList.add("ring-2", "ring-offset-2", "ring-blue-500");
+
+    // Toggle provider-specific config panels
+    document.querySelectorAll(".provider-config").forEach((config) => {
+      config.classList.toggle(
+        "hidden",
+        config.getAttribute("data-provider-config") !== selectedProvider
+      );
+    });
+    updateUI();
+  });
 });
 
+// Group input event listeners to update UI and persist API keys
+[
+  elements.googleKeyInput,
+  elements.openaiKeyInput,
+  elements.deepseekKeyInput,
+  elements.claudeKeyInput,
+  elements.tmdbKeyInput,
+  elements.rpdbKeyInput,
+].forEach((input) => {
+  input.addEventListener("input", () => {
+    updateUI();
+    storeApiKeys(getKeys());
+  });
+});
+
+// Group change event listeners for checkboxes
+[
+  elements.defaultGoogleKeyCheckbox,
+  elements.defaultTmdbKeyCheckbox,
+  elements.optOutTraktLists,
+].forEach((el) => {
+  el.addEventListener("change", () => {
+    updateUI();
+    storeApiKeys(getKeys());
+  });
+});
+
+// Trakt authentication
 elements.traktAuthButton.addEventListener("click", () => {
-  if (traktTokens["access_token"]) {
+  if (traktTokens.access_token) {
     clearTokens();
     updateTraktStatus();
     updateUI();
@@ -278,98 +364,8 @@ elements.traktAuthButton.addEventListener("click", () => {
   }
 });
 
-elements.installButton.addEventListener("click", async () => {
-  const keys = getKeys();
-  if (selectedProvider === "google") {
-    if (keys.googleKey === "default" || isValidGeminiApiKey(keys.googleKey)) {
-      try {
-        const userId = await storeKeys(keys);
-        storeApiKeys(keys);
-        const url = generateManifestUrl(userId);
-        elements.urlDisplay.textContent = url;
-        elements.urlDisplayBox.classList.remove("hidden");
-
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(url);
-          alert("Installation URL copied to clipboard!");
-        } else {
-          alert("Installation URL is now visible below.");
-        }
-      } catch (error) {
-        alert("Failed to store keys. Please try again.");
-        console.error(error);
-      }
-    } else {
-      alert("Please enter a valid Google API key to install the addon.");
-    }
-  } else if (selectedProvider === "openai") {
-    if (isValidOpenaiKey(keys.openaiKey)) {
-      try {
-        const userId = await storeKeys(keys);
-        storeApiKeys(keys);
-        const url = generateManifestUrl(userId);
-        elements.urlDisplay.textContent = url;
-        elements.urlDisplayBox.classList.remove("hidden");
-
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(url);
-          alert("Installation URL copied to clipboard!");
-        } else {
-          alert("Installation URL is now visible below.");
-        }
-      } catch (error) {
-        alert("Failed to store keys. Please try again.");
-        console.error(error);
-      }
-    } else {
-      alert("Please enter a valid OpenAI API key to install the addon.");
-    }
-  } else if (selectedProvider === "deepseek") {
-    if (isValidOpenaiKey(keys.deepseekKey)) {
-      try {
-        const userId = await storeKeys(keys);
-        storeApiKeys(keys);
-        const url = generateManifestUrl(userId);
-        elements.urlDisplay.textContent = url;
-        elements.urlDisplayBox.classList.remove("hidden");
-
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(url);
-          alert("Installation URL copied to clipboard!");
-        } else {
-          alert("Installation URL is now visible below.");
-        }
-      } catch (error) {
-        alert("Failed to store keys. Please try again.");
-        console.error(error);
-      }
-    } else {
-      alert("Please enter a valid Deepseek API key to install the addon.");
-    }
-  } else if (selectedProvider === "claude") {
-    if (isValidOpenaiKey(keys.claudeKey)) {
-      try {
-        const userId = await storeKeys(keys);
-        storeApiKeys(keys);
-        const url = generateManifestUrl(userId);
-        elements.urlDisplay.textContent = url;
-        elements.urlDisplayBox.classList.remove("hidden");
-
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(url);
-          alert("Installation URL copied to clipboard!");
-        } else {
-          alert("Installation URL is now visible below.");
-        }
-      } catch (error) {
-        alert("Failed to store keys. Please try again.");
-        console.error(error);
-      }
-    } else {
-      alert("Please enter a valid Claude API key to install the addon.");
-    }
-  }
-});
+// Install and update keys actions
+elements.installButton.addEventListener("click", processInstallation);
 
 elements.updateKeysButton.addEventListener("click", async () => {
   const keys = getKeys();
@@ -384,7 +380,10 @@ elements.updateKeysButton.addEventListener("click", async () => {
   }
 });
 
+// Load stored API keys and handle any auth callback on page load
 window.addEventListener("load", () => {
   loadApiKeys();
   handleAuthCallback();
 });
+
+// I hate vanilla javascript... I HATE IT!!!

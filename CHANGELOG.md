@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 Addon will create special lists within your trakt account so you can use these recommendations in other places! Updates every 3 hours~ish
 
 ## Added
+- Added Google ReCaptcha to the configure page.
+- If you want to use ReCaptcha, add these environment variables: CAPTCHA_SITE_KEY CAPTCHA_SECRET_KEY
+- I will work to be able to disable this next as I know the self-host community doesn't give a fuck about this. And adding this adds an uneeded complexity.
 - The addon now creates 4 custom lists in your trakt account, -watched, and -favorites which holds the recommendations. This allows you to use our recommendations in other apps easily.
 - List creation is optional and by default is false. So we won't create any lists if you dont want to.
 

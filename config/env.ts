@@ -25,6 +25,10 @@ const JWT_SECRET = await crypto.subtle.importKey(
 const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash'; // cheapest one with the highest rate limit.. we need it now! hahah
 const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") || 'gpt-4o-mini';
 const OMDB_API_KEY = Deno.env.get("OMDB_API_KEY");
+const CAPTCHA_SITE_KEY = Deno.env.get("CAPTCHA_SITE_KEY");
+const CAPTCHA_SECRET_KEY = Deno.env.get("CAPTCHA_SECRET_KEY");
+const ENABLE_CAPTCHA = Boolean(CAPTCHA_SITE_KEY && CAPTCHA_SECRET_KEY);
+
 
 const QSTASH_URL = Deno.env.get("QSTASH_URL");
 const QSTASH_TOKEN = Deno.env.get("QSTASH_TOKEN");
@@ -100,6 +104,9 @@ export {
   NO_SEMANTIC_SEARCH,
   TRAKT_CLIENT_ID,
   TRAKT_CLIENT_SECRET,
+  ENABLE_CAPTCHA,
+  CAPTCHA_SITE_KEY,
+  CAPTCHA_SECRET_KEY,
   geminiKey as GEMINI_API_KEY,
   PORT,
   RPDB_FREE_API_KEY,

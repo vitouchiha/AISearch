@@ -1,5 +1,5 @@
 import { Context, Router, send } from "../config/deps.ts";
-import { ROOT_URL, DEV_MODE } from "../config/env.ts";
+import { ROOT_URL, DEV_MODE, CAPTCHA_SITE_KEY, ENABLE_CAPTCHA } from "../config/env.ts";
 import { log } from "../utils/utils.ts";
 import { createManifest } from "../config/manifest.ts";
 import { handleTrendingRequest } from "../handlers/handleTrendingMoviesRequest.ts";
@@ -92,7 +92,8 @@ const handleConfigure = async (ctx: ConfigureContext) => {
       .replace("{{INSTALLS}}", installs)
       .replace("{{DB_SIZE}}", dbSize)
       .replace("{{VECTOR_COUNT}}", vectorCount)
-      .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "");
+      .replace("{{DEV_MODE}}", DEV_MODE ? "DEVELOPMENT MODE" : "")
+      .replace("{{CAPTCHA_SITE_KEY}}", ENABLE_CAPTCHA ? String(CAPTCHA_SITE_KEY) : '');
 
     ctx.response.headers.set("Content-Type", "text/html");
     ctx.response.headers.set("Cache-Control", "public, max-age=18000"); // Cache for 5 hours
@@ -160,11 +161,14 @@ router.get(
 
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 
-
+// it's time to move to React... or just stop, that's a good idea.
 router.get("/configure.js", async (ctx: Context) => {
   try {
     const jsContent = await Deno.readTextFile("./views/script.js");
-    const js = jsContent.replace("{{ROOT_URL}}", ROOT_URL);
+    const js = jsContent
+      .replace("{{ROOT_URL}}", ROOT_URL)
+      .replace("{{ENABLE_CAPTCHA}}", ENABLE_CAPTCHA ? "true" : "false")
+      .replace("{{CAPTCHA_SITE_KEY}}", ENABLE_CAPTCHA ? String(CAPTCHA_SITE_KEY) : '');
 
     ctx.response.headers.set("Content-Type", "application/javascript");
     //ctx.response.headers.set("Cache-Control", "public, max-age=86400");

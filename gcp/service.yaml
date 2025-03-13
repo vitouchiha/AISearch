@@ -99,5 +99,15 @@ spec:
                 secretKeyRef:
                   name: RPDB_FREE_API_KEY
                   key: latest
+            - name: CAPTCHA_SITE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: CAPTCHA_SITE_KEY
+                  key: latest
+            - name: CAPTCHA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: CAPTCHA_SECRET_KEY
+                  key: latest
       serviceAccountName: 301259160029-compute@developer.gserviceaccount.com
       timeoutSeconds: 300
