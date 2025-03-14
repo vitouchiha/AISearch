@@ -25,7 +25,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
   const backgroundUpdateBatch: BackgroundTaskParams[] = [];
 
   try {
-    // Check semantic cache first
+    // Check semantic cache first 
     if (semanticCache) {
       try {
         const cachedResult = await semanticCache.get(cacheKey);
@@ -144,10 +144,11 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
       const topMetaJson = JSON.stringify(metas[0]);
       const semanticJson = JSON.stringify(metas);
  
+      // Some featherless model's give low value results so don't cache them.
       Promise.all([
         redis.lpush(trendingKey, topMetaJson),
         redis.ltrim(trendingKey, 0, SEARCH_COUNT - 1),
-        semanticCache ? semanticCache.set(cacheKey, semanticJson) : null,
+        semanticCache && provider !== 'featherless' ? semanticCache.set(cacheKey, semanticJson) : null,
       ]);
 
       log(`${stats.fromCache} ${type}(s) returned from cache.`);
