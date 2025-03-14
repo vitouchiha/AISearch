@@ -11,7 +11,7 @@ import { generateUserId, isValidUUID } from "../utils/UserId.ts";
 const router = new Router();
 
 router.options("/api/store-keys", oakCors({
-  origin: "https://ai.filmwhisper.dev",
+  origin: "*",
 }));
 
 router.get("/api/generate-token", tokenRateLimitMiddleware, async (ctx: Context) => {
@@ -26,7 +26,7 @@ router.get("/api/generate-token", tokenRateLimitMiddleware, async (ctx: Context)
   ctx.response.body = { token };
 });
 
-router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" }), verifyToken, async (ctx) => {
+router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx) => {
 
 
   try {
@@ -90,14 +90,13 @@ router.post("/api/store-keys", oakCors({ origin: "https://ai.filmwhisper.dev" })
     };
 
     const set = await redis?.set(`user:${userId}`, encryptKeys(keys));
-    console.log(set);
 
     ctx.response.status = 200;
     ctx.response.body = { userId };
   } catch (error) {
     console.error("[store-keys] Error:", error);
     ctx.response.status = 500;
-    ctx.response.body = { error: "Failed to store keys" };
+    ctx.response.body = { error: "Failed to store keys", message: error };
   }
 }
 );
