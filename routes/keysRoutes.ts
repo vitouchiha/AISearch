@@ -7,7 +7,6 @@ import { verifyToken } from "../middleware/apiAuth.ts";
 import { tokenRateLimitMiddleware } from "../middleware/ratelimitMiddleware.ts";
 import { tmdbHealthCheck } from "../services/tmdb.ts";
 import { generateUserId, isValidUUID } from "../utils/UserId.ts";
-import { log } from "../utils/utils.ts";
 
 const router = new Router();
 
@@ -94,8 +93,6 @@ router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx
       featherlessModel: featherlessModel || "",
     };
 
-
-    log(`Featherless: ${keys.featherlessKey} ${keys.featherlessModel}`);
     const _set = await redis?.set(`user:${userId}`, encryptKeys(keys));
 
     ctx.response.status = 200;
