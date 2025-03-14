@@ -14,6 +14,10 @@ Addon will create special lists within your trakt account so you can use these r
 - The addon now creates 4 custom lists in your trakt account, -watched, and -favorites which holds the recommendations. This allows you to use our recommendations in other apps easily.
 - List creation is optional and by default is false. So we won't create any lists if you dont want to.
 
+### Fixed
+
+- Removed a CORS restriction I believe to be causing the 'keys store' issue.
+
 ## [1.4.0]
 
 This version doesn't have any breaking changes but introduces the ability to add new AI models.
