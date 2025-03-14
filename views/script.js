@@ -9,6 +9,9 @@ const elements = {
   openaiKeyInput: document.getElementById("openaiKey"),
   claudeKeyInput: document.getElementById("claudeKey"),
   deepseekKeyInput: document.getElementById("deepseekKey"),
+  // NEW: Featherless elements
+  featherlessKeyInput: document.getElementById("featherlessKey"),
+  featherlessModelSelect: document.getElementById("featherlessModel"),
   tmdbKeyInput: document.getElementById("tmdbKey"),
   rpdbKeyInput: document.getElementById("rpdbKey"),
   defaultGoogleKeyCheckbox: document.getElementById("defaultGoogleKey"),
@@ -47,10 +50,6 @@ function getUserId() {
     }
   }
   const userId = localStorage.getItem("userId") || undefined;
-  // if (!userId || !isValidUUID(userId)) {
-  //   userId = generateUserId();
-  //   localStorage.setItem("userId", userId);
-  // }
   return userId;
 }
 
@@ -71,14 +70,14 @@ async function storeKeys(keys) {
   
   // Wrap the execute call in grecaptcha.ready()
   if (enableCaptcha) {
-  recaptchaToken = await new Promise((resolve, reject) => {
-    window.grecaptcha.enterprise.ready(() => {
-      window.grecaptcha.enterprise.execute('{{CAPTCHA_SITE_KEY}}', { action: 'store_keys' })
-        .then(resolve)
-        .catch(reject);
+    recaptchaToken = await new Promise((resolve, reject) => {
+      window.grecaptcha.enterprise.ready(() => {
+        window.grecaptcha.enterprise.execute('{{CAPTCHA_SITE_KEY}}', { action: 'store_keys' })
+          .then(resolve)
+          .catch(reject);
+      });
     });
-  });
-}
+  }
 
   const response = await fetch(`${manifestBaseUrl}/api/store-keys`, {
     method: "POST",
@@ -99,7 +98,6 @@ async function storeKeys(keys) {
     return data.userId;
   });
 }
-
 
 // Trakt token handling
 function storeTokens(tokens) {
@@ -124,13 +122,16 @@ function storeApiKeys(apiKeys) {
 function loadApiKeys() {
   const stored = sessionStorage.getItem("apiKeys");
   if (stored) {
-    const { googleKey, openaiKey, deepseekKey, claudeKey, tmdbKey, rpdbKey } = JSON.parse(stored);
+    const { googleKey, openaiKey, deepseekKey, claudeKey, tmdbKey, rpdbKey, featherlessKey, featherlessModel } = JSON.parse(stored);
     if (googleKey) elements.googleKeyInput.value = googleKey;
     if (claudeKey) elements.claudeKeyInput.value = claudeKey;
     if (openaiKey) elements.openaiKeyInput.value = openaiKey;
     if (deepseekKey) elements.deepseekKeyInput.value = deepseekKey;
     if (tmdbKey) elements.tmdbKeyInput.value = tmdbKey;
     if (rpdbKey) elements.rpdbKeyInput.value = rpdbKey;
+    // NEW: Load Featherless keys and model
+    if (featherlessKey) elements.featherlessKeyInput.value = featherlessKey;
+    if (featherlessModel) elements.featherlessModelSelect.value = featherlessModel;
   }
 }
 
@@ -147,7 +148,7 @@ function isValidOpenaiKey(key) {
 
 // Retrieves keys from UI based on selected provider and checkboxes
 function getKeys() {
-  let googleKey = "", openaiKey = "", claudeKey = "", deepseekKey = "";
+  let googleKey = "", openaiKey = "", claudeKey = "", deepseekKey = "", featherlessKey = "", featherlessModel = "";
   if (selectedProvider === "google") {
     googleKey = elements.defaultGoogleKeyCheckbox.checked
       ? "default"
@@ -158,6 +159,10 @@ function getKeys() {
     claudeKey = elements.claudeKeyInput.value.trim();
   } else if (selectedProvider === "deepseek") {
     deepseekKey = elements.deepseekKeyInput.value.trim();
+  } else if (selectedProvider === "featherless") {
+    // NEW: Retrieve Featherless API key and selected model
+    featherlessKey = elements.featherlessKeyInput.value.trim();
+    featherlessModel = elements.featherlessModelSelect.value;
   }
   const tmdbKey = elements.defaultTmdbKeyCheckbox.checked
     ? "default"
@@ -166,7 +171,7 @@ function getKeys() {
   const { access_token: traktKey, refresh_token: traktRefresh, expires_at: traktExpiresAt } = traktTokens;
   const traktCreateLists = !elements.optOutTraktLists.checked;
 
-  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt };
+  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, featherlessKey, featherlessModel, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt };
 }
 
 // Builds the manifest URL using the userId and optional parameters
@@ -229,6 +234,9 @@ function updateUI() {
     elements.installButton.disabled = !isValidOpenaiKey(keys.claudeKey);
   } else if (selectedProvider === "deepseek") {
     elements.installButton.disabled = !isValidOpenaiKey(keys.deepseekKey);
+  } else if (selectedProvider === "featherless") {
+    // NEW: For Featherless, check that the API key is non-empty.
+    elements.installButton.disabled = !isValidOpenaiKey(keys.featherlessKey);
   }
 
   // TMDB key handling
@@ -250,6 +258,9 @@ function validateProviderKey(provider, keys) {
       return isValidOpenaiKey(keys.claudeKey);
     case "deepseek":
       return isValidOpenaiKey(keys.deepseekKey);
+    case "featherless":
+      // NEW: Validate Featherless key (using same check as OpenAI)
+      return isValidOpenaiKey(keys.featherlessKey);
     default:
       return false;
   }
@@ -265,6 +276,9 @@ function getProviderErrorMessage(provider) {
       return "Please enter a valid Claude API key to install the addon.";
     case "deepseek":
       return "Please enter a valid Deepseek API key to install the addon.";
+    case "featherless":
+      // NEW: Error message for Featherless
+      return "Please enter a valid Featherless API key to install the addon.";
     default:
       return "Invalid provider key.";
   }
@@ -334,6 +348,9 @@ document.querySelectorAll(".provider-btn").forEach((btn) => {
   elements.claudeKeyInput,
   elements.tmdbKeyInput,
   elements.rpdbKeyInput,
+  // NEW: Add Featherless inputs
+  elements.featherlessKeyInput,
+  elements.featherlessModelSelect
 ].forEach((input) => {
   input.addEventListener("input", () => {
     updateUI();

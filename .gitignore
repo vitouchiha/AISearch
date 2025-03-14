@@ -5,3 +5,4 @@ node_modules/
 logs/
 nohup.out
 .ngrok.env
+.aikeys

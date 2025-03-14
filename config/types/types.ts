@@ -33,6 +33,8 @@ export interface AppContext<
     openAiKey?: string;
     deepseekKey?: string;
     traktCreateList?: boolean;
+    featherlessKey?: string;
+    featherlessModel?: string;
   };
 }
 
@@ -64,6 +66,8 @@ export type Keys = {
   deepseekKey: string;
   userId?: string;
   traktCreateList?: boolean;
+  featherlessKey?: string;
+  featherlessModel?: string;
 }
 
 export type CatalogContext = AppContext<MovieCatalogParams>;

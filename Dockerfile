@@ -3,6 +3,9 @@ RUN apk update && apk upgrade --no-cache && apk add curl
 
 WORKDIR /app
 
+# TODO: MAKE CONFIGURE PAGE REACT COMPONENTS
+# Fuck sake.
+
 COPY . .
 
 LABEL org.opencontainers.image.source="https://github.com/mkcfdc/AISearch"

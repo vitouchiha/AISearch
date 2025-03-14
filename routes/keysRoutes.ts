@@ -7,6 +7,7 @@ import { verifyToken } from "../middleware/apiAuth.ts";
 import { tokenRateLimitMiddleware } from "../middleware/ratelimitMiddleware.ts";
 import { tmdbHealthCheck } from "../services/tmdb.ts";
 import { generateUserId, isValidUUID } from "../utils/UserId.ts";
+import { log } from "../utils/utils.ts";
 
 const router = new Router();
 
@@ -44,7 +45,9 @@ router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx
       traktKey,
       traktRefresh,
       traktExpiresAt,
-      traktCreateLists, // displays true being sent from frontend.
+      traktCreateLists,
+      featherlessKey,
+      featherlessModel,
     } = body;
 
     if (ENABLE_CAPTCHA === true) {
@@ -87,9 +90,13 @@ router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx
       traktExpiresAt: traktExpiresAt || "",
       traktCreateList: traktCreateLists || false, // shows false here..
       omdbKey: omdbKey || "",
+      featherlessKey: featherlessKey || "",
+      featherlessModel: featherlessModel || "",
     };
 
-    const set = await redis?.set(`user:${userId}`, encryptKeys(keys));
+
+    log(`Featherless: ${keys.featherlessKey} ${keys.featherlessModel}`);
+    const _set = await redis?.set(`user:${userId}`, encryptKeys(keys));
 
     ctx.response.status = 200;
     ctx.response.body = { userId };

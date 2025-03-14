@@ -1,4 +1,5 @@
-import { AppContext, Keys } from "../config/types/types.ts";
+import { Keys } from "../config/types/types.ts";
+import { Context } from "../config/deps.ts";
 import { isValidGeminiApiKey } from "../utils/isValidGeminiApiKey.ts";
 import { GEMINI_API_KEY, OMDB_API_KEY, TMDB_API_KEY } from "../config/env.ts";
 import { decodeUrlSafeBase64 } from "../utils/urlSafe.ts";
@@ -18,6 +19,8 @@ const DEFAULT_KEYS: Keys = {
   traktExpiresAt: "",
   userId: "",
   omdbKey: String(OMDB_API_KEY),
+  featherlessKey: "",
+  featherlessModel: "",
 };
 
 function parseKeysParam(keysParam: string | undefined): Keys {
@@ -94,7 +97,7 @@ async function refreshExpiredTraktToken(keys: Keys): Promise<Keys> {
 }
 
 export const googleKeyMiddleware = async <P extends Record<string, string | undefined>>(
-  ctx: AppContext<P>, 
+  ctx: Context, 
   next: () => Promise<unknown>
 ) => {
   try {
@@ -114,9 +117,11 @@ export const googleKeyMiddleware = async <P extends Record<string, string | unde
     if(keys.googleKey === 'default') keys.googleKey = String(GEMINI_API_KEY);
   
     ctx.state.googleKey = isValidGeminiApiKey(keys.googleKey) && 
-      (!keys.openAiKey || !keys.claudeKey || !keys.deepseekKey) ? 
+      (!keys.openAiKey || !keys.claudeKey || !keys.deepseekKey || !keys.featherlessKey || !keys.featherlessModel) ? 
       keys.googleKey : "";
     
+    ctx.state.featherlessKey = keys.featherlessKey;
+    ctx.state.featherlessModel = keys.featherlessModel;
     ctx.state.openAiKey = keys.openAiKey;
     ctx.state.claudeKey = keys.claudeKey;
     ctx.state.deepseekKey = keys.deepseekKey;
