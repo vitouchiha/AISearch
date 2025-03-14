@@ -135,7 +135,7 @@ function loadApiKeys() {
 
     if (featherlessKey) elements.featherlessKeyInput.value = featherlessKey;
 
-    if (featherlessModel) {
+    if (featherlessModel.length > 0) {
       const select = elements.featherlessModelSelect;
       const optionExists = Array.from(select.options).some(option => option.value === featherlessModel);
       if (optionExists) {

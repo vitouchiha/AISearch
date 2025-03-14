@@ -43,9 +43,7 @@ export function getAIModel(provider: ProviderType, apiKey: string, model?: strin
     }
     case "featherless": {
       // Only allow models from featherlessModels
-      const allowedModel = model && featherlessModels.includes(model)
-        ? model
-        : featherlessModels[0];
+      const allowedModel = model ? model : featherlessModels[0];
       const feather = createOpenAICompatible({
         name: 'featherless',
         apiKey: apiKey,
