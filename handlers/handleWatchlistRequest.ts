@@ -14,10 +14,10 @@ import { createRedisKey } from "../services/tmdbHelpers/tmdbCommon.ts";
 import { isOldCacheStructure, convertOldToNewStructure } from "../services/tmdbHelpers/fixOldCache.ts";
 
 export const handleTraktWatchlistRequest = async (ctx: Context) => {
-  const { tmdbKey, googleKey, openAiKey, traktKey, rpdbKey, omdbKey, userId, type, traktCreateList } = ctx.state;
+  const { tmdbKey, traktKey, rpdbKey, omdbKey, userId, type, traktCreateList } = ctx.state;
   
   // Validate required parameters
-  if (!traktKey || !type || !userId || !tmdbKey || (!googleKey && !openAiKey)) {
+  if (!traktKey || !type || !userId || !tmdbKey) {
     ctx.response.body = { metas: [] };
     return;
   }
@@ -66,8 +66,8 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     const titleString = titles.join(", ");
 
     // Retrieve movie recommendations based on recent watch titles
-    const { provider, apiKey } = getProviderInfoFromState(ctx.state);
-    const { recommendations: movieNames, lang } = await getTraktMovieRecommendations(titleString, type, { provider, apiKey });
+    const { provider, apiKey, model } = getProviderInfoFromState(ctx.state);
+    const { recommendations: movieNames, lang } = await getTraktMovieRecommendations(titleString, type, { provider, apiKey, model });
     if (!movieNames?.length) {
       ctx.response.body = { metas: [] };
       return;

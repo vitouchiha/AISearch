@@ -44,11 +44,11 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
     }
 
     // Get recommendations and language info
-    const { provider, apiKey } = getProviderInfoFromState(ctx.state);
+    const { provider, apiKey, model } = getProviderInfoFromState(ctx.state);
     const { recommendations: movieNames, lang, error } = await getMovieRecommendations(
       searchQuery,
       type,
-      { provider, apiKey }
+      { provider, apiKey, model }
     );
 
     if (error) {

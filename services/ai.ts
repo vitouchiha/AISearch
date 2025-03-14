@@ -11,7 +11,7 @@ interface RecommendationsResult {
 
 async function getRecommendationsHelper(
   prompt: string,
-  providerInfo: { provider: ProviderType; apiKey: string; model: string },
+  providerInfo: { provider: ProviderType; apiKey: string; model?: string },
   recommendationType: string
 ): Promise<RecommendationsResult> {
   const aiModel = getAIModel(providerInfo.provider, providerInfo.apiKey, providerInfo.model, true);
@@ -83,7 +83,7 @@ async function getRecommendationsHelper(
 }
 
 
-export async function getTraktMovieRecommendations(movies: string, type: string, providerInfo: { provider: ProviderType; apiKey: string, model: string, }): Promise<RecommendationsResult> {
+export async function getTraktMovieRecommendations(movies: string, type: string, providerInfo: { provider: ProviderType; apiKey: string, model?: string, }): Promise<RecommendationsResult> {
 
   if (movies.length > 400) {
     return { recommendations: [], lang: '' };
@@ -105,7 +105,7 @@ export async function getTraktMovieRecommendations(movies: string, type: string,
   return await getRecommendationsHelper(prompt, providerInfo, recommendationType);
 }
 
-export async function getMovieRecommendations(searchQuery: string, type: string, providerInfo: { provider: ProviderType; apiKey: string, model: string }): Promise<RecommendationsResult> {
+export async function getMovieRecommendations(searchQuery: string, type: string, providerInfo: { provider: ProviderType; apiKey: string, model?: string }): Promise<RecommendationsResult> {
   if (searchQuery.length > 400) return { recommendations: [], lang: '' };
 
   const recommendationType = type === "series" ? "TV series" : "movies";
