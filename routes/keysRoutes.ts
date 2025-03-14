@@ -26,7 +26,7 @@ router.get("/api/generate-token", tokenRateLimitMiddleware, async (ctx: Context)
   ctx.response.body = { token };
 });
 
-router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx) => {
+router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx: Context) => {
 
 
   try {
@@ -96,7 +96,7 @@ router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx
   } catch (error) {
     console.error("[store-keys] Error:", error);
     ctx.response.status = 500;
-    ctx.response.body = { error: "Failed to store keys", message: error };
+    ctx.response.body = { error: "Failed to store keys", message: error?.message };
   }
 }
 );
