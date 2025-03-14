@@ -14,7 +14,9 @@
     }
 
     @keyframes bounce {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateY(0);
       }
 
@@ -25,11 +27,14 @@
   </style>
 </head>
 
-<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-auto">
+<body
+  class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-auto">
   <!-- Background Effects -->
   <div class="absolute inset-0 z-0 pointer-events-none">
     <div class="animate-pulse bg-white bg-opacity-10 rounded-full w-32 h-32 absolute top-1/4 left-1/4 blur-3xl"></div>
-    <div class="animate-bounce-slow bg-white bg-opacity-10 rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl"></div>
+    <div
+      class="animate-bounce-slow bg-white bg-opacity-10 rounded-full w-24 h-24 absolute bottom-1/4 right-1/4 blur-3xl">
+    </div>
     <svg class="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
       <path fill="currentColor" fill-opacity="0.1"
         d="M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,202.7C672,203,768,149,864,144C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
@@ -40,7 +45,8 @@
   <main class="relative z-10 flex flex-col items-center w-full max-w-2xl space-y-6 sm:space-y-10">
     <!-- Header -->
     <header class="flex flex-col items-center text-center">
-      <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+      <h1
+        class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
         FilmWhisper: AISearch
       </h1>
       <p class="mt-2 text-sm text-gray-400">AI-powered movie discovery for Stremio</p>
@@ -71,13 +77,14 @@
           <span class="sr-only">DeepSeek R1</span>
         </button>
         <button type="button" data-provider="featherless"
-        class="provider-btn w-full sm:w-auto px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none flex items-center justify-center">
-        <img src="/images/icons/Featherless.webp" alt="Featherless" class="w-8 h-8" />
-        <span class="sr-only">Featherless</span>
-      </button>
+          class="provider-btn w-full sm:w-auto px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded focus:outline-none flex items-center justify-center">
+          <img src="/images/icons/Featherless.webp" alt="Featherless" class="w-8 h-8" />
+          <span class="sr-only">Featherless</span>
+        </button>
       </div>
       <p class="text-sm text-gray-300">
-        Featherless integration is brand new. Probably broken. Very untested (I don't have a key). If it broke, please open a github issue.
+        Featherless integration is brand new. Probably broken. Very untested (I don't have a key). If it broke, please
+        open a github issue.
       </p>
       <p class="text-sm text-gray-300">
         If you are unable to update/install addon it's probably due to a rate limit. Try again in one hour.
@@ -116,8 +123,8 @@
         <!-- OpenAI Configuration -->
         <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="openai">
           <p>
-            <a href="https://platform.openai.com/settings/organization/api-keys" target="_blank" rel="noopener noreferrer"
-              class="text-cyan-400 underline hover:text-cyan-300">
+            <a href="https://platform.openai.com/settings/organization/api-keys" target="_blank"
+              rel="noopener noreferrer" class="text-cyan-400 underline hover:text-cyan-300">
               Create OpenAI API Key
             </a>
           </p>
@@ -157,7 +164,6 @@
           <input type="text" id="deepseekKey" name="deepseekKey" placeholder="Enter your DeepSeek API key"
             class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-sm sm:text-base" />
         </div>
-      </div>
 
         <!-- Featherless Configuration -->
         <div class="provider-config bg-gray-700/80 p-4 rounded-lg shadow-sm hidden" data-provider-config="featherless">
@@ -167,7 +173,7 @@
           </label>
           <input type="text" id="featherlessKey" name="featherlessKey" placeholder="Enter your Featherless API key"
             class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-sm sm:text-base" />
-          
+
           <label for="featherlessModel" class="block text-sm font-medium text-gray-300 mt-2">
             Select Model:
           </label>
@@ -179,7 +185,23 @@
             <option value="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B">deepseek-ai/DeepSeek-R1-Distill-Qwen-32B</option>
             <option value="Qwen/Qwen2.5-7B-Instruct">Qwen/Qwen2.5-7B-Instruct</option>
             <option value="Sao10K/L3.3-70B-Euryale-v2.3">Sao10K/L3.3-70B-Euryale-v2.3</option>
+            <option value="custom">Other (Enter custom model below)</option>
           </select>
+
+          <!-- Custom Model Name Input (hidden by default) -->
+          <div id="customModelContainer" class="hidden">
+            <label for="featherlessCustomModel" class="block text-sm font-medium text-gray-300 mt-2">
+              Custom Model Name:
+            </label>
+            <input type="text" id="featherlessCustomModel" name="featherlessCustomModel"
+              placeholder="Enter your custom model name"
+              class="w-full p-3 mt-1 border border-gray-600 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-sm sm:text-base" />
+            <p class="mt-2 text-sm text-red-400">
+              Warning: This feature is untested and may not work as expected.
+            </p>
+          </div>
+
+
         </div>
       </div>
 
@@ -190,7 +212,8 @@
       <div class="space-y-6">
         <div class="bg-gray-700/80 border border-gray-600 text-gray-200 p-4 rounded-lg text-xs">
           <p>
-            We use your API keys on your behalf for server-side operations; they are stored using AES256 encryption and are only used for your personal requests.
+            We use your API keys on your behalf for server-side operations; they are stored using AES256 encryption and
+            are only used for your personal requests.
           </p>
         </div>
 
@@ -256,8 +279,9 @@
             <input id="optOutTraktLists" name="optOutTraktLists" type="checkbox" checked
               class="text-indigo-500 focus:ring-indigo-500 rounded transition duration-300" />
             <label for="optOutTraktLists" class="text-sm text-gray-300">
-              Opt out of <a href="https://github.com/mkcfdc/AISearch/discussions/32" target="_blank" rel="noopener noreferrer"
-                class="text-cyan-400 underline hover:text-cyan-300">Auto Create Trakt Lists</a>
+              Opt out of <a href="https://github.com/mkcfdc/AISearch/discussions/32" target="_blank"
+                rel="noopener noreferrer" class="text-cyan-400 underline hover:text-cyan-300">Auto Create Trakt
+                Lists</a>
             </label>
           </div>
         </fieldset>
@@ -289,8 +313,7 @@
     <div class="text-center">
       <a href="https://github.com/mkcfdc/AISearch" target="_blank" rel="noopener noreferrer"
         class="inline-flex items-center text-blue-400 hover:text-blue-300 transition duration-300 py-3 px-4">
-        <svg class="w-5 h-5 mr-2" role="img" viewBox="0 0 24 24" fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg">
+        <svg class="w-5 h-5 mr-2" role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.205 11.387.6.111.82-.261.82-.577 0-.285-.011-1.04-.017-2.04-3.338.724-4.042-1.612-4.042-1.612-.546-1.387-1.333-1.757-1.333-1.757-1.089-.745.083-.729.083-.729 1.205.084 1.84 1.236 1.84 1.236 1.07 1.835 2.809 1.304 3.495.997.108-.776.42-1.305.763-1.605-2.665-.3-5.466-1.335-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.957-.266 1.98-.399 3-.405 1.02.006 2.043.139 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81 1.11.81 2.235 0 1.61-.015 2.91-.015 3.31 0 .315.21.694.825.576C20.565 21.092 24 16.592 24 12c0-6.627-5.373-12-12-12" />
         </svg>
@@ -298,7 +321,8 @@
       </a>
     </div>
     <div class="text-center mt-4">
-      <a href="https://ko-fi.com/mkcfdc" target="_blank" rel="noopener noreferrer" class="inline-flex items-center transition duration-300 hover:opacity-80">
+      <a href="https://ko-fi.com/mkcfdc" target="_blank" rel="noopener noreferrer"
+        class="inline-flex items-center transition duration-300 hover:opacity-80">
         <img src="https://cdn.ko-fi.com/cdn/kofi2.png?v=3" alt="Support me on Ko-fi" class="w-32" />
       </a>
     </div>
@@ -312,8 +336,7 @@
           <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-green-400" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             <span class="text-sm text-gray-400">Total Installs</span>
           </div>
@@ -338,8 +361,7 @@
           <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-yellow-400" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M20 12l-8 5-8-5 8-5 8 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12l-8 5-8-5 8-5 8 5z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v10" />
             </svg>
             <span class="text-sm text-gray-400">Vector Count</span>

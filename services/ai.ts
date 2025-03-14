@@ -14,7 +14,6 @@ async function getRecommendationsHelper(
   providerInfo: { provider: ProviderType; apiKey: string; model: string },
   recommendationType: string
 ): Promise<RecommendationsResult> {
-  // Pass the correct model to getAIModel
   const aiModel = getAIModel(providerInfo.provider, providerInfo.apiKey, providerInfo.model, true);
   log(`Sending prompt: ${prompt}`);
 

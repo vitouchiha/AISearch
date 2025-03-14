@@ -12,6 +12,9 @@ const elements = {
   // NEW: Featherless elements
   featherlessKeyInput: document.getElementById("featherlessKey"),
   featherlessModelSelect: document.getElementById("featherlessModel"),
+  customModelContainer: document.getElementById('customModelContainer'),
+  featherlessCustomModel: document.getElementById('featherlessCustomModel'),
+
   tmdbKeyInput: document.getElementById("tmdbKey"),
   rpdbKeyInput: document.getElementById("rpdbKey"),
   defaultGoogleKeyCheckbox: document.getElementById("defaultGoogleKey"),
@@ -129,9 +132,20 @@ function loadApiKeys() {
     if (deepseekKey) elements.deepseekKeyInput.value = deepseekKey;
     if (tmdbKey) elements.tmdbKeyInput.value = tmdbKey;
     if (rpdbKey) elements.rpdbKeyInput.value = rpdbKey;
-    // NEW: Load Featherless keys and model
+
     if (featherlessKey) elements.featherlessKeyInput.value = featherlessKey;
-    if (featherlessModel) elements.featherlessModelSelect.value = featherlessModel;
+
+    if (featherlessModel) {
+      const select = elements.featherlessModelSelect;
+      const optionExists = Array.from(select.options).some(option => option.value === featherlessModel);
+      if (optionExists) {
+        select.value = featherlessModel;
+      } else {
+        select.value = "custom";
+        document.getElementById("featherlessCustomModel").value = featherlessModel;
+        document.getElementById("customModelContainer").classList.remove("hidden");
+      }
+    }
   }
 }
 
@@ -160,9 +174,10 @@ function getKeys() {
   } else if (selectedProvider === "deepseek") {
     deepseekKey = elements.deepseekKeyInput.value.trim();
   } else if (selectedProvider === "featherless") {
-    // NEW: Retrieve Featherless API key and selected model
     featherlessKey = elements.featherlessKeyInput.value.trim();
-    featherlessModel = elements.featherlessModelSelect.value;
+    featherlessModel = elements.featherlessModelSelect.value === "custom"
+      ? elements.featherlessCustomModel.value.trim()
+      : elements.featherlessModelSelect.value;
   }
   const tmdbKey = elements.defaultTmdbKeyCheckbox.checked
     ? "default"
@@ -235,7 +250,6 @@ function updateUI() {
   } else if (selectedProvider === "deepseek") {
     elements.installButton.disabled = !isValidOpenaiKey(keys.deepseekKey);
   } else if (selectedProvider === "featherless") {
-    // NEW: For Featherless, check that the API key is non-empty.
     elements.installButton.disabled = !isValidOpenaiKey(keys.featherlessKey);
   }
 
@@ -259,7 +273,6 @@ function validateProviderKey(provider, keys) {
     case "deepseek":
       return isValidOpenaiKey(keys.deepseekKey);
     case "featherless":
-      // NEW: Validate Featherless key (using same check as OpenAI)
       return isValidOpenaiKey(keys.featherlessKey);
     default:
       return false;
@@ -317,6 +330,14 @@ async function displayUrl(url) {
 }
 
 /* Event Listeners */
+
+elements.featherlessModelSelect.addEventListener('change', () => {
+  if (elements.featherlessModelSelect.value === 'custom') {
+    elements.customModelContainer.classList.remove('hidden');
+  } else {
+    elements.customModelContainer.classList.add('hidden');
+  }
+});
 
 // Provider selection buttons
 document.querySelectorAll(".provider-btn").forEach((btn) => {

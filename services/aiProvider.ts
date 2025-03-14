@@ -51,7 +51,7 @@ export function getAIModel(provider: ProviderType, apiKey: string, model?: strin
         apiKey: apiKey,
         baseURL: "https://api.featherless.ai/v1",
       });
-      return feather(allowedModel);
+      return feather(allowedModel, { structuredOutputs });
     }
     case 'deepseek': {
       const deepseek = createDeepSeek({ apiKey });
