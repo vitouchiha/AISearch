@@ -23,7 +23,7 @@ export function encryptKeys(keys: Keys): string {
     const [ivHex, encryptedHex] = encrypted.split(":");
     try {
       const iv = Buffer.from(ivHex, "hex");
-      const decipher = createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY, "hex"), iv);
+      const decipher = createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY!, "hex"), iv);
       let decrypted = decipher.update(encryptedHex, "hex", "utf8");
       decrypted += decipher.final("utf8");
       return JSON.parse(decrypted) as Keys;
