@@ -85,7 +85,7 @@ async function getRecommendationsHelper(
 
 export async function getTraktMovieRecommendations(movies: string, type: string, providerInfo: { provider: ProviderType; apiKey: string, model?: string, }): Promise<RecommendationsResult> {
 
-  if (movies.length > 400) {
+  if (movies.length > 400 || movies.length === 0) {
     return { recommendations: [], lang: '' };
   }
 
@@ -106,7 +106,7 @@ export async function getTraktMovieRecommendations(movies: string, type: string,
 }
 
 export async function getMovieRecommendations(searchQuery: string, type: string, providerInfo: { provider: ProviderType; apiKey: string, model?: string }): Promise<RecommendationsResult> {
-  if (searchQuery.length > 400) return { recommendations: [], lang: '' };
+  if (searchQuery.length > 400 || searchQuery.length === 0) return { recommendations: [], lang: '' };
 
   const recommendationType = type === "series" ? "TV series" : "movies";
   const prompt = `
