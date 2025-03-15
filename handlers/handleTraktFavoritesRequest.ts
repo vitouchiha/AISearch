@@ -121,7 +121,7 @@ export const handleTraktFavoritesRequest = async (ctx: Context) => {
     if (metas.length > 0) {
       const tasks: ListTaskParams[] = [
         {
-          listName: 'favorites',
+          listName: 'Favorites',
           metas,
           type,
           traktKey,

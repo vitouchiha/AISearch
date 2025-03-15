@@ -120,7 +120,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     if (metas.length > 0) {
       const tasks: ListTaskParams[] = [
         {
-          listName: 'watched',
+          listName: 'Watched',
           metas,
           type,
           traktKey,

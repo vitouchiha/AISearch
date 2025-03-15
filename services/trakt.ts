@@ -170,7 +170,7 @@ export async function updateTraktList(metas: { id: string }[], listName: string,
     return;
   }
 
-  const formatListName = `fw-${listName}-${type}`;
+  const formatListName = `FilmWhisper ${listName} Recommendations`;
 
   // Check if the list exists
   const listExists = await checkList(formatListName, traktUserId, traktKey);
@@ -179,12 +179,10 @@ export async function updateTraktList(metas: { id: string }[], listName: string,
     console.log(`List '${formatListName}' exists. Deleting it first.`);
     await deleteList(formatListName, traktUserId,traktKey);
   }
-
-  const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
   
   await createList({
     name: formatListName,
-    description: `${formattedType} recommended by FilmWhisper AI`,
+    description: `Movies and Series recommended by FilmWhisper AI`,
     privacy: "private",
     traktKey: traktKey,
     traktUserId: traktUserId,
