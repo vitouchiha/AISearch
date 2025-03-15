@@ -12,14 +12,17 @@ if (DEV_MODE === "true") {
 
 // Load environment variables.
 
-const secret = String(Deno.env.get("JWT_SECRET"));
-const JWT_SECRET = await crypto.subtle.importKey(
-  "raw",
-  new TextEncoder().encode(secret),
-  { name: "HMAC", hash: "SHA-256" },
-  false,
-  ["sign", "verify"]
-);
+const secret = Deno.env.get("JWT_SECRET");
+let JWT_SECRET: CryptoKey;
+if (secret && secret.length !== 0) {
+  JWT_SECRET = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"]
+  );
+}
 
 
 const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash'; // cheapest one with the highest rate limit.. we need it now! hahah
@@ -51,7 +54,7 @@ const NO_SEMANTIC_SEARCH = disableSemanticEnv || !(upstashVectorUrl && upstashVe
 const RESET_VECTOR_CRON = Deno.env.get("RESET_VECTOR_CRON") || "0 0 1 * *";
 
 const SEMANTIC_PROXIMITY = Number(Deno.env.get("SEMANTIC_PROXIMITY") || 0.95);
-if(SEMANTIC_PROXIMITY > 1.0 || SEMANTIC_PROXIMITY < 0.0) {
+if (SEMANTIC_PROXIMITY > 1.0 || SEMANTIC_PROXIMITY < 0.0) {
   logError("SEMANTIC_PROXIMITY must be a float between 0.0 and 1.0", null);
   throw new Error("Invalid SEMANTIC_PROXIMITY");
 }
@@ -72,7 +75,7 @@ const hasNgrokToken = NGROK_TOKEN !== undefined && NGROK_TOKEN !== "";
 const NGROK_URL = !hasNgrokToken ? undefined : await getNgrokUrl();
 
 const ENCRYPTION_KEY = Deno.env.get("ENCRYPTION_KEY");
-if(!ENCRYPTION_KEY) throw new Error('Encryption key must be set!');
+if (!ENCRYPTION_KEY) throw new Error('Encryption key must be set!');
 const keyBuffer = Buffer.from(ENCRYPTION_KEY, "hex");
 if (keyBuffer.length !== 32) {
   throw new Error(`Invalid ENCRYPTION_KEY length: ${keyBuffer.length} bytes, expected 32 bytes for AES-256. Must be a 64-char hex string.`);
@@ -90,7 +93,7 @@ if (
   !tmdbKey
 ) {
   logError(
-    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TRAKT_API_KEY, TRAKT_CLIENT_SECRET, TMDB_API_KEY, AI_MODEL, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, are set in the environment. If in dev, use DEV_MODE.",
+    "Missing API keys or configuration: Ensure GEMINI_API_KEY, TRAKT_API_KEY, TRAKT_CLIENT_SECRET, TMDB_API_KEY, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, are set in the environment. If in dev, use DEV_MODE.",
     null,
   );
   throw new Error("Missing required environment variables");

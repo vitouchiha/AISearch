@@ -1,5 +1,5 @@
 import { Application, type Context, oakCors } from "./config/deps.ts";
-import { PORT, DEV_MODE, NGROK_URL, NO_SEMANTIC_SEARCH } from "./config/env.ts";
+import { PORT, DEV_MODE, NGROK_URL, NO_SEMANTIC_SEARCH, JWT_SECRET, CAPTCHA_SITE_KEY, CAPTCHA_SECRET_KEY } from "./config/env.ts";
 
 import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
 
@@ -48,6 +48,8 @@ async function startServer() {
     console.log(`Stremio AI Addon running on port ${port}`);
     if (DEV_MODE && NGROK_URL && NGROK_URL.length > 0) console.log(`Ngrok running on ${NGROK_URL}`);
     if (DEV_MODE && NO_SEMANTIC_SEARCH) console.log('!! Semantic Caching disabled !!');
+    if (DEV_MODE && !JWT_SECRET) console.log('!! JWT disabled !!');
+    if (DEV_MODE && !CAPTCHA_SITE_KEY || !CAPTCHA_SECRET_KEY) console.log('!! Captcha disabled !!');
   });
 
   await app.listen({ hostname: "0.0.0.0", port: PORT });

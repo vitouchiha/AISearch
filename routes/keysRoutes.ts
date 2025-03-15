@@ -15,6 +15,12 @@ router.options("/api/store-keys", oakCors({
 }));
 
 router.get("/api/generate-token", tokenRateLimitMiddleware, async (ctx: Context) => {
+
+  if(!JWT_SECRET){
+    ctx.response.body = { token: 'NO_JWT_NEEDED' };
+    return;
+  }
+
   const payload = {
     iss: "filmwhisper",
     exp: getNumericDate(60 * 60),
