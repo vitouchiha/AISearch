@@ -21,6 +21,7 @@ const DEFAULT_KEYS: Keys = {
   omdbKey: String(OMDB_API_KEY),
   featherlessKey: "",
   featherlessModel: "",
+  
 };
 
 function parseKeysParam(keysParam: string | undefined): Keys {
@@ -131,6 +132,7 @@ export const googleKeyMiddleware = async <P extends Record<string, string | unde
     ctx.state.userId = keys.userId;
     ctx.state.omdbKey = keys.omdbKey || String(OMDB_API_KEY);
     ctx.state.traktCreateList = keys.traktCreateList;
+    ctx.state.optOutTrending = keys.optOutTrending;
 
     await next();
   } catch (error) {

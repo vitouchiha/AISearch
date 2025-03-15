@@ -35,6 +35,7 @@ export interface AppContext<
     traktCreateList?: boolean;
     featherlessKey?: string;
     featherlessModel?: string;
+    optOutTrending?: boolean;
   };
 }
 
@@ -50,7 +51,8 @@ export type TrendingParams = {
 };
 
 export type ManifestParams = {
-  keys: string;
+  keys?: string;
+  trending?: string;
 };
 
 export type Keys = {
@@ -68,6 +70,7 @@ export type Keys = {
   traktCreateList?: boolean;
   featherlessKey?: string;
   featherlessModel?: string;
+  optOutTrending?: boolean;
 }
 
 export type CatalogContext = AppContext<MovieCatalogParams>;

@@ -46,16 +46,14 @@ const handleTraktFavorite = (ctx: Context) => handleTraktFavoritesRequest(ctx);
 
 
 const handleManifest = async (ctx: ManifestContext) => {
-  const { traktKey } = ctx.state;
+  const { traktKey, optOutTrending } = ctx.state;
+
 
   log("Serving manifest");
 
-  const trendingParam = ctx.request.url.searchParams.get("trending");
-  const trending = trendingParam === null ? true : trendingParam === "true";
-
   if (redis) await redis.incr("manifest_requests");
   
-  const manifest = createManifest(trending, !!traktKey);
+  const manifest = createManifest(!!optOutTrending, !!traktKey);
   
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;

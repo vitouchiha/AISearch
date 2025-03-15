@@ -185,18 +185,16 @@ function getKeys() {
   const rpdbKey = elements.rpdbKeyInput.value.trim();
   const { access_token: traktKey, refresh_token: traktRefresh, expires_at: traktExpiresAt } = traktTokens;
   const traktCreateLists = !elements.optOutTraktLists.checked;
+  const optOutTrending = !elements.optOutTrending.checked;
 
-  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, featherlessKey, featherlessModel, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt };
+  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, featherlessKey, featherlessModel, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt, optOutTrending };
 }
 
 // Builds the manifest URL using the userId and optional parameters
 function generateManifestUrl(userId) {
-  let url = `${manifestBaseUrl}/user:${userId}/manifest.json`;
-  const params = [];
-  if (elements.optOutTrending && elements.optOutTrending.checked) {
-    params.push("trending=false");
-  }
-  if (params.length) url += "?" + params.join("&");
+  let url = `${manifestBaseUrl}/user:${userId}`;
+  url += '/manifest.json';
+  
   return url;
 }
 
@@ -384,6 +382,7 @@ document.querySelectorAll(".provider-btn").forEach((btn) => {
   elements.defaultGoogleKeyCheckbox,
   elements.defaultTmdbKeyCheckbox,
   elements.optOutTraktLists,
+  elements.optOutTrending,
 ].forEach((el) => {
   el.addEventListener("change", () => {
     updateUI();
