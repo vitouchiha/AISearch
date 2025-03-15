@@ -7,12 +7,12 @@ function getTrendingCatalogs(getTrending: boolean) {
     return [
       {
         id: "ai-trending-movies",
-        name: "AI Trending Movies",
+        name: "AI Trending",
         type: "movie",
       },
       {
         id: "ai-trending-tv",
-        name: "AI Trending TV Shows",
+        name: "AI Trending",
         type: "series",
       },
     ];
@@ -25,22 +25,22 @@ function getTraktCatalogs(getTrakt: boolean) {
     return [
       {
         id: "ai-trakt-recent-tv",
-        name: "AI Trakt Watched TV Recommendations",
+        name: "AI Watched Recommendations",
         type: "series",
       },
       {
         id: "ai-trakt-recent-movie",
-        name: "AI Trakt Watched Movie Recommendations",
+        name: "AI Watched Recommendations",
         type: "movie",
       },
       {
         id: "ai-trakt-favorite-movie",
-        name: "AI Trakt Favorite Movie Recommendations",
+        name: "AI Favorite Recommendations",
         type: "movie",
       },
       {
         id: "ai-trakt-favorite-tv",
-        name: "AI Trakt Favorite TV Recommenations",
+        name: "AI Favorite Recommenations",
         type: "series",
       }
     ];
@@ -66,14 +66,14 @@ export function createManifest(trending: boolean = true, trakt: boolean = false)
     catalogs: [
       {
         id: "ai-movies",
-        name: "AI Movie Recommendations",
+        name: "AI Recommendations",
         type: "movie",
         extra: [{ name: "search", isRequired: true }],
         extraSupported: ["search"],
       },
       {
         id: "ai-tv",
-        name: "AI TV Recommendations",
+        name: "AI Recommendations",
         type: "series",
         extra: [{ name: "search", isRequired: true }],
         extraSupported: ["search"],
