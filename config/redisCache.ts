@@ -1,5 +1,5 @@
 import { Context, Ratelimit, Redis } from "./deps.ts";
-import { UPSTASH_REDIS_TOKEN, UPSTASH_REDIS_URL } from "./env.ts";
+import { UPSTASH_REDIS_TOKEN, UPSTASH_REDIS_URL, JWT_SECRET } from "./env.ts";
 
 export const redis = !UPSTASH_REDIS_URL && !UPSTASH_REDIS_TOKEN
   ? null
@@ -31,6 +31,7 @@ export const tokenRatelimit = !redis
 
 export async function applyRateLimit(ctx: Context, identifier: string, limiter = ratelimit) {
   if (!limiter) return true;
+  if (!JWT_SECRET) return true;
 
   const { success, limit, remaining, reset } = await limiter.limit(identifier);
 
