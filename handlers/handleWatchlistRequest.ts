@@ -18,7 +18,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   
   // Validate required parameters
   if (!traktKey || !type || !userId || !tmdbKey) {
-    ctx.response.body = { metas: [] };
+    //ctx.response.body = { metas: [] };
     return;
   }
 
@@ -69,7 +69,7 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
     const { provider, apiKey, model } = getProviderInfoFromState(ctx.state);
     const { recommendations: movieNames, lang } = await getTraktMovieRecommendations(titleString, type, { provider, apiKey, model });
     if (!movieNames?.length) {
-      ctx.response.body = { metas: [] };
+      //ctx.response.body = { metas: [] };
       return;
     }
 
@@ -145,6 +145,6 @@ export const handleTraktWatchlistRequest = async (ctx: Context) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logError(`Error processing ${type} watchlist request for user ${userId}: ${errorMessage}`, error);
-    ctx.response.body = { metas: [] };
+    //ctx.response.body = { metas: [] };
   }
 };

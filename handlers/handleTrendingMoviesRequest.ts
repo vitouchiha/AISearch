@@ -23,7 +23,7 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
   const getTrending = trendingHandlers[type];
 
   if (!getTrending) {
-    ctx.response.body = { metas: [] };
+    //ctx.response.body = { metas: [] };
     return;
   }
 
@@ -32,6 +32,6 @@ export const handleTrendingRequest = async (ctx: Context): Promise<void> => {
     ctx.response.body = trendingResponse;
   } catch (error) {
     console.error("Error handling trending request:", error);
-    ctx.response.body = { metas: [] };
+    //ctx.response.body = { metas: [] };
   }
 };

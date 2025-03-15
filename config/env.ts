@@ -63,8 +63,10 @@ const RPDB_FREE_API_KEY = Deno.env.get("RPDB_FREE_API_KEY")!;
 
 const SEARCH_COUNT_STR = Deno.env.get("SEARCH_COUNT") || "20";
 const SEARCH_COUNT = parseInt(SEARCH_COUNT_STR, 10);
+
 const portStr = Deno.env.get("PORT") || "3000";
 const PORT = parseInt(portStr, 10);
+
 const ROOT_URL = Deno.env.get("ROOT_URL") || `http://localhost:${PORT}`;
 
 const TRAKT_CLIENT_ID = Deno.env.get("TRAKT_CLIENT_ID");

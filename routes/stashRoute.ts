@@ -50,7 +50,7 @@ const handleCacheUpdateBatch = async (ctx: Context): Promise<void> => {
   }
 
   // Parse the raw body as JSON.
-  let parsedBody: Record<string,string>;
+  let parsedBody: Record<string, string>;
   try {
     parsedBody = JSON.parse(rawBody);
   } catch (_err) {
@@ -94,40 +94,43 @@ const handleCacheUpdateBatch = async (ctx: Context): Promise<void> => {
 };
 
 const handleUpdateTraktList = async (ctx: Context): Promise<void> => {
-  const signature = ctx.request.headers.get("upstash-signature");
-  if (!signature) {
-    ctx.response.status = 401;
-    ctx.response.body = { error: "Missing signature" };
-    return;
-  }
-
-  const receiver = new Receiver({
-    currentSigningKey: String(QSTASH_CURRENT_SIGNING_KEY),
-    nextSigningKey: String(QSTASH_NEXT_SIGNING_KEY),
-  });
-
   const rawBody = await ctx.request.body({ type: "text" }).value;
-  try {
-    await receiver.verify({
-      signature,
-      body: rawBody,
-      url: `${DOMAIN}/api/update-trakt-list`,
-    });
-  } catch (_err) {
-    ctx.response.status = 401;
-    ctx.response.body = { error: "Invalid signature" };
-    return;
-  }
 
-  const authHeader = ctx.request.headers.get("authorization");
-  if (authHeader !== `Bearer ${QSTASH_SECRET}`) {
-    ctx.response.status = 401;
-    ctx.response.body = { error: "Unauthorized" };
-    return;
+  if (QSTASH_CURRENT_SIGNING_KEY && QSTASH_NEXT_SIGNING_KEY && QSTASH_SECRET) {
+    const signature = ctx.request.headers.get("upstash-signature");
+    if (!signature) {
+      ctx.response.status = 401;
+      ctx.response.body = { error: "Missing signature" };
+      return;
+    }
+
+    const receiver = new Receiver({
+      currentSigningKey: String(QSTASH_CURRENT_SIGNING_KEY),
+      nextSigningKey: String(QSTASH_NEXT_SIGNING_KEY),
+    });
+
+    try {
+      await receiver.verify({
+        signature,
+        body: rawBody,
+        url: `${DOMAIN}/api/update-trakt-list`,
+      });
+    } catch (_err) {
+      ctx.response.status = 401;
+      ctx.response.body = { error: "Invalid signature" };
+      return;
+    }
+
+    const authHeader = ctx.request.headers.get("authorization");
+    if (authHeader !== `Bearer ${QSTASH_SECRET}`) {
+      ctx.response.status = 401;
+      ctx.response.body = { error: "Unauthorized" };
+      return;
+    }
   }
 
   // Parse the raw body as JSON.
-  let parsedBody: Record<string,string>;
+  let parsedBody: Record<string, string>;
   try {
     parsedBody = JSON.parse(rawBody);
   } catch (_err) {
@@ -143,18 +146,17 @@ const handleUpdateTraktList = async (ctx: Context): Promise<void> => {
     return;
   }
 
-  // Process each task concurrently.
-  const results = await Promise.all(
-    tasks.map((task: ListTaskParams) =>
-      updateTraktList(task.metas, task.listName, task.type, task.traktKey)
-    )
-  );
+  // Process each task slowly
+  for (const task of tasks) {
+    await updateTraktList(task.metas, task.listName, task.type, task.traktKey);
+  }
 
   console.log("!!! Used Qstash Success !!!");
   console.log(`Processed ${tasks.length} tasks!`);
   ctx.response.status = 200;
   ctx.response.body = { message: `Processed ${tasks.length} tasks` };
 };
+
 
 const router = new Router();
 router.post("/api/cache-update", handleCacheUpdateBatch);

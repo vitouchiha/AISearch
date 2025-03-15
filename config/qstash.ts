@@ -35,21 +35,41 @@ export async function pushBatchToQstash(
     traktKey: string;
   }
 
-  export async function pushListToQstash(
-    tasks: ListTaskParams[]
-  ): Promise<void> {
-    if(!client) return;
+  export async function pushListToQstash(tasks: ListTaskParams[]): Promise<void> {
+    const endpoint = `${DOMAIN}/api/update-trakt-list`;
+    const payload = JSON.stringify({ tasks });
+    
+    if (!client) {
+      fetch(endpoint, {
+        method: "POST",
+        body: payload,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          log(data ? 'Lists updated.' : 'Lists failed. No update.');
+        })
+        .catch((error) => {
+          logError("Error updating trakt lists", error);
+        });
+      return;
+    } 
     
     try {
       await client.publish({
-        url: `${DOMAIN}/api/update-trakt-list`,
-        body: JSON.stringify({ tasks }),
+        url: endpoint,
+        body: payload,
         headers: {
-            "Authorization": `Bearer ${QSTASH_SECRET}`,
-          },
-    });
+          "Authorization": `Bearer ${QSTASH_SECRET}`,
+        },
+      });
       log(`Pushed ${tasks.length} background trakt list update tasks to Qstash.`);
     } catch (error) {
       logError("Error pushing background trakt list update batch to Qstash", error);
     }
+
   }
+  
+  

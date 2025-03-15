@@ -16,12 +16,16 @@ Addon will create special lists within your trakt account so you can use these r
 - List creation is optional and by default is false. So we won't create any lists if you dont want to.
 
 ### Changed
+- App no longer manages deleting lists
+- Qstash is no longer a requirement for the Trakt lists -- although I highly recommend it.
 - Removed the requirement of JWT_SECRET; It's good for production but really a pain in the ass when self hosting or debugging.
 - Changed the names of the Trakt Lists we create, they are now human readable
 - Combined both movie and series lists into one as Trakt allows it and it cleans up your lists.
 
 ### Fixed
 
+- Fixed issues with Trakt creating multiple lists, sorry for that mess!
+- Fixed issue with timeout with Trakt.
 - Fixed wild naming issues.. kind of.. Upgrading to Stremio V5 helps a little bit. Removed redundant 'movie' 'series' from the manifest file.
 - Removed a CORS restriction I believe to be causing the 'keys store' issue.
 

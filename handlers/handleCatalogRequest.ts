@@ -16,7 +16,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
   const { searchQuery, type, tmdbKey, rpdbKey, omdbKey } = ctx.state;
 
   if (!searchQuery || !type) {
-    ctx.response.body = { metas: [] };
+    //ctx.response.body = { metas: [] };
     return;
   }
 
@@ -64,7 +64,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
         ];
         
         if(String(error).includes("Invalid JSON response")){
-          ctx.response.body = { metas: [] };
+          //ctx.response.body = { metas: [] };
           return;
         }
 
@@ -74,7 +74,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
     }
 
     if (!movieNames?.length) {
-      ctx.response.body = { metas: [] };
+      //ctx.response.body = { metas: [] };
       return;
     }
 
@@ -167,6 +167,6 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logError(`Error processing ${type} catalog request for "${searchQuery}": ${errorMessage}`, error);
-    ctx.response.body = { metas: [] };
+    //ctx.response.body = { metas: [] };
   }
 };

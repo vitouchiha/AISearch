@@ -6,7 +6,35 @@ import { logError } from "../utils/utils.ts";
 const router = new Router();
 const API_URL = "https://api.trakt.tv";
 const REDIRECT_URI = `${ROOT_URL}/auth/callback`;
+
 let lastRequestTime = 0;
+const requestQueue: (() => Promise<any>)[] = [];
+let processingQueue = false;
+
+async function processQueue() {
+  if (processingQueue) return;
+  processingQueue = true;
+  while (requestQueue.length > 0) {
+    const requestFunc = requestQueue.shift();
+    if (requestFunc) {
+      try {
+        await requestFunc();
+      } catch (error) {
+        console.error("Request in queue failed:", error);
+      }
+      // Enforce a 1-second delay between each non-GET request
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+  processingQueue = false;
+}
+
+function enqueueRequest(requestFunc: () => Promise<any>) {
+  requestQueue.push(requestFunc);
+  processQueue();
+}
+
+
 
 // Base headers
 const getBaseHeaders = (accessToken?: string) => ({
@@ -24,26 +52,38 @@ interface FetchTraktParams {
 }
 
 async function delayIfNeeded(method: string) {
+  if (!["POST", "PUT", "DELETE"].includes(method)) return;
   const now = Date.now();
-
-  if (["POST", "PUT", "DELETE"].includes(method)) {
-    const timeSinceLastRequest = now - lastRequestTime;
-    const waitTime = Math.max(3000 - timeSinceLastRequest, 0);
-
-    if (waitTime > 0) {
-      console.log(`Rate limit: Waiting ${waitTime / 1000} seconds before next request...`);
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-    }
-
-    lastRequestTime = Date.now();
+  const waitTime = Math.max(1000 - (now - lastRequestTime), 0);
+  if (waitTime > 0) {
+    console.log(`Rate limit: Waiting ${waitTime / 1000} seconds before next request...`);
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
   }
 }
 
-async function fetchTrakt({ path, method = "GET", body, traktKey }: FetchTraktParams) {
-  await delayIfNeeded(method);
+async function fetchTrakt({ path, method = "GET", body, traktKey }: FetchTraktParams): Promise<any> {
+  // For GET requests, process immediately.
+  if (method === "GET") {
+    await delayIfNeeded(method);
+    return await executeFetch({ path, method, body, traktKey });
+  }
 
+  // For POST/PUT/DELETE, enqueue the request.
+  return await new Promise((resolve, reject) => {
+    enqueueRequest(async () => {
+      try {
+        await delayIfNeeded(method);
+        const result = await executeFetch({ path, method, body, traktKey });
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  });
+}
+
+async function executeFetch({ path, method = "GET", body, traktKey }: FetchTraktParams): Promise<any> {
   let retries = 5;
-
   while (retries > 0) {
     const response = await fetch(`${API_URL}${path}`, {
       method,
@@ -51,9 +91,19 @@ async function fetchTrakt({ path, method = "GET", body, traktKey }: FetchTraktPa
       body: body ? JSON.stringify(body) : undefined,
     });
 
-    const text = await response.text(); // Get raw response before parsing
+    // For non-GET requests, update lastRequestTime after the request completes.
+    if (["POST", "PUT", "DELETE"].includes(method)) {
+      lastRequestTime = Date.now();
+    }
+
+    // Capture response text regardless of status
+    const text = await response.text();
 
     if (response.ok) {
+      // If there's no content (e.g., DELETE returns 204) or empty body, return null.
+      if (response.status === 204 || !text) {
+        return null;
+      }
       try {
         return JSON.parse(text);
       } catch (_err) {
@@ -64,9 +114,10 @@ async function fetchTrakt({ path, method = "GET", body, traktKey }: FetchTraktPa
 
     console.error(`Failed to ${method} ${path}: ${text}`);
 
+    // Check for rate limit error returned by Trakt API
     if (text.includes("AUTHED_API_POST_LIMIT")) {
-      console.log("Rate limit exceeded. Waiting 3 seconds before retrying...");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      console.log("Rate limit exceeded. Waiting 1 second before retrying...");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       retries--;
     } else {
       return null;
@@ -76,6 +127,7 @@ async function fetchTrakt({ path, method = "GET", body, traktKey }: FetchTraktPa
   console.error(`Failed to ${method} ${path} after multiple retries.`);
   return null;
 }
+
 
 
 interface ListOptions {
@@ -99,6 +151,9 @@ export async function createList({ name, description = "", privacy = "private", 
 
 export async function addMoviesToList(slug: string, type: "movie" | "series", movies: { id?: string; imdb?: string; trakt?: number; tmdb?: number }[], traktUserId: string, traktKey: string) {
   console.log(`Adding ${type} to list: ${slug}`);
+
+  slug = slug.toLowerCase().replace(/ /g, "-");
+
 
   // Validate input and determine correct payload structure
   const validItems = movies
@@ -131,11 +186,14 @@ export async function addMoviesToList(slug: string, type: "movie" | "series", mo
 
 export async function deleteList(slug: string, traktUserId: string, traktKey: string) {
   console.log(`Deleting list: ${slug}`);
+  slug = slug.toLowerCase().replace(/ /g, "-");
   await fetchTrakt({ path: `/users/${traktUserId}/lists/${slug}`, method: "DELETE", traktKey });
 }
 
 export async function checkList(slug: string, traktUserId: string, traktKey: string) {
   console.log(`Checking if list '${slug}' exists...`);
+  slug = slug.toLowerCase().replace(/ /g, "-");
+
   const existingLists = await fetchTrakt({ path: `/users/${traktUserId}/lists`, traktKey });
 
   if (!existingLists) {
@@ -143,7 +201,7 @@ export async function checkList(slug: string, traktUserId: string, traktKey: str
     return false;
   }
 
-  return !!existingLists.find((list: any) => list.name === slug);
+  return !!existingLists.find((list: any) => list.ids.slug === slug);
 }
 
 export async function getTraktUserId(traktKey: string): Promise<string | null> {
@@ -175,18 +233,15 @@ export async function updateTraktList(metas: { id: string }[], listName: string,
   // Check if the list exists
   const listExists = await checkList(formatListName, traktUserId, traktKey);
 
-  if (listExists) {
-    console.log(`List '${formatListName}' exists. Deleting it first.`);
-    await deleteList(formatListName, traktUserId,traktKey);
+  if (!listExists) {
+    await createList({
+      name: formatListName,
+      description: `Movies and Series recommended by FilmWhisper AI`,
+      privacy: "private",
+      traktKey: traktKey,
+      traktUserId: traktUserId,
+    });
   }
-  
-  await createList({
-    name: formatListName,
-    description: `Movies and Series recommended by FilmWhisper AI`,
-    privacy: "private",
-    traktKey: traktKey,
-    traktUserId: traktUserId,
-  });
 
   // Convert `metas` into Trakt's expected format
   const movies = metas.map((meta) => ({ imdb: meta.id }));
