@@ -52,6 +52,7 @@ router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx
       featherlessKey,
       featherlessModel,
       optOutTrending,
+      optOutTraktCatalogs,
     } = body;
 
     if (ENABLE_CAPTCHA === true) {
@@ -89,6 +90,7 @@ router.post("/api/store-keys", oakCors({ origin: "*" }), verifyToken, async (ctx
       traktExpiresAt: traktExpiresAt?.trim() || "",
       traktCreateList: traktCreateLists || false,
       optOutTrending: optOutTrending || false,
+      optOutTraktCatalogs: optOutTraktCatalogs || false,
       omdbKey: omdbKey?.trim() || "",
       featherlessKey: featherlessKey?.trim() || "",
       featherlessModel: featherlessModel?.trim() || "",

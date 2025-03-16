@@ -26,10 +26,10 @@ import { rpdbHealthCheck } from "../services/rpdb.ts";
 import { handleTraktWatchlistRequest } from "../handlers/handleWatchlistRequest.ts";
 import { handleTraktFavoritesRequest } from "../handlers/handleTraktFavoritesRequest.ts";
 
-const STATIC_MANIFEST = createManifest();
+const STATIC_MANIFEST =  await createManifest();
 
 
-const catalogMiddleware = [ 
+const catalogMiddleware = [
   googleKeyMiddleware,
   searchParamMiddleware,
 ];
@@ -46,15 +46,16 @@ const handleTraktFavorite = (ctx: Context) => handleTraktFavoritesRequest(ctx);
 
 
 const handleManifest = async (ctx: ManifestContext) => {
-  const { traktKey, optOutTrending } = ctx.state;
+  const { traktKey, optOutTrending, optOutTraktCatalogs } = ctx.state;
 
 
   log("Serving manifest");
 
   if (redis) await redis.incr("manifest_requests");
-  
-  const manifest = createManifest(!!optOutTrending, !!traktKey);
-  
+
+  const manifest = await createManifest({ traktKey: traktKey, trending: !!optOutTrending, traktCatalogs: !!optOutTraktCatalogs });
+  console.log(manifest);
+
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;
 };
@@ -139,23 +140,23 @@ router.get(
   googleKeyMiddleware,
   handleTraktRecent);
 
-  router.get(
-    "/:keys?/catalog/series/ai-trakt-recent-tv.json",
-    setSeriesType,
-    googleKeyMiddleware,
-    handleTraktRecent);
+router.get(
+  "/:keys?/catalog/series/ai-trakt-recent-tv.json",
+  setSeriesType,
+  googleKeyMiddleware,
+  handleTraktRecent);
 
-    router.get(
-      "/:keys?/catalog/movie/ai-trakt-favorite-movie.json",
-      setMovieType,
-      googleKeyMiddleware,
-      handleTraktFavorite);
-    
-      router.get(
-        "/:keys?/catalog/series/ai-trakt-favorite-tv.json",
-        setSeriesType,
-        googleKeyMiddleware,
-        handleTraktFavorite);
+router.get(
+  "/:keys?/catalog/movie/ai-trakt-favorite-movie.json",
+  setMovieType,
+  googleKeyMiddleware,
+  handleTraktFavorite);
+
+router.get(
+  "/:keys?/catalog/series/ai-trakt-favorite-tv.json",
+  setSeriesType,
+  googleKeyMiddleware,
+  handleTraktFavorite);
 
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 

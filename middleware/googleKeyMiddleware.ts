@@ -131,8 +131,11 @@ export const googleKeyMiddleware = async <P extends Record<string, string | unde
     ctx.state.traktKey = keys.traktKey;
     ctx.state.userId = keys.userId;
     ctx.state.omdbKey = keys.omdbKey || String(OMDB_API_KEY);
+
     ctx.state.traktCreateList = keys.traktCreateList;
     ctx.state.optOutTrending = keys.optOutTrending;
+    ctx.state.optOutTraktCatalogs = keys.optOutTraktCatalogs;
+  
 
     await next();
   } catch (error) {

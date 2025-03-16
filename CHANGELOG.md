@@ -3,11 +3,19 @@
 All notable changes to this project will be documented in this file.\
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.2]
+
+### Changed
+- Now users can select if they want trakt catalogs or not on the config page.
+- Manifest file now detects if the user has Trakt favorites, if they do, the catalog is included
+
+---
+
 ## [1.4.1]
 
 Addon will create special lists within your trakt account so you can use these recommendations in other places! Updates every 3 hours~ish
 
-## Added
+### Added
 - Added Featherless.ai integration. **THIS IS SUPER UNTESTED** so if you find errors, please open an issue.
 - Added Google ReCaptcha to the configure page.
 - If you want to use ReCaptcha, add these environment variables: CAPTCHA_SITE_KEY CAPTCHA_SECRET_KEY
@@ -23,11 +31,12 @@ Addon will create special lists within your trakt account so you can use these r
 - Combined both movie and series lists into one as Trakt allows it and it cleans up your lists.
 
 ### Fixed
-
 - Fixed issues with Trakt creating multiple lists, sorry for that mess!
 - Fixed issue with timeout with Trakt.
 - Fixed wild naming issues.. kind of.. Upgrading to Stremio V5 helps a little bit. Removed redundant 'movie' 'series' from the manifest file.
 - Removed a CORS restriction I believe to be causing the 'keys store' issue.
+
+---
 
 ## [1.4.0]
 
@@ -117,12 +126,10 @@ This version has some major breaking changes, if you are self hosting, be prepar
 - We now send small HEAD requests to make sure the posters are actually there before returning to the user. If there is a reduction in speed we will add a timeout.
 
 ### Fixed
-
 - Fixed an issue with TMDB returning an empty response. Return early to fix
 - Fixed mobile formatting on the configure page
 
 ### Changed
-
 - Changed all console.log's to log or logError for better more robust handling.
 - Changed the AI prompt for better answers.
 - Moved to a structured response from Gemini, this has brought the parsing errors to 0!
@@ -133,7 +140,6 @@ This version has some major breaking changes, if you are self hosting, be prepar
 ## [1.2.2] - 2025-02-16
 
 ### Changed
-
 - Added SEARCH_COUNT ENV variable to make it easier to adjust returned amounts.
   20 is default.
 
@@ -142,7 +148,6 @@ This version has some major breaking changes, if you are self hosting, be prepar
 ## [1.2.1] - 2025-02-15
 
 ### Fixed
-
 - Now run all Rating Poster requests in parallel. This has greatly improved
   performance. The things you forget when moving fast.
 - Moved RPDB logic to the handler level to be more SOLID.
@@ -155,11 +160,9 @@ This version has some major breaking changes, if you are self hosting, be prepar
 This is a breaking change. Users need to reinstall.
 
 ### Added
-
 - Rating Poster API now used.
 
 ### Changed
-
 - User keys are now URL encoded using base64. NOT ENCRYPTED.
 
 ---
@@ -167,14 +170,12 @@ This is a breaking change. Users need to reinstall.
 ## [1.1.1] - 2025-02-14
 
 ### Added
-
 - Trending now on homepage
 - Cinemeta is now used as a backup source
 - Added ai.filmwhisper.dev
 - Added CHANGELOG
 
 ### Changed
-
 - Removed west2 location
 - Added euro2 and aus1 locations
 
@@ -185,11 +186,9 @@ This is a breaking change. Users need to reinstall.
 This is a breaking change users will have to reinstall.
 
 ### Added
-
 - Added TV series
 
 ### Changed
-
 - Changed vector structure
 
 ---
@@ -197,11 +196,9 @@ This is a breaking change users will have to reinstall.
 ## [1.0.1] - 2025-02-11
 
 ### Added
-
 - Added AI Recommended section to homepage
 
 ### Fixed
-
 - Fixed issue with 404 on homepage
 
 ---
@@ -209,6 +206,5 @@ This is a breaking change users will have to reinstall.
 ## [1.0.0] - 2025-02-10
 
 ### Added
-
 - Initial release of the project.
 - Core functionality currently only does movies.

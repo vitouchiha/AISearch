@@ -9,7 +9,7 @@ const elements = {
   openaiKeyInput: document.getElementById("openaiKey"),
   claudeKeyInput: document.getElementById("claudeKey"),
   deepseekKeyInput: document.getElementById("deepseekKey"),
-  // NEW: Featherless elements
+
   featherlessKeyInput: document.getElementById("featherlessKey"),
   featherlessModelSelect: document.getElementById("featherlessModel"),
   customModelContainer: document.getElementById('customModelContainer'),
@@ -25,8 +25,10 @@ const elements = {
   urlDisplay: document.getElementById("url-display"),
   traktAuthButton: document.getElementById("trakt-auth-button"),
   traktStatus: document.getElementById("trakt-status"),
+
   optOutTrending: document.getElementById("optOutTrending"),
   optOutTraktLists: document.getElementById("optOutTraktLists"),
+  optOutTraktCatalogs: document.getElementById("optOutTraktCatalogs"),
 };
 
 let selectedProvider = "google";
@@ -186,8 +188,9 @@ function getKeys() {
   const { access_token: traktKey, refresh_token: traktRefresh, expires_at: traktExpiresAt } = traktTokens;
   const traktCreateLists = !elements.optOutTraktLists.checked;
   const optOutTrending = !elements.optOutTrending.checked;
+  const optOutTraktCatalogs = !elements.optOutTraktCatalogs.checked;
 
-  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, featherlessKey, featherlessModel, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt, optOutTrending };
+  return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, featherlessKey, featherlessModel, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt, optOutTrending, optOutTraktCatalogs };
 }
 
 // Builds the manifest URL using the userId and optional parameters
@@ -383,6 +386,7 @@ document.querySelectorAll(".provider-btn").forEach((btn) => {
   elements.defaultTmdbKeyCheckbox,
   elements.optOutTraktLists,
   elements.optOutTrending,
+  elements.optOutTraktCatalogs,
 ].forEach((el) => {
   el.addEventListener("change", () => {
     updateUI();

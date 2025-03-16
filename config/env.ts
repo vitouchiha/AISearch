@@ -83,6 +83,8 @@ if (keyBuffer.length !== 32) {
   throw new Error(`Invalid ENCRYPTION_KEY length: ${keyBuffer.length} bytes, expected 32 bytes for AES-256. Must be a 64-char hex string.`);
 }
 
+const GCP_BILLING_ACCOUNT_ID = Deno.env.get("GCP_BILLING_ACCOUNT_ID");
+
 if (
   !geminiKey ||
   !OMDB_API_KEY ||
@@ -134,4 +136,5 @@ export {
 
   GOOGLE_MODEL,
   OPENAI_MODEL,
+  GCP_BILLING_ACCOUNT_ID,
 };

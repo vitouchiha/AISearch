@@ -36,6 +36,7 @@ export interface AppContext<
     featherlessKey?: string;
     featherlessModel?: string;
     optOutTrending?: boolean;
+    optOutTraktCatalogs?: boolean;
   };
 }
 
@@ -71,6 +72,7 @@ export type Keys = {
   featherlessKey?: string;
   featherlessModel?: string;
   optOutTrending?: boolean;
+  optOutTraktCatalogs?: boolean;
 }
 
 export type CatalogContext = AppContext<MovieCatalogParams>;
