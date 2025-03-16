@@ -54,7 +54,6 @@ const handleManifest = async (ctx: ManifestContext) => {
   if (redis) await redis.incr("manifest_requests");
 
   const manifest = await createManifest({ traktKey: traktKey, trending: !!optOutTrending, traktCatalogs: !!optOutTraktCatalogs });
-  console.log(manifest);
 
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = manifest;
