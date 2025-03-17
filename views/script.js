@@ -34,15 +34,11 @@ const elements = {
 let selectedProvider = "google";
 let traktTokens = getTokens();
 
-/* Utility Functions */
-
-// Validates if a string is a UUID
 function isValidUUID(uuid) {
   const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return regex.test(uuid);
 }
 
-// Retrieves the userId from the URL or localStorage; generates one if missing/invalid.
 function getUserId() {
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   if (pathParts.length && pathParts[0].startsWith("user:")) {
@@ -58,7 +54,6 @@ function getUserId() {
   return userId;
 }
 
-// Retrieves a JWT token from sessionStorage or fetches one from the API
 async function storeKeys(keys) {
   const userId = getUserId();
   let token = sessionStorage.getItem("jwtToken");
@@ -72,8 +67,7 @@ async function storeKeys(keys) {
   }
 
   let recaptchaToken;
-  
-  // Wrap the execute call in grecaptcha.ready()
+
   if (enableCaptcha) {
     recaptchaToken = await new Promise((resolve, reject) => {
       window.grecaptcha.enterprise.ready(() => {
@@ -96,7 +90,6 @@ async function storeKeys(keys) {
   if (!response.ok) throw new Error("Failed to store keys");
 
   return response.json().then((data) => {
-    // Store userId in localStorage only if it doesn't already exist
     if (!localStorage.getItem("userId")) {
       localStorage.setItem("userId", data.userId);
     }
@@ -104,22 +97,18 @@ async function storeKeys(keys) {
   });
 }
 
-// Trakt token handling
 function storeTokens(tokens) {
   sessionStorage.setItem("traktTokens", JSON.stringify(tokens));
 }
-
 function getTokens() {
   const stored = sessionStorage.getItem("traktTokens");
   return stored ? JSON.parse(stored) : { access_token: null, refresh_token: null, expires_at: null };
 }
-
 function clearTokens() {
   sessionStorage.removeItem("traktTokens");
   traktTokens = { access_token: null, refresh_token: null, expires_at: null };
 }
 
-// API Keys storage in sessionStorage
 function storeApiKeys(apiKeys) {
   sessionStorage.setItem("apiKeys", JSON.stringify(apiKeys));
 }
@@ -155,14 +144,10 @@ function loadApiKeys() {
 function isValidGeminiApiKey(key) {
   return typeof key === "string" && /^AIza[a-zA-Z0-9_-]{35,39}$/.test(key);
 }
-
 function isValidOpenaiKey(key) {
   return typeof key === "string" && key.trim() !== "";
 }
 
-/* Core Functions */
-
-// Retrieves keys from UI based on selected provider and checkboxes
 function getKeys() {
   let googleKey = "", openaiKey = "", claudeKey = "", deepseekKey = "", featherlessKey = "", featherlessModel = "";
   if (selectedProvider === "google") {
@@ -193,7 +178,6 @@ function getKeys() {
   return { selectedProvider, googleKey, openaiKey, claudeKey, deepseekKey, featherlessKey, featherlessModel, tmdbKey, rpdbKey, traktKey, traktCreateLists, traktRefresh, traktExpiresAt, optOutTrending, optOutTraktCatalogs };
 }
 
-// Builds the manifest URL using the userId and optional parameters
 function generateManifestUrl(userId) {
   let url = `${manifestBaseUrl}/user:${userId}`;
   url += '/manifest.json';
@@ -201,7 +185,6 @@ function generateManifestUrl(userId) {
   return url;
 }
 
-// Updates Trakt connection status in the UI
 function updateTraktStatus() {
   if (traktTokens.access_token) {
     elements.traktStatus.textContent = "Connected";
@@ -214,7 +197,6 @@ function updateTraktStatus() {
   }
 }
 
-// Handles authentication callback by parsing URL parameters
 async function handleAuthCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   const access_token = urlParams.get("access_token");
@@ -233,7 +215,6 @@ async function handleAuthCallback() {
   updateUI();
 }
 
-// Updates UI elements based on current state and provider selection
 function updateUI() {
   const keys = getKeys();
 
@@ -370,7 +351,6 @@ document.querySelectorAll(".provider-btn").forEach((btn) => {
   elements.claudeKeyInput,
   elements.tmdbKeyInput,
   elements.rpdbKeyInput,
-  // NEW: Add Featherless inputs
   elements.featherlessKeyInput,
   elements.featherlessModelSelect
 ].forEach((input) => {
@@ -394,7 +374,6 @@ document.querySelectorAll(".provider-btn").forEach((btn) => {
   });
 });
 
-// Trakt authentication
 elements.traktAuthButton.addEventListener("click", () => {
   if (traktTokens.access_token) {
     clearTokens();
@@ -405,7 +384,6 @@ elements.traktAuthButton.addEventListener("click", () => {
   }
 });
 
-// Install and update keys actions
 elements.installButton.addEventListener("click", processInstallation);
 
 elements.updateKeysButton.addEventListener("click", async () => {
@@ -421,7 +399,6 @@ elements.updateKeysButton.addEventListener("click", async () => {
   }
 });
 
-// Load stored API keys and handle any auth callback on page load
 window.addEventListener("load", () => {
   loadApiKeys();
   handleAuthCallback();

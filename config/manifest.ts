@@ -90,9 +90,9 @@ export async function createManifest({
     version: "1.4.2",
     logo: `${ROOT_URL}/images/logo.webp`,
     background: `${ROOT_URL}/images/background.webp`,
-    name: `FilmWhisper: AISearch${DEV_MODE ? " DEV MODE" : ""}`,
+    name: `FilmWhisper${DEV_MODE ? " DEV MODE" : ""}`,
     description:
-      "Find movies and TV using natural language queries powered by AI. Currently supports OpenAI, Gemini, Claude and DeepSeek!",
+      "Find movies and TV using natural language queries powered by AI. Currently supports OpenAI, Gemini, Claude, DeepSeek and ALL Featherless.ai models.",
     resources: ["catalog"],
     idPrefixes: ["tt"],
     types: ["movie", "series"],
@@ -115,4 +115,5 @@ export async function createManifest({
       ...traktCatalogsList,
     ],
   };
+
 }

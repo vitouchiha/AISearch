@@ -111,34 +111,29 @@ router.get<MovieCatalogParams>(
   "/:keys?/catalog/movie/ai-movies/:searchParam",
   setMovieType,
   ...catalogMiddleware,
-  handleSearch as unknown as (ctx: AppContext<MovieCatalogParams>) => Promise<void>,
-);
+  handleSearch);
 router.get<MovieCatalogParams>(
   "/:keys?/catalog/series/ai-tv/:searchParam",
   setSeriesType,
   ...catalogMiddleware,
-  handleSearch as unknown as (ctx: AppContext<MovieCatalogParams>) => Promise<void>,
-);
+  handleSearch);
 
 router.get<TrendingParams>(
   "/:keys?/catalog/movie/ai-trending-movies.json",
   setMovieType,
   googleKeyMiddleware,
-  handleTrending,
-);
+  handleTrending);
 router.get<TrendingParams>(
   "/:keys?/catalog/series/ai-trending-tv.json",
   setSeriesType,
   googleKeyMiddleware,
-  handleTrending,
-);
+  handleTrending);
 
 router.get(
   "/:keys?/catalog/movie/ai-trakt-recent-movie.json",
   setMovieType,
   googleKeyMiddleware,
   handleTraktRecent);
-
 router.get(
   "/:keys?/catalog/series/ai-trakt-recent-tv.json",
   setSeriesType,
@@ -150,7 +145,6 @@ router.get(
   setMovieType,
   googleKeyMiddleware,
   handleTraktFavorite);
-
 router.get(
   "/:keys?/catalog/series/ai-trakt-favorite-tv.json",
   setSeriesType,
@@ -159,7 +153,6 @@ router.get(
 
 router.get<ManifestParams>("/:keys?/manifest.json", googleKeyMiddleware, handleManifest);
 
-// it's time to move to React... or just stop, that's a good idea.
 router.get("/configure.js", async (ctx: Context) => {
   try {
     const jsContent = await Deno.readTextFile("./views/script.js");
@@ -227,6 +220,7 @@ router.get("/health", async (ctx: Context) => {
     });
   }
 });
+
 router.get("/images/logo.webp", (ctx: Context) => {
   ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "image/webp");
