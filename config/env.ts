@@ -25,7 +25,7 @@ if (secret && secret.length !== 0) {
 }
 
 
-const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash'; // cheapest one with the highest rate limit.. we need it now! hahah
+const GOOGLE_MODEL = Deno.env.get("GOOGLE_MODEL") || 'gemini-2.0-flash-lite'; // lite is fastest and cheapest. Good for this large scale.
 const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") || 'gpt-4o-mini';
 const OMDB_API_KEY = Deno.env.get("OMDB_API_KEY");
 const CAPTCHA_SITE_KEY = Deno.env.get("CAPTCHA_SITE_KEY");
