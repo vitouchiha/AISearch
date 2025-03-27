@@ -19,7 +19,7 @@ export const corsDelegate = (request: Request) => {
   if (isAllowed) {
     return {
       origin: requestOrigin,
-      methods: "GET,POST",
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: "Content-Type",
       credentials: true,
       optionsSuccessStatus: 204,

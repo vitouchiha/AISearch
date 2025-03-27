@@ -40,7 +40,7 @@ const router = new Router();
 
 router.use(oakCors(corsDelegate));
 
-router.get(
+router.post(
   "/api/generate-token",
   tokenRateLimitMiddleware,
   async (ctx: Context) => {

@@ -4,7 +4,7 @@ import { useConfig } from './useConfig.ts';
 
 const generateTokenApiCall = async (rootUrl: string) => {
   try {
-    const response = await axios.get(`${rootUrl}/api/generate-token`, {
+    const response = await axios.post(`${rootUrl}/api/generate-token`, {
       withCredentials: true
     });
     return { success: true, message: response.data?.message || "Token endpoint contacted." };

@@ -23,7 +23,7 @@ async function startServer() {
 
   app.use(oakCors({
     origin: "*",
-    methods: ["GET"],
+    methods: ["GET","OPTIONS"],
     allowedHeaders: ["Content-Type"],
   }));
 
