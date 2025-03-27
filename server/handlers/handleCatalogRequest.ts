@@ -15,7 +15,7 @@ import { getRecentWatchedIds } from "../services/trakt.ts";
 
 
 export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
-  const { searchQuery, type, tmdbKey, _tmdbLanguage, rpdbKey, omdbKey, googleKey, traktKey, userId } = ctx.state;
+  const { searchQuery, type, tmdbKey, tmdbLanguage, rpdbKey, omdbKey, googleKey, traktKey, featherless, userId } = ctx.state;
 
   if (!searchQuery || !type) {
     //ctx.response.body = { metas: [] };
@@ -86,13 +86,13 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
       return;
     }
 
-    const _language = _tmdbLanguage ? _tmdbLanguage : lang;
+    const language = tmdbLanguage ? tmdbLanguage : lang;
     // if you use language the tmdbLanguage will always over ride... I'm not sure I want to do this...
 
     // Initialize stats
     const stats = { fromCache: 0, fromTmdb: 0, cacheSet: 0 };
 
-    const redisKeys = movieNames.map(movieName => createRedisKey(movieName, lang, type));
+    const redisKeys = movieNames.map(movieName => createRedisKey(movieName, language, type));
     const cachedResults = await redis?.mget(redisKeys) || [];
     const keysToSet: Record<string, string> = {};
 
@@ -109,7 +109,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
           try {
             const parsed = cached;
             if (isOldCacheStructure(parsed)) {
-              backgroundUpdateBatch.push({ movieName, lang, type, tmdbKey, omdbKey, redisKey });
+              backgroundUpdateBatch.push({ movieName, lang: language, type, tmdbKey, omdbKey, redisKey });
               tmdbData = convertOldToNewStructure(parsed, type);
             } else {
               tmdbData = parsed;
@@ -121,7 +121,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
         }
 
         if (!tmdbData) {
-          const result = await fetchTmdbData(movieName, lang, type, tmdbKey, omdbKey);
+          const result = await fetchTmdbData(movieName, language, type, tmdbKey, omdbKey);
           tmdbData = result;
           fetchedFromTmdb = true;
           keysToSet[redisKey] = JSON.stringify(tmdbData);
@@ -159,7 +159,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
       Promise.all([
         redis.lpush(trendingKey, topMetaJson),
         redis.ltrim(trendingKey, 0, SEARCH_COUNT - 1),
-        semanticCache && googleKey !== GEMINI_API_KEY ? semanticCache.set(cacheKey, semanticJson) : null,
+        semanticCache && googleKey !== GEMINI_API_KEY && !featherless ? semanticCache.set(cacheKey, semanticJson) : null,
       ]);
 
       log(`${stats.fromCache} ${type}(s) returned from cache.`);

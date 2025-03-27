@@ -33,8 +33,7 @@ const TraktOAuthTab: React.FC<TraktOAuthTabProps> = ({ setTrakt, trakt }) => {
     const accessToken = query.get('access_token');
     const refreshToken = query.get('refresh_token');
     const expiresAt = query.get('expires_at');
-  
-    // Only update if tokens exist and we haven't processed them yet.
+
     if (accessToken && refreshToken && expiresAt && !trakt.hasTrakt) {
       setTrakt({
         access_token: accessToken,
@@ -42,7 +41,6 @@ const TraktOAuthTab: React.FC<TraktOAuthTabProps> = ({ setTrakt, trakt }) => {
         expires_at: expiresAt,
         hasTrakt: true,
       });
-      // Remove query params from the URL once processed.
       navigate(location.pathname, { replace: true });
     }
   }, [location.search, location.pathname, navigate, trakt.hasTrakt, setTrakt]);

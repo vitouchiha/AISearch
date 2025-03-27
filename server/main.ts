@@ -8,9 +8,6 @@ import { setupRoutes, routes,traktRoutes, keysRoutes, cacheRoute, keyCheckRoutes
 import { responseLog } from "./middleware/ResponseLog.ts";
 import { handleServerError } from "./handlers/handleServerError.ts";
 
-/**
- * Setup and start Deno Oak server
- */
 async function startServer() {
   const app = new Application();
 
