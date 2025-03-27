@@ -15,7 +15,6 @@ async function startServer() {
   const app = new Application();
 
   app.use(async (ctx: Context, next) => {
-    ctx.response.headers.set("X-Content-Type-Options", "nosniff");
     ctx.response.headers.set("X-Frame-Options", "DENY");
     ctx.response.headers.set("X-XSS-Protection", "1; mode=block");
     await next();
