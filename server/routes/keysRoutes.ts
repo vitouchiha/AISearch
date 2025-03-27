@@ -70,11 +70,11 @@ router.post(
         if (!ROOT_URL) return undefined;
         try {
           const url = new URL(ROOT_URL);
-          return url.hostname === "localhost" ? undefined : ROOT_URL;
+          return url.hostname === "localhost" ? undefined : url.hostname;
         } catch (e) {
           return undefined;
         }
-      })();
+      })();      
 
       setCookie(ctx.response.headers, {
         name: COOKIE_NAME,
