@@ -13,15 +13,6 @@ services:
       - ngrok  
       - redis
       - serverless-redis-http 
-    command: [
-      "deno",
-      "run",
-      "--allow-net",
-      "--allow-env",
-      "--allow-read",
-      "--unstable-cron",
-      "main.ts",
-    ]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://ai-stremio-search:${PORT}/health"]
       interval: 30s

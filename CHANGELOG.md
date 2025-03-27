@@ -5,9 +5,24 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.4.2]
 
+### Added
+- Added back in CORS restrictions for the configuration API routes. 
+- Complete redesign of the configuration page
+- API keys now tested before being saved.. this mitigates issues with poorly copied keys
+- Finally switched to React.
+- Frontend is now much more mangaeable.
+- Configuration endpoints now properly setup
+- Created /config.json endpoint for runtime variables so we only need to manage 1 ENV file
+- Added JWT token to a cookie for better management. Much easier to maintain now.
+- Added TMDB language setting to configuration -- when you set this your catalogs will automatically be set to that language.
+- Added OMDB key to API Keys
+
 ### Changed
 - Now users can select if they want trakt catalogs or not on the config page.
 - Manifest file now detects if the user has Trakt favorites, if they do, the catalog is included
+- Changed the wording for catalog activation... opting out confuses people. Now there are proper toggle switches. ON/OFF.
+- JWT_SECRET must be disabled in local deployment, hates 'localhost' domain. Will fix later.
+- Watched shows are now removed from responses when Trakt is enabled.
 
 ---
 
