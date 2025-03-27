@@ -72,7 +72,7 @@ router.get(
         if (!ROOT_URL) return undefined;
         try {
           const url = new URL(ROOT_URL);
-          return url.hostname === "localhost" ? undefined : url.hostname;
+          return url.hostname === "localhost" ? undefined : ROOT_URL;
         } catch (e) {
           return undefined;
         }
@@ -90,6 +90,7 @@ router.get(
       });
 
       ctx.response.status = 200;
+      ctx.response.headers.set("Content-Type", "application/json");
       ctx.response.body = { message: "Authentication token set successfully." };
     } catch (error) {
       logError("Failed to generate or set JWT cookie", error);
