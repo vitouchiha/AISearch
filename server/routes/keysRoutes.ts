@@ -15,7 +15,6 @@ import {
   ROOT_URL,
 } from "../config/env.ts";
 import { verifyToken } from "../middleware/apiAuth.ts";
-import { tokenRateLimitMiddleware } from "../middleware/ratelimitMiddleware.ts";
 import { tmdbHealthCheck } from "../services/tmdb.ts";
 import { generateUserId, isValidUUID } from "../utils/UserId.ts";
 import { logError } from "../utils/utils.ts";
@@ -42,7 +41,6 @@ router.use(oakCors(corsDelegate));
 
 router.post(
   "/api/generate-token",
-  tokenRateLimitMiddleware,
   async (ctx: Context) => {
     if (!JWT_SECRET) {
       deleteCookie(ctx.response.headers, COOKIE_NAME, { path: "/" });
@@ -102,7 +100,6 @@ router.post(
 
 router.post(
   "/api/store-keys",
-  tokenRateLimitMiddleware,
   verifyToken,
   async (ctx: Context) => {
     try {
