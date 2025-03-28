@@ -62,6 +62,7 @@ export const tmdbLanguages = [
     { code: "ja", name: "Japanese" },
     { code: "jv", name: "Javanese" },
     { code: "ka", name: "Georgian" },
+    { code: "ko", name: "Korean" },
     { code: "kg", name: "Kongo" },
     { code: "ki", name: "Kikuyu" },
     { code: "kj", name: "Kwanyama" },
