@@ -22,13 +22,13 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
     return;
   }
 
-  const cacheKey = `${type}:${searchQuery}`;
+  const cacheKey = `${type}:${tmdbLanguage !== 'en' ? tmdbLanguage +':' : ''}${searchQuery}`;
   let metas: Meta[] = [];
   const backgroundUpdateBatch: BackgroundTaskParams[] = [];
 
   try {
     // if they are using the default key, use the semantic cache.
-    if (semanticCache && googleKey === GEMINI_API_KEY) {
+    if (semanticCache) {
       try {
         const cachedResult = await semanticCache.get(cacheKey);
         if (cachedResult) {

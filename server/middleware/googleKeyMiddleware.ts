@@ -21,6 +21,7 @@ const DEFAULT_KEYS: Keys = {
   omdbKey: String(OMDB_API_KEY),
   featherlessKey: "",
   featherlessModel: "",
+  tmdbLanguage: 'en',
   
 };
 
@@ -132,7 +133,7 @@ export const googleKeyMiddleware = async (ctx: Context, next: () => Promise<unkn
     ctx.state.traktCreateList = keys.traktCreateLists;
     ctx.state.trendingCatalogs = keys.trendingCatalogs;
     ctx.state.traktCatalogs = keys.traktCatalogs;
-    ctx.state.tmdbLanguage = keys.tmdbLanguage;
+    ctx.state.tmdbLanguage = keys.tmdbLanguage || 'en';
   
 
     await next();
@@ -142,6 +143,7 @@ export const googleKeyMiddleware = async (ctx: Context, next: () => Promise<unkn
     ctx.state.googleKey = String(GEMINI_API_KEY);
     ctx.state.tmdbKey = String(TMDB_API_KEY);
     ctx.state.omdbKey = String(OMDB_API_KEY);
+    ctx.state.tmdbLanguage = "en";
     await next();
   }
 };
