@@ -1,30 +1,25 @@
-import { Application, type Context, oakCors } from "./config/deps.ts";
-import { PORT, DEV_MODE, NGROK_URL, NO_SEMANTIC_SEARCH, JWT_SECRET, CAPTCHA_SITE_KEY, CAPTCHA_SECRET_KEY } from "./config/env.ts";
+import { Application } from "./config/deps.ts";
+import { PORT } from "./config/env.ts";
 
-import { rateLimitMiddleware } from "./middleware/ratelimitMiddleware.ts";
+import {
+  setupRoutes,
+  setupFallbackRoute,
+  routes,
+  traktRoutes,
+  keysRoutes,
+  cacheRoute,
+  keyCheckRoutes,
+  configJsonRoute,
+} from "./routes/setup.ts";
 
-import { setupRoutes, routes,traktRoutes, keysRoutes, cacheRoute, keyCheckRoutes, configJsonRoute } from "./routes/setup.ts";
-
-import { responseLog } from "./middleware/ResponseLog.ts";
 import { handleServerError } from "./handlers/handleServerError.ts";
+import { logStartupInfo } from "./utils/startupLog.ts";
+import { setupMiddlewares } from "./middleware/setupMiddlewares.ts";
 
 async function startServer() {
   const app = new Application();
 
-  app.use(async (ctx: Context, next) => {
-    ctx.response.headers.set("X-Frame-Options", "DENY");
-    ctx.response.headers.set("X-XSS-Protection", "1; mode=block");
-    await next();
-  });
-
-  app.use(oakCors({
-    origin: "*",
-    methods: ["GET","OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-  }));
-
-  app.use(responseLog);
-  app.use(rateLimitMiddleware);
+  setupMiddlewares(app);
 
   setupRoutes(app, [
     { router: routes },
@@ -35,22 +30,16 @@ async function startServer() {
     { router: keyCheckRoutes },
   ]);
 
-  app.use((ctx: Context) => {
-    ctx.response.status = 404;
-    ctx.response.body = { error: "Endpoint not found" };
-  });
+  setupFallbackRoute(app);
 
   app.addEventListener("error", handleServerError);
-
-  app.addEventListener("listen", ({ port }) => {
-    console.log(`Stremio AI Addon running on port ${port}`);
-    if (DEV_MODE === "true" && NGROK_URL && NGROK_URL.length > 0) console.log(`Ngrok running on ${NGROK_URL}`);
-    if (DEV_MODE === "true" && NO_SEMANTIC_SEARCH) console.log('!! Semantic Caching disabled !!');
-    if (DEV_MODE === "true" && !JWT_SECRET) console.log('!! JWT disabled !!');
-    if (DEV_MODE === "true" && (!CAPTCHA_SITE_KEY || !CAPTCHA_SECRET_KEY)) console.log('!! Captcha disabled !!');
-  });
+  app.addEventListener("listen", () => logStartupInfo());
 
   await app.listen({ hostname: "0.0.0.0", port: PORT });
 }
 
-await startServer();
+try {
+  await startServer();
+} catch (err) {
+  console.error("❌   Failed to start server:", err);
+}

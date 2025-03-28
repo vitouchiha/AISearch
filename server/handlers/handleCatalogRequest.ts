@@ -28,7 +28,7 @@ export const handleCatalogRequest = async (ctx: Context): Promise<void> => {
 
   try {
     // if they are using the default key, use the semantic cache.
-    if (semanticCache && googleKey !== GEMINI_API_KEY) {
+    if (semanticCache && googleKey === GEMINI_API_KEY) {
       try {
         const cachedResult = await semanticCache.get(cacheKey);
         if (cachedResult) {

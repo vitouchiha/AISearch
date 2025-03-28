@@ -97,10 +97,7 @@ async function refreshExpiredTraktToken(keys: Keys): Promise<Keys> {
   return keys;
 }
 
-export const googleKeyMiddleware = async <P extends Record<string, string | undefined>>(
-  ctx: Context, 
-  next: () => Promise<unknown>
-) => {
+export const googleKeyMiddleware = async (ctx: Context, next: () => Promise<unknown>) => {
   try {
     let keys: Keys;
     const pathParts = ctx.request.url.pathname.split("/");

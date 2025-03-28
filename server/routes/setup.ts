@@ -14,3 +14,10 @@ export function setupRoutes(app: Application, routeConfigs: { router: any }[]) {
     app.use(router.allowedMethods());
   }
 }
+
+export function setupFallbackRoute(app: Application) {
+  app.use((ctx) => {
+    ctx.response.status = 404;
+    ctx.response.body = { error: "Endpoint not found" };
+  });
+}
