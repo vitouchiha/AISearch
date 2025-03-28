@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ThumbsUpStremioAddons from './ThumbsUpStremioAddons.tsx';
 
 const WelcomeDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -48,6 +49,7 @@ const WelcomeDialog = () => {
                     <p>
                         Enjoy your experience with FilmWhisper! If you encounter any issues, feel free to open an issue on our GitHub page.
                     </p>
+                    <ThumbsUpStremioAddons />
                 </div>
                 <div className="mt-6 flex justify-center">
                     <button
@@ -61,7 +63,7 @@ const WelcomeDialog = () => {
             </div>
         </div>
     );
-    
+
 };
 
 export default WelcomeDialog;

@@ -1,7 +1,9 @@
 import React from 'react';
 import GitHubButton from 'react-github-btn';
+import ThumbsUpStremioAddons from './ThumbsUpStremioAddons.tsx';
 
 const SocialLinks = () => (
+  <>
   <div className="flex items-center justify-center mt-3 space-x-2 p-2">
     <GitHubButton
       href="https://github.com/mkcfdc/AISearch"
@@ -46,6 +48,8 @@ const SocialLinks = () => (
       />
     </a>
   </div>
+  <ThumbsUpStremioAddons />
+  </>
 );
 
 export default SocialLinks;
