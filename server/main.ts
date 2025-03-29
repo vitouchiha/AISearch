@@ -10,6 +10,7 @@ import {
   cacheRoute,
   keyCheckRoutes,
   configJsonRoute,
+  debugRoutes,
 } from "./routes/setup.ts";
 
 import { handleServerError } from "./handlers/handleServerError.ts";
@@ -29,6 +30,7 @@ async function startServer() {
     { router: cacheRoute },
     { router: configJsonRoute },
     { router: keyCheckRoutes },
+    { router: debugRoutes },
   ]);
 
   setupFallbackRoute(app);

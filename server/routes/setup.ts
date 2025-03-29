@@ -4,6 +4,7 @@ export { traktRouter as traktRoutes } from '../services/trakt.ts';
 export { keysRoutes } from './keysRoutes.ts';
 export { cacheRoute } from './stashRoute.ts';
 export { configJsonRoute } from './configJsonRoute.ts';
+export { debugRoutes } from './debugRoutes.ts';
 
 export { default as routes } from "./routes.ts";
 export { default as keyCheckRoutes } from "./apiKeyCheckRoutes.ts";

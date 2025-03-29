@@ -62,6 +62,21 @@ async function delayIfNeeded(method: string) {
   }
 }
 
+export function parseTraktExpiresAt(value: string | number): number {
+  const timestamp =
+    typeof value === "number"
+      ? value
+      : /^\d+$/.test(value)
+        ? parseInt(value, 10)
+        : new Date(value).getTime();
+
+  if (isNaN(timestamp)) {
+    throw new Error(`Invalid traktExpiresAt: ${value}`);
+  }
+
+  return timestamp;
+}
+
 async function fetchTrakt({ path, method = "GET", body, traktKey }: FetchTraktParams): Promise<any> {
   // For GET requests, process immediately.
   if (method === "GET") {
@@ -379,7 +394,7 @@ export const getRecentWatchedIds = async (userId: string, traktKey: string, type
           refresh_token: refreshToken,
           client_id: TRAKT_CLIENT_ID,
           client_secret: TRAKT_CLIENT_SECRET,
-          redirect_uri: `${ROOT_URL}/auth/callback`,
+          redirect_uri: REDIRECT_URI,
           grant_type: "refresh_token",
         }),
       });

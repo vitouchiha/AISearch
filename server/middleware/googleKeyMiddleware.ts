@@ -6,7 +6,7 @@ import { decodeUrlSafeBase64 } from "../utils/urlSafe.ts";
 import { encryptKeys, decryptKeys } from "../utils/encryptDecrypt.ts";
 import { redis } from "../config/redisCache.ts";
 import { getEncryptedKeys, saveEncryptedKeys } from "../config/database.ts";
-import { refreshTraktToken } from "../services/trakt.ts";
+import { refreshTraktToken, parseTraktExpiresAt } from "../services/trakt.ts";
 
 const DEFAULT_KEYS: Keys = {
   googleKey: String(GEMINI_API_KEY),
@@ -137,8 +137,17 @@ async function getUserKeys(userId: string): Promise<Keys> {
 }
 
 async function refreshExpiredTraktToken(keys: Keys): Promise<Keys> {
-  const expiresAt = new Date(keys.traktExpiresAt).getTime();
+  if(!keys.traktRefresh || !keys.traktExpiresAt){
+    return keys;
+  }
+
+  const expiresAt = parseTraktExpiresAt(keys.traktExpiresAt);
   const fiveMinBuffer = 5 * 60 * 1000;
+
+  if (!expiresAt || isNaN(expiresAt)) {
+    console.warn(`[keyMiddleware] Invalid traktExpiresAt for user:${keys.userId}, skipping refresh.`);
+    return keys;
+  }
 
   if (Date.now() > expiresAt - fiveMinBuffer) {
     console.log(`[keyMiddleware] Refreshing Trakt token for user:${keys.userId}`);
@@ -157,9 +166,16 @@ async function refreshExpiredTraktToken(keys: Keys): Promise<Keys> {
       const encrypted = encryptKeys(updatedKeys);
 
       if (keys.userId) {
-        const expiresIn = Math.floor((new Date(updatedKeys.traktExpiresAt).getTime() - Date.now()) / 1000);
+        const newExpiry = parseTraktExpiresAt(updatedKeys.traktExpiresAt);
+        if (isNaN(newExpiry)) {
+          throw new Error(`[refreshExpiredTraktToken] Invalid traktExpiresAt: ${updatedKeys.traktExpiresAt}`);
+        }
+      
+        const expiresIn = Math.floor((newExpiry - Date.now()) / 1000);
         const paddedExpiry = Math.max(60, expiresIn - 60); // never less than 60s
-
+      
+        console.log(`[keyMiddleware] Trakt token refreshed for user:${keys.userId}, expires in ${expiresIn}s`);
+      
         await Promise.all([
           redis?.set(`user:${keys.userId}`, encrypted, { ex: paddedExpiry }),
           saveEncryptedKeys(keys.userId, encrypted),
