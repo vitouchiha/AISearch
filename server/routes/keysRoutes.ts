@@ -7,8 +7,11 @@ import {
   deleteCookie,
 } from "../config/deps.ts";
 import type { Keys } from "../config/types/types.ts";
+
 import { encryptKeys } from "../utils/encryptDecrypt.ts";
 import { redis } from "../config/redisCache.ts";
+import { saveEncryptedKeys } from "../config/database.ts";
+
 import {
   JWT_SECRET,
   IS_PROD,
@@ -25,7 +28,7 @@ const parseBoolean = (value: unknown, defaultValue: boolean = false): boolean =>
     ? value
     : String(value).toLowerCase() === "true" || defaultValue;
 
-const sanitizeLanguage = (value: unknown, defaultValue: string = "en-US"): string =>
+const sanitizeLanguage = (value: unknown, defaultValue: string = "en"): string =>
   typeof value === "string" && /^[a-z]{2}(-[A-Z]{2})?$/.test(value.trim())
     ? value.trim()
     : defaultValue;
@@ -132,7 +135,7 @@ router.post(
         traktCreateLists: parseBoolean(body?.traktCreateLists, false),
         trendingCatalogs: parseBoolean(body?.trendingCatalogs, false),
         traktCatalogs: parseBoolean(body?.traktCatalogs, false),
-        tmdbLanguage: sanitizeLanguage(body?.tmdbLanguage, "en-US"),
+        tmdbLanguage: sanitizeLanguage(body?.tmdbLanguage, "en"),
         omdbKey: body?.omdbKey?.trim() || "",
         featherlessKey: body?.featherlessKey?.trim() || "",
         featherlessModel: body?.featherlessModel?.trim() || "",
@@ -146,7 +149,10 @@ router.post(
         ctx.response.body = { error: "Storage service temporarily unavailable" };
         return;
       }
-      await redis.set(`user:${userId}`, encryptedString);
+
+      await redis.set(`user:${userId}`, encryptedString, { ex: 86400 });
+
+      await saveEncryptedKeys(userId, encryptedString);
 
       ctx.response.status = 200;
       ctx.response.body = { userId };

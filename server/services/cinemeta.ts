@@ -1,26 +1,19 @@
 import type { Meta } from "../config/types/meta.ts";
 import { fetchJson, logError, validatePosterUrl } from "../utils/utils.ts";
 
-export const fetchCinemeta = async (
-  type: string,
-  id: string,
-): Promise<Meta | null> => {
+export const fetchCinemeta = async (type: string, id: string): Promise<Meta | null> => {
   const url = `https://v3-cinemeta.strem.io/meta/${type}/${id}.json`;
 
   try {
     const data = await fetchJson(url, "Cinemeta");
-    if (!data?.meta) {
-      return null;
-    }
+    if (!data?.meta) return null;
 
     const c = data.meta; 
 
     let poster = c.poster;
     if (poster) {
       const isValid = await validatePosterUrl(poster);
-      if (!isValid) {
-        poster = null;
-      }
+      if (!isValid) poster = null;
     }
 
     const result: Meta = {

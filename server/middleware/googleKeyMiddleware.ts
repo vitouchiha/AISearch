@@ -5,6 +5,7 @@ import { GEMINI_API_KEY, OMDB_API_KEY, TMDB_API_KEY } from "../config/env.ts";
 import { decodeUrlSafeBase64 } from "../utils/urlSafe.ts";
 import { encryptKeys, decryptKeys } from "../utils/encryptDecrypt.ts";
 import { redis } from "../config/redisCache.ts";
+import { getEncryptedKeys, saveEncryptedKeys } from "../config/database.ts";
 import { refreshTraktToken } from "../services/trakt.ts";
 
 const DEFAULT_KEYS: Keys = {
@@ -22,7 +23,7 @@ const DEFAULT_KEYS: Keys = {
   featherlessKey: "",
   featherlessModel: "",
   tmdbLanguage: 'en',
-  
+
 };
 
 function parseKeysParam(keysParam: string | undefined): Keys {
@@ -54,22 +55,80 @@ function parseKeysParam(keysParam: string | undefined): Keys {
 
 async function getUserKeys(userId: string): Promise<Keys> {
   try {
-    const encryptedKeys = await redis?.get(`user:${userId}`) as string;
-    
-    if (!encryptedKeys) {
-      console.error(`[keyMiddleware] No keys found for user:${userId}`);
+    if (!redis) {
+      console.error(`[keyMiddleware] Redis client is not initialized.`);
+      // Handle the absence of Redis appropriately, e.g., fetch directly from the database
+      const dbEncryptedKeys = await getEncryptedKeys(userId);
+      if (!dbEncryptedKeys) {
+        console.error(`[keyMiddleware] No keys found for user:${userId} in DB.`);
+        return { ...DEFAULT_KEYS };
+      }
+      const keys = decryptKeys(dbEncryptedKeys) as Keys;
+      if (!keys) {
+        console.error("Decryption failed, using default keys.");
+        return { ...DEFAULT_KEYS };
+      }
+      return {
+        ...keys,
+        userId,
+      };
+    }
+
+    // Initialize the pipeline
+    const pipeline = redis.pipeline();
+
+    // Queue the commands
+    pipeline.get(`user:${userId}`);
+    pipeline.ttl(`user:${userId}`);
+
+    // Execute the pipeline
+    const redisResults = await pipeline.exec();
+
+    // Extract results
+    const encryptedKeys = redisResults[0] as string | null;
+    const ttl = redisResults[1] as number | null;
+    const isLegacy = ttl === -1;
+
+    if (encryptedKeys) {
+      if (isLegacy) {
+        console.log(`[keyMiddleware] Legacy Redis key for user:${userId}, migrating to Postgres.`);
+        await Promise.all([
+          saveEncryptedKeys(userId, encryptedKeys),
+          redis.expire(`user:${userId}`, 86400),
+        ]);
+      }
+
+      const keys = decryptKeys(encryptedKeys) as Keys;
+      if (!keys) {
+        console.error("Decryption failed, using default keys.");
+        return { ...DEFAULT_KEYS };
+      }
+
+      return {
+        ...keys,
+        userId,
+      };
+    }
+
+    console.warn(`[keyMiddleware] Cache miss for user:${userId}, checking database...`);
+    const dbEncryptedKeys = await getEncryptedKeys(userId);
+
+    if (dbEncryptedKeys) {
+      await redis.set(`user:${userId}`, dbEncryptedKeys, { ex: 86400 });
+    } else {
+      console.error(`[keyMiddleware] No keys found for user:${userId} in cache or DB.`);
       return { ...DEFAULT_KEYS };
     }
-    
-    const keys = decryptKeys(encryptedKeys) as Keys;
+
+    const keys = decryptKeys(dbEncryptedKeys) as Keys;
     if (!keys) {
       console.error("Decryption failed, using default keys.");
       return { ...DEFAULT_KEYS };
     }
-    
+
     return {
       ...keys,
-      userId
+      userId,
     };
   } catch (error) {
     console.error(`[keyMiddleware] Error retrieving keys for user:${userId}:`, error);
@@ -78,23 +137,44 @@ async function getUserKeys(userId: string): Promise<Keys> {
 }
 
 async function refreshExpiredTraktToken(keys: Keys): Promise<Keys> {
-  if (keys.traktExpiresAt && Date.now() > new Date(keys.traktExpiresAt).getTime()) {
-    console.log(`[keyMiddleware] Refreshing expired Trakt token for user:${keys.userId}`);
+  const expiresAt = new Date(keys.traktExpiresAt).getTime();
+  const fiveMinBuffer = 5 * 60 * 1000;
+
+  if (Date.now() > expiresAt - fiveMinBuffer) {
+    console.log(`[keyMiddleware] Refreshing Trakt token for user:${keys.userId}`);
+
+    const lockKey = `lock:refresh:${keys.userId}`;
+    const gotLock = await redis?.set(lockKey, "1", { nx: true, ex: 10 });
+
+    if (!gotLock) {
+      console.log(`[keyMiddleware] Token refresh in progress for user:${keys.userId}, skipping duplicate`);
+      return keys;
+    }
+
     try {
       const newTokens = await refreshTraktToken(keys.traktRefresh);
       const updatedKeys = { ...keys, ...newTokens };
-      
+      const encrypted = encryptKeys(updatedKeys);
+
       if (keys.userId) {
-        await redis?.set(`user:${keys.userId}`, encryptKeys(updatedKeys));
+        const expiresIn = Math.floor((new Date(updatedKeys.traktExpiresAt).getTime() - Date.now()) / 1000);
+        const paddedExpiry = Math.max(60, expiresIn - 60); // never less than 60s
+
+        await Promise.all([
+          redis?.set(`user:${keys.userId}`, encrypted, { ex: paddedExpiry }),
+          saveEncryptedKeys(keys.userId, encrypted),
+        ]);
       }
-      
+
       return updatedKeys;
     } catch (error) {
       console.error("[keyMiddleware] Failed to refresh Trakt token:", error);
       return keys;
+    } finally {
+      await redis?.del(lockKey);
     }
   }
-  
+
   return keys;
 }
 
@@ -103,7 +183,7 @@ export const googleKeyMiddleware = async (ctx: Context, next: () => Promise<unkn
     let keys: Keys;
     const pathParts = ctx.request.url.pathname.split("/");
     const isUserRequest = pathParts[1]?.startsWith("user:");
-    
+
     if (isUserRequest) {
       const userId = pathParts[1].replace("user:", "");
       keys = await getUserKeys(userId);
@@ -113,12 +193,12 @@ export const googleKeyMiddleware = async (ctx: Context, next: () => Promise<unkn
     }
 
     // Set final keys in context
-    if(keys.googleKey === 'default') keys.googleKey = String(GEMINI_API_KEY);
-  
-    ctx.state.googleKey = isValidGeminiApiKey(keys.googleKey) && 
-      (!keys.openAiKey || !keys.claudeKey || !keys.deepseekKey || !keys.featherlessKey || !keys.featherlessModel) ? 
+    if (keys.googleKey === 'default') keys.googleKey = String(GEMINI_API_KEY);
+
+    ctx.state.googleKey = isValidGeminiApiKey(keys.googleKey) &&
+      (!keys.openAiKey || !keys.claudeKey || !keys.deepseekKey || !keys.featherlessKey || !keys.featherlessModel) ?
       keys.googleKey : "";
-    
+
     ctx.state.featherlessKey = keys.featherlessKey;
     ctx.state.featherlessModel = keys.featherlessModel;
     ctx.state.openAiKey = keys.openAiKey;
@@ -134,7 +214,7 @@ export const googleKeyMiddleware = async (ctx: Context, next: () => Promise<unkn
     ctx.state.trendingCatalogs = keys.trendingCatalogs;
     ctx.state.traktCatalogs = keys.traktCatalogs;
     ctx.state.tmdbLanguage = keys.tmdbLanguage || 'en';
-  
+
 
     await next();
   } catch (error) {

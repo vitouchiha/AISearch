@@ -370,30 +370,40 @@ export const getRecentWatchedIds = async (userId: string, traktKey: string, type
       return watchedList;
   }
 
-export async function refreshTraktToken(refreshToken: string): Promise<Partial<Keys>> {
-  try {
-    const response = await fetch("https://api.trakt.tv/oauth/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        refresh_token: refreshToken,
-        client_id: TRAKT_CLIENT_ID,
-        client_secret: TRAKT_CLIENT_SECRET,
-        redirect_uri: `${ROOT_URL}/auth/callback`,
-        grant_type: "refresh_token",
-      }),
-    });
-    const data = await response.json();
-    return {
-      traktKey: data.access_token,
-      traktRefresh: data.refresh_token,
-      traktExpiresAt: new Date(Date.now() + data.expires_in * 1000).toISOString(),
-    };
-  } catch (error) {
-    console.error("[refreshTraktToken] Error:", error);
-    throw error;
+  export async function refreshTraktToken(refreshToken: string): Promise<Partial<Keys>> {
+    try {
+      const response = await fetch("https://api.trakt.tv/oauth/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          refresh_token: refreshToken,
+          client_id: TRAKT_CLIENT_ID,
+          client_secret: TRAKT_CLIENT_SECRET,
+          redirect_uri: `${ROOT_URL}/auth/callback`,
+          grant_type: "refresh_token",
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[refreshTraktToken] Trakt responded with error:", errorText);
+        throw new Error(`Failed to refresh token: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      const expiresIn = data.expires_in ?? 86400; // fallback to 24 hours
+      const traktExpiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+  
+      return {
+        traktKey: data.access_token,
+        traktRefresh: data.refresh_token,
+        traktExpiresAt,
+      };
+    } catch (error) {
+      console.error("[refreshTraktToken] Error:", error);
+      throw error;
+    }
   }
-}
 
 interface TraktTokenResponse {
   access_token: string;
@@ -449,7 +459,7 @@ router.get("/auth/callback", async (ctx) => {
 
     const tokenData: TraktTokenResponse = await response.json();
 
-    const expiresAt = (tokenData.created_at + tokenData.expires_in) * 1000;
+    const expiresAt = Date.now() + tokenData.expires_in * 1000;
 
     const redirectUrl = `${ROOT_URL}/configure?` +
     new URLSearchParams({

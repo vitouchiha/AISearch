@@ -88,6 +88,9 @@ if (keyBuffer.length !== 32) {
 
 const GCP_BILLING_ACCOUNT_ID = Deno.env.get("GCP_BILLING_ACCOUNT_ID");
 
+const DB_URL_PRIMARY = Deno.env.get('DATABASE_URL_PRIMARY')!;
+const DB_URL_REPLICAS = Deno.env.get('DATABASE_URL_REPLICAS')!;
+
 if (
   !geminiKey ||
   !OMDB_API_KEY ||
@@ -96,6 +99,8 @@ if (
   !TRAKT_CLIENT_SECRET ||
   !upstashRedisToken ||
   !upstashRedisUrl ||
+  !DB_URL_PRIMARY ||
+  !DB_URL_REPLICAS ||
   !tmdbKey
 ) {
   logError(
@@ -141,4 +146,6 @@ export {
   GOOGLE_MODEL,
   OPENAI_MODEL,
   GCP_BILLING_ACCOUNT_ID,
+  DB_URL_PRIMARY,
+  DB_URL_REPLICAS,
 };

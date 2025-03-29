@@ -15,6 +15,7 @@ import {
 import { handleServerError } from "./handlers/handleServerError.ts";
 import { logStartupInfo } from "./utils/startupLog.ts";
 import { setupMiddlewares } from "./middleware/setupMiddlewares.ts";
+import { initDatabase } from "./config/database.ts";
 
 async function startServer() {
   const app = new Application();
@@ -31,6 +32,7 @@ async function startServer() {
   ]);
 
   setupFallbackRoute(app);
+  initDatabase();
 
   app.addEventListener("error", handleServerError);
   app.addEventListener("listen", () => logStartupInfo());
