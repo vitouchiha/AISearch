@@ -95,7 +95,7 @@ export async function getTraktMovieRecommendations(movies: string, watchedList: 
   const prompt = `
     You are an expert ${recommendationType} recommendation system.
     Based on the list provided, return exactly ${SEARCH_COUNT} unique ${recommendationType} recommendations as a raw JSON object.
-    Have the content complement each other.
+    Have the content complement each other. The user will give you their watched list of shows they have watched. Give them your recommendations based on this.
     The object must have a single property "recommendations" which is an array of ${type === 'series' ? 'TV series names' : 'movie names'}.
     Do not include any additional text or explanation. Give your responses in the language of the search query.
     
@@ -103,7 +103,7 @@ export async function getTraktMovieRecommendations(movies: string, watchedList: 
 
     Return ISO 639-1 standard 2 letter code determined by the language of th search query under the property "lang".
     
-    Search Query: ${movies}
+    Users watched list: ${movies}
   `.trim().replace(/\n\s*\n/g, "\n");
 
   return await getRecommendationsHelper(prompt, providerInfo, recommendationType);

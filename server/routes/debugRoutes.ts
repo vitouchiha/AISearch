@@ -12,7 +12,7 @@ router.post("/debug/expire-trakt-token/:userId", async (ctx) => {
 
     if (!DEV_MODE) {
         ctx.response.status = 400;
-        ctx.response.body = { error: "Missing userId" };
+        ctx.response.body = { error: "Route disabled." };
         return;
     }
 
